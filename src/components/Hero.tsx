@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { CONTACT, HERO } from "@/data/site";
+import { useSite } from "@/content/context";
 import { reduced, scrollToId } from "@/lib/anim";
 import { Btn, LightLeaks } from "./primitives";
 
 export function Hero() {
+  const { contact: CONTACT, hero: HERO } = useSite().content;
   const root = useRef<HTMLElement>(null);
   const media = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
@@ -88,7 +89,7 @@ export function Hero() {
             }`}
           >
             <source
-              src={window.innerWidth >= 1440 ? HERO.videoSources[0].src : HERO.videoSources[1].src}
+              src={HERO.videoSources[window.innerWidth >= 1440 ? 0 : 1] ?? HERO.videoSources[0]}
               type="video/mp4"
             />
           </video>

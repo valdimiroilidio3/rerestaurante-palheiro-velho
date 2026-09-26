@@ -1,12 +1,13 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { OCEAN } from "@/data/site";
+import { useSite } from "@/content/context";
 import { reduced, scrollToId } from "@/lib/anim";
 import { Eyebrow } from "./primitives";
 
 /** Full-bleed panorama with a scrubbed giant line: the visual exhale of the page. */
 export function Ocean() {
+  const { ocean: OCEAN } = useSite().content;
   const root = useRef<HTMLElement>(null);
   const media = useRef<HTMLDivElement>(null);
   const text = useRef<HTMLDivElement>(null);

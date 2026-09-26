@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
-import { HERO } from "./src/data/site";
+import { defaultContent } from "./src/content/defaults";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,8 +24,8 @@ function preloadHero(): Plugin {
           attrs: {
             rel: "preload",
             as: "image",
-            href: HERO.poster,
-            imagesrcset: HERO.posterSrcSet,
+            href: defaultContent.hero.poster,
+            imagesrcset: defaultContent.hero.posterSrcSet,
             imagesizes: "100vw",
             fetchpriority: "high",
           },

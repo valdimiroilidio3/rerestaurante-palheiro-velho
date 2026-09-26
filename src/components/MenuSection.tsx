@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Info } from "lucide-react";
-import { MENU, px, pxSrcSet, type Dish } from "@/data/site";
+import { useSite } from "@/content/context";
+import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 
@@ -36,12 +37,8 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
     >
       <div className="relative overflow-hidden">
         <Img
-          src={px(dish.img, 240, 240, dish.ext)}
-          srcSet={pxSrcSet(dish.img, 240, 240, dish.ext)}
+          {...dish.image}
           sizes="(min-width: 640px) 110px, 76px"
-          width={240}
-          height={240}
-          alt={dish.name}
           ratio="1 / 1"
           className="w-full"
           imgClassName="saturate-[0.9] grayscale-[35%] group-hover/row:saturate-[1.15] group-hover/row:grayscale-0"
@@ -74,6 +71,7 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
 }
 
 export function MenuSection({ onReserve }: { onReserve: (subject?: string) => void }) {
+  const { menu: MENU } = useSite().content;
   const [cat, setCat] = useState(0);
   const active = MENU[cat];
   const feature = active.items[0];
@@ -157,12 +155,8 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
             <div className="group relative lg:sticky lg:top-28 lg:self-start">
               <div className="relative overflow-hidden">
                 <Img
-                  src={px(feature.img, 900, 1125, feature.ext)}
-                  srcSet={pxSrcSet(feature.img, 900, 1125, feature.ext)}
+                  {...feature.image}
                   sizes="(min-width: 1024px) 45vw, 92vw"
-                  width={900}
-                  height={1125}
-                  alt={feature.name}
                   ratio="4 / 5"
                   className="w-full"
                   imgClassName="brightness-[0.92]"

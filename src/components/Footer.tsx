@@ -1,9 +1,18 @@
 import { ArrowUp, ExternalLink, Phone } from "lucide-react";
-import { BRAND, CONCEPT_NOTICE, CONTACT, MAPS_DIRECTIONS, NAV, TICKER } from "@/data/site";
+import { useSite } from "@/content/context";
+import { mapsUrls } from "@/content/types";
 import { scrollToId, scrollToTop, useReveals } from "@/lib/anim";
 import { Btn, IgIcon, Marquee, MaskWords } from "./primitives";
 
 export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
+  const {
+    brand: BRAND,
+    contact: CONTACT,
+    nav: NAV,
+    ticker: TICKER,
+    conceptNotice: CONCEPT_NOTICE,
+  } = useSite().content;
+  const maps = mapsUrls(CONTACT.mapsQuery);
   useReveals([]);
 
   return (
@@ -117,7 +126,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                 </li>
                 <li>
                   <a
-                    href={MAPS_DIRECTIONS}
+                    href={maps.directions}
                     target="_blank"
                     rel="noreferrer"
                     className="label flex items-center gap-2 text-cream/70 transition-colors hover:text-sun"

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Mail, MapPin, Phone, Send, X } from "lucide-react";
-import { CONTACT, MAPS_DIRECTIONS } from "@/data/site";
+import { useSite } from "@/content/context";
+import { mapsUrls } from "@/content/types";
 import { getLenis, reduced } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
 
@@ -19,6 +20,9 @@ export function ReservePanel({
   subject?: string;
   onClose: () => void;
 }) {
+  const { contact: CONTACT } = useSite().content;
+  const maps = mapsUrls(CONTACT.mapsQuery);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     if (open) document.addEventListener("keydown", onKey);
@@ -114,7 +118,7 @@ export function ReservePanel({
                   <span className="label">Abrir Facebook oficial</span>
                 </Btn>
                 <Btn
-                  href={MAPS_DIRECTIONS}
+                  href={maps.directions}
                   tone="dark"
                   variant="outline"
                   icon={<MapPin size={15} />}
@@ -151,6 +155,7 @@ export function ReservePanel({
  * recomece limpo em cada abertura — sem efeitos que escrevem estado.
  */
 function EmailDraft({ subject }: { subject?: string }) {
+  const { contact: CONTACT } = useSite().content;
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const first = useRef<HTMLInputElement>(null);

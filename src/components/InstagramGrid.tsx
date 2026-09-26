@@ -1,20 +1,11 @@
 import { Heart, ArrowUpRight } from "lucide-react";
-import { CONTACT, INSTAGRAM, px, pxSrcSet } from "@/data/site";
+import { useSite } from "@/content/context";
 import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, Img, MaskWords, Marquee } from "./primitives";
 import { cn } from "@/utils/cn";
 
-const HASHTAGS = [
-  "@palheiro_velho_beach_bar",
-  "facebook.com/palheirovelho",
-  "Esmoriz",
-  "Bar de praia",
-  "Vista para o mar",
-  "Música ao vivo",
-  "Brunch",
-];
-
 export function InstagramGrid() {
+  const { contact: CONTACT, instagram: INSTAGRAM, hashtags: HASHTAGS } = useSite().content;
   useReveals([]);
   return (
     <section id="instagram" className="relative overflow-hidden bg-sand py-20 text-char sm:py-28">
@@ -76,12 +67,8 @@ export function InstagramGrid() {
               aria-label="Abrir perfil oficial de Instagram"
             >
               <Img
-                src={px(p.id, 600, 600)}
-                srcSet={pxSrcSet(p.id, 600, 600)}
+                {...p.image}
                 sizes="(min-width: 1024px) 16vw, (min-width: 640px) 23vw, 43vw"
-                width={600}
-                height={600}
-                alt={p.cap}
                 className="absolute inset-0 h-full w-full"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-char/85 via-char/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />

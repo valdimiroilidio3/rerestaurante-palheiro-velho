@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import { PartyPopper, Phone } from "lucide-react";
-import { CONTACT, EVENT_PERKS, EVENTS, px, pxSrcSet } from "@/data/site";
+import { useSite } from "@/content/context";
 import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, IgIcon, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
 
 export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
+  const { contact: CONTACT, events: EVENTS, eventPerks: EVENT_PERKS } = useSite().content;
   const [hover, setHover] = useState<number | null>(null);
   const ghost = useRef<HTMLDivElement>(null);
   const zone = useRef<HTMLDivElement>(null);
@@ -73,11 +74,11 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
             >
               {hover !== null && (
                 <img
-                  src={px(EVENTS[hover].img, 400, 533)}
-                  srcSet={pxSrcSet(EVENTS[hover].img, 400, 533)}
+                  src={EVENTS[hover].image.src}
+                  srcSet={EVENTS[hover].image.srcSet}
                   sizes="300px"
-                  width={400}
-                  height={533}
+                  width={EVENTS[hover].image.width}
+                  height={EVENTS[hover].image.height}
                   alt=""
                   className="h-full w-full object-cover"
                   loading="lazy"

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { CONTACT, HERO, NAV } from "@/data/site";
+import { useSite } from "@/content/context";
 import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
 
 export function Nav({ onReserve }: { onReserve: () => void }) {
+  const { contact: CONTACT, hero: HERO, nav: NAV } = useSite().content;
+
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
   const [active, setActive] = useState("");
@@ -32,7 +34,7 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [NAV]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";

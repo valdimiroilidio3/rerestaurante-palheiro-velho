@@ -1,3 +1,14 @@
+import type {
+  Contact,
+  EventItem,
+  ExperiencePanel,
+  GalleryItem,
+  IdentifiedImage,
+  InstagramItem,
+  MenuCategory as SiteMenuCategory,
+  SiteContent,
+} from "./types";
+
 /*
   PALHEIRO VELHO · camada factual do conceito privado
 
@@ -174,7 +185,7 @@ export const TICKER = [
   As categorias foram pedidas para o protótipo mas não representam a carta real.
   Não há preços nem nomes de pratos publicados nesta interface.
 */
-export type Dish = {
+type SeedDish = {
   name: string;
   desc: string;
   price: string;
@@ -182,15 +193,15 @@ export type Dish = {
   ext?: "jpeg" | "png";
   flag?: string;
 };
-export type MenuCategory = {
+type SeedMenuCategory = {
   id: string;
   label: string;
   kicker: string;
   blurb: string;
-  items: Dish[];
+  items: SeedDish[];
 };
 
-const placeholder = (img: number): Dish => ({
+const placeholder = (img: number): SeedDish => ({
   name: "Item a confirmar",
   desc: "Substituir por nome, descrição, alergénios e preço validados pela equipa do Palheiro Velho.",
   price: "—",
@@ -198,7 +209,7 @@ const placeholder = (img: number): Dish => ({
   flag: "placeholder",
 });
 
-export const MENU: MenuCategory[] = [
+export const MENU: SeedMenuCategory[] = [
   {
     id: "entradas",
     label: "Entradas",
@@ -384,3 +395,100 @@ export const EVENT_PERKS = [
 
 export const CONCEPT_NOTICE =
   "Conceito privado de design. Dados públicos conferidos em 17/09/2026; validar com a marca antes de qualquer publicação ou campanha.";
+
+/* ——————————————————————————————————————————————————————————————
+   Conteúdo de origem
+
+   É o que o site mostra quando a base de dados ainda não está
+   configurada (e o que a migração `supabase/seed.sql` carrega).
+   —————————————————————————————————————————————————————————————— */
+
+export const HASHTAGS = [
+  "@palheiro_velho_beach_bar",
+  "facebook.com/palheirovelho",
+  "Esmoriz",
+  "Bar de praia",
+  "Vista para o mar",
+  "Música ao vivo",
+  "Brunch",
+];
+
+const contact: Contact = { ...CONTACT };
+
+export const defaultContent: SiteContent = {
+  contact,
+  brand: { ...BRAND },
+  nav: NAV.map((n) => ({ ...n })),
+
+  hero: {
+    videoSources: HERO.videoSources.map((v) => v.src),
+    poster: HERO.poster,
+    posterImage: { src: HERO.poster, width: HERO.posterWidth, height: HERO.posterHeight },
+    posterSrcSet: HERO.posterSrcSet,
+    posterWidth: HERO.posterWidth,
+    posterHeight: HERO.posterHeight,
+    overlay: HERO.overlay,
+    tagline: HERO.tagline,
+  },
+
+  intro: {
+    images: INTRO_IMAGES.map((img, i): IdentifiedImage => ({ ...img, id: `intro-${i}` })),
+    facts: INTRO_FACTS.map((f) => ({ id: f.k, ...f })),
+  },
+
+  ticker: [...TICKER],
+  hashtags: [...HASHTAGS],
+
+  menu: MENU.map((c): SiteMenuCategory => ({
+    id: c.id,
+    label: c.label,
+    kicker: c.kicker,
+    blurb: c.blurb,
+    items: c.items.map((d, i) => ({
+      id: `${c.id}-${i + 1}`,
+      name: d.name,
+      desc: d.desc,
+      price: d.price,
+      image: photo(d.img, 240, 240, d.name, d.ext),
+      flag: d.flag,
+    })),
+  })),
+
+  ocean: { wide: OCEAN.wide, mid: OCEAN.mid, line: [...OCEAN.line], sub: OCEAN.sub },
+
+  experience: EXPERIENCE.map((x): ExperiencePanel => ({
+    id: x.id,
+    label: x.label,
+    idx: x.idx,
+    image: photo(x.imgId, PANEL_PHOTO.w, PANEL_PHOTO.h, x.label),
+    text: x.text,
+    meta: x.meta,
+  })),
+
+  gallery: GALLERY.map((g): GalleryItem => ({
+    id: String(g.id),
+    image: photo(g.id, 1100, 850, `${g.cap} — ${g.loc}`),
+    cap: g.cap,
+    loc: g.loc,
+  })),
+
+  instagram: INSTAGRAM.map((p): InstagramItem => ({
+    id: `ig-${p.id}`,
+    image: photo(p.id, 600, 600, p.cap),
+    cap: p.cap,
+    likes: p.likes,
+    span: p.span,
+  })),
+
+  events: EVENTS.map((e): EventItem => ({
+    id: e.id,
+    n: e.n,
+    title: e.title,
+    desc: e.desc,
+    image: photo(e.img, 400, 533, e.title),
+    tag: e.tag,
+  })),
+
+  eventPerks: [...EVENT_PERKS],
+  conceptNotice: CONCEPT_NOTICE,
+};

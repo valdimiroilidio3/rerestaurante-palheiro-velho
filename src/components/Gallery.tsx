@@ -2,13 +2,14 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
-import { GALLERY, px, pxSrcSet } from "@/data/site";
+import { useSite } from "@/content/context";
 import { reduced, useIsDesktop } from "@/lib/anim";
 import { Eyebrow, Img, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
 
 /** Horizontal gallery: pinned rail on desktop, native snap-scroll on mobile. */
 export function Gallery() {
+  const { gallery: GALLERY } = useSite().content;
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
@@ -82,12 +83,8 @@ export function Gallery() {
             )}
           >
             <Img
-              src={px(g.id, 1100, 850)}
-              srcSet={pxSrcSet(g.id, 1100, 850)}
+              {...g.image}
               sizes="(min-width: 1280px) 30vw, (min-width: 1024px) 38vw, (min-width: 640px) 58vw, 78vw"
-              width={1100}
-              height={850}
-              alt={`${g.cap} — ${g.loc}`}
               className="h-full w-full"
               imgClassName="brightness-[0.92]"
             />

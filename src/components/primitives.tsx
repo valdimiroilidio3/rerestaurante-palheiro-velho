@@ -137,7 +137,7 @@ export function Img({
 }: {
   src: string;
   srcSet?: string;
-  alt: string;
+  alt?: string;
   className?: string;
   imgClassName?: string;
   ratio?: string;

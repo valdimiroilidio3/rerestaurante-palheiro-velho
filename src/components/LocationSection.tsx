@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ExternalLink, Navigation, Phone } from "lucide-react";
-import { BRAND, CONCEPT_NOTICE, CONTACT, MAPS_DIRECTIONS, MAPS_EMBED, SOURCES } from "@/data/site";
+import { useSite } from "@/content/context";
+import { mapsUrls } from "@/content/types";
+import { SOURCES } from "@/content/defaults";
 import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, MaskWords } from "./primitives";
 
@@ -131,6 +133,8 @@ function StylisedMap() {
 }
 
 export function LocationSection({ onReserve }: { onReserve: (s?: string) => void }) {
+  const { brand: BRAND, contact: CONTACT, conceptNotice: CONCEPT_NOTICE } = useSite().content;
+  const maps = mapsUrls(CONTACT.mapsQuery);
   const [live, setLive] = useState(false);
   useReveals([]);
   const sources: [string, string][] = [
@@ -200,7 +204,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 <span className="label">Ligar</span>
               </Btn>
               <Btn
-                href={MAPS_DIRECTIONS}
+                href={maps.directions}
                 tone="dark"
                 variant="outline"
                 icon={<Navigation size={14} strokeWidth={1.7} />}
@@ -243,7 +247,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
               {live ? (
                 <iframe
                   title="Mapa do Palheiro Velho"
-                  src={MAPS_EMBED}
+                  src={maps.embed}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   className="absolute inset-0 h-full w-full grayscale-[35%]"
@@ -262,7 +266,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <p className="label text-espresso/55">Esquema ilustrativo · localização via Google Maps</p>
               <a
-                href={MAPS_DIRECTIONS}
+                href={maps.directions}
                 target="_blank"
                 rel="noreferrer"
                 className="label link-swipe text-espresso/75 transition-colors hover:text-ember"

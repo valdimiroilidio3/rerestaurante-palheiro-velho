@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EXPERIENCE, PANEL_PHOTO, photo } from "@/data/site";
+import { useSite } from "@/content/context";
 import { useIsDesktop, useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
@@ -13,6 +13,7 @@ const ACCENT: Record<string, string> = {
 };
 
 export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
+  const { experience: EXPERIENCE } = useSite().content;
   const [open, setOpen] = useState(0);
   const desktop = useIsDesktop();
   useReveals([]);
@@ -43,7 +44,6 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
         <div className="mx-auto mt-14 flex h-[74vh] max-h-[680px] min-h-[440px] w-full gap-2 px-5 sm:px-8 lg:px-12">
           {EXPERIENCE.map((x, i) => {
             const isOpen = open === i;
-            const shot = photo(x.imgId, PANEL_PHOTO.w, PANEL_PHOTO.h, x.label);
             return (
               <button
                 key={x.id}
@@ -55,7 +55,7 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                 style={{ flex: isOpen ? "3.4 1 0%" : "0.75 1 0%" }}
               >
                 <Img
-                  {...shot}
+                  {...x.image}
                   sizes="(min-width: 1024px) 40vw, 80vw"
                   hover={false}
                   className="absolute inset-0 h-full w-full"
@@ -121,11 +121,7 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
               className="group relative w-[80vw] shrink-0 snap-center overflow-hidden bg-char text-cream"
               style={{ aspectRatio: "3 / 4" }}
             >
-              <Img
-                {...photo(x.imgId, PANEL_PHOTO.w, PANEL_PHOTO.h, x.label)}
-                sizes="80vw"
-                className="absolute inset-0 h-full w-full"
-              />
+              <Img {...x.image} sizes="80vw" className="absolute inset-0 h-full w-full" />
               <div className="absolute inset-0 bg-gradient-to-t from-char via-char/35 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <p className="label flex items-center gap-3 text-cream/60">

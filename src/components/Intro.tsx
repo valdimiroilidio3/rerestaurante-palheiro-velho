@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { BRAND, INTRO_FACTS, INTRO_IMAGES, TICKER } from "@/data/site";
+import { useSite } from "@/content/context";
 import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, Img, Marquee, MaskWords } from "./primitives";
 
 export function Intro() {
+  const { brand: BRAND, intro, ticker: TICKER } = useSite().content;
+  const INTRO_IMAGES = intro.images;
+  const INTRO_FACTS = intro.facts;
   const root = useRef<HTMLElement>(null);
   const imgA = useRef<HTMLDivElement>(null);
   const imgB = useRef<HTMLDivElement>(null);

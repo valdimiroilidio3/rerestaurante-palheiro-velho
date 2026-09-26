@@ -15,7 +15,7 @@ import { LocationSection } from "@/components/LocationSection";
 import { Footer } from "@/components/Footer";
 import { ReservePanel } from "@/components/ReservePanel";
 import { Grain } from "@/components/primitives";
-import { CONTACT } from "@/data/site";
+import { useSite } from "@/content/context";
 import { reduced, useSmoothScroll } from "@/lib/anim";
 
 /* ————— cinematic curtain: no asset waiting, just a beat of anticipation ————— */
@@ -70,6 +70,7 @@ function Curtain() {
 
 /* ————— mobile conversion bar ————— */
 function MobileBar({ onReserve }: { onReserve: () => void }) {
+  const { contact: CONTACT } = useSite().content;
   const [show, setShow] = useState(false);
   useEffect(() => {
     const onScroll = () => {
