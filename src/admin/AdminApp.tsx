@@ -1,13 +1,19 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { ExternalLink, LogOut, Mail } from "lucide-react";
-import { supabase, supabaseEnabled } from "@/lib/supabase";
-import { signOut } from "@/admin/lib/api";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { ExternalLink, LogOut } from "lucide-react";
+import { supabaseEnabled } from "@/lib/supabase";
+import {
+  accessConfigured,
+  deriveToken,
+  endSession,
+  restoreSession,
+  startSession,
+  verifyCredentials,
+} from "@/admin/lib/access";
 import { ContactTab, HeroTab, TextsTab } from "@/admin/sections/SettingsTabs";
 import { MenuTab } from "@/admin/sections/MenuTab";
 import { GalleryTab, InstagramTab, IntroTab } from "@/admin/sections/MediaTabs";
 import { EventsTab, ExperienceTab } from "@/admin/sections/StoryTabs";
 import { Button, Card, LiveDot } from "@/admin/components/ui";
-import { useToast } from "@/admin/lib/hooks";
 import { cn } from "@/utils/cn";
 
 type Tab = { id: string; label: string; hint: string; render: () => ReactNode };
@@ -31,63 +37,44 @@ const TABS: Tab[] = [
 
 /**
  * Painel do restaurante.
- * Sem base de dados configurada mostra o que falta fazer; com base de dados
- * pede login por magic link e depois deixa editar tudo.
+ * Uma única forma de entrada — utilizador e palavra-passe definidos por
+ * `scripts/set-admin-password.mjs`. Não há criação de contas.
  */
 export function AdminApp() {
-  const [session, setSession] = useState<{ user: { email?: string } } | null>(null);
-  // sem base de dados não há sessão: o painel fica pronto logo
-  const [ready, setReady] = useState(!supabaseEnabled);
-
-  useEffect(() => {
-    if (!supabase) return;
-    let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setSession(data.session ? { user: { email: data.session.user.email } } : null);
-      setReady(true);
-    });
-    const { data } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next ? { user: { email: next.user.email } } : null);
-    });
-    return () => {
-      active = false;
-      data.subscription.unsubscribe();
-    };
-  }, []);
+  // a sessão vive só neste separador: fechar o separador termina a sessão
+  const [entered] = useState(() => restoreSession());
 
   if (!supabaseEnabled) return <SetupScreen />;
-  if (!ready) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-char text-cream/50">
-        <p className="label">a carregar painel…</p>
-      </div>
-    );
-  }
-  if (!session) return <LoginScreen />;
+  if (!entered) return <LoginScreen />;
 
-  return <Shell email={session.user.email} />;
+  return <Shell />;
 }
 
 /* ————————————————————————————— login ————————————————————————————— */
 
 function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const send = async () => {
-    if (!supabase || !email.includes("@")) return;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
     setBusy(true);
     setError(null);
-    const { error: err } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: window.location.href },
-    });
-    setBusy(false);
-    if (err) setError(err.message);
-    else setSent(true);
+    try {
+      if (!(await verifyCredentials(username.trim(), password))) {
+        setError("Utilizador ou palavra-passe errados.");
+        return;
+      }
+      startSession(await deriveToken(username.trim(), password));
+      // recarrega para o cliente da base de dados nascer já com o token de acesso
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível entrar.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -96,40 +83,48 @@ function LoginScreen() {
         <p className="label text-sun">Palheiro Velho</p>
         <h1 className="mt-4 font-display text-[2.6rem] leading-[0.95]">Painel do restaurante</h1>
         <p className="mt-4 text-[0.95rem] leading-relaxed text-cream/60">
-          Entre com o seu email. Enviamos uma ligação de acesso — sem palavra-passe para decorar.
+          Acesso único da casa. Não é possível criar contas nem recuperar a palavra-passe por email.
         </p>
 
         <Card className="mt-8">
-          {sent ? (
-            <div>
-              <p className="font-display text-[1.4rem] leading-tight">Verifique o seu email</p>
-              <p className="mt-3 text-[0.92rem] leading-relaxed text-cream/60">
-                Enviámos uma ligação para <span className="text-sand">{email}</span>. Abrir essa ligação neste
-                mesmo browser dá-lhe acesso ao painel.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
+          {accessConfigured() ? (
+            <form onSubmit={(event) => void submit(event)} className="space-y-4">
               <label className="block">
-                <span className="label block text-cream/45">Email</span>
+                <span className="label block text-cream/45">Utilizador</span>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && void send()}
-                  placeholder="geral@palheirovelho.pt"
-                  className="mt-2 w-full border border-cream/15 bg-char/60 px-3.5 py-3 text-[1rem] text-cream outline-none placeholder:text-cream/25 focus:border-sun"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  autoFocus
+                  className="mt-2 w-full border border-cream/15 bg-char/60 px-3.5 py-3 text-[1rem] text-cream outline-none focus:border-sun"
+                />
+              </label>
+              <label className="block">
+                <span className="label block text-cream/45">Palavra-passe</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="mt-2 w-full border border-cream/15 bg-char/60 px-3.5 py-3 text-[1rem] text-cream outline-none focus:border-sun"
                 />
               </label>
               {error && <p className="text-[0.85rem] text-ember">{error}</p>}
-              <Button
-                variant="primary"
-                onClick={() => void send()}
-                loading={busy}
-                disabled={!email.includes("@")}
-              >
-                <Mail size={14} /> enviar ligação de acesso
+              <Button variant="primary" type="submit" loading={busy} disabled={!username || !password}>
+                entrar
               </Button>
+            </form>
+          ) : (
+            <div className="space-y-3">
+              <p className="font-display text-[1.4rem] leading-tight">Falta definir o acesso</p>
+              <p className="text-[0.92rem] leading-relaxed text-cream/60">
+                Correr{" "}
+                <span className="text-sand">
+                  node scripts/set-admin-password.mjs utilizador palavra-passe
+                </span>{" "}
+                e meter o sal e o resumo no <span className="text-sand">.env.local</span> (e nas variáveis de
+                ambiente do alojamento). A palavra-passe não fica gravada em lado nenhum.
+              </p>
             </div>
           )}
         </Card>
@@ -147,9 +142,8 @@ function LoginScreen() {
 
 /* ————————————————————————————— painel ————————————————————————————— */
 
-function Shell({ email }: { email?: string }) {
+function Shell() {
   const [tab, setTab] = useState(TABS[0].id);
-  const toast = useToast();
   const active = TABS.find((t) => t.id === tab) ?? TABS[0];
 
   return (
@@ -170,12 +164,12 @@ function Shell({ email }: { email?: string }) {
             >
               ver o site <ExternalLink size={12} />
             </a>
-            <span className="label hidden text-cream/40 sm:inline">{email}</span>
+            <span className="label hidden text-cream/40 sm:inline">acesso único</span>
             <button
               type="button"
-              onClick={async () => {
-                await signOut();
-                toast("Sessão terminada.");
+              onClick={() => {
+                endSession();
+                window.location.reload();
               }}
               className="label inline-flex items-center gap-2 text-cream/50 transition-colors hover:text-ember"
             >

@@ -210,8 +210,3 @@ export async function saveIntro(images: IdentifiedImage[], facts: IntroFact[]): 
     })),
   );
 }
-
-/** Termina a sessão do painel. */
-export async function signOut(): Promise<void> {
-  await supabase?.auth.signOut();
-}

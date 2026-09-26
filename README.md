@@ -29,6 +29,8 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
   (`src/content/defaults.ts`) — é o que permite abrir o repositório e ver o site a correr.
 - **O conteúdo também fica no Git.** A acção `content-backup` exporta as tabelas para
   `content/snapshot.json` todas as noites (e pode ser corrida à mão).
+- **Ler é público, escrever exige o acesso único.** As políticas RLS deixam toda a gente ler e só
+  deixam escrever a quem apresentar o token do painel.
 
 ## Stack
 
@@ -53,7 +55,7 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   │   ├── main.tsx · AdminApp.tsx  # painel: login por magic link + navegação
 │   │   ├── sections/                # um editor por secção (carta, galeria, …)
 │   │   ├── components/              # campos, botões, campo de imagem, toasts
-│   │   └── lib/                     # api (CRUD), uploads, hooks
+│   │   └── lib/                     # api (CRUD), uploads, acesso e sessão
 │   ├── content/
 │   │   ├── types.ts                 # modelo de conteúdo (SiteContent)
 │   │   ├── defaults.ts              # conteúdo de origem (sem base de dados)
@@ -64,9 +66,11 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   └── utils/cn.ts
 ├── supabase/
 │   ├── migrations/0001_init.sql     # tabelas, políticas RLS, bucket, realtime
+│   ├── migrations/0002_admin_access.sql  # acesso único por token (is_admin)
 │   └── seed.sql                     # conteúdo atual (gerado)
 ├── scripts/
 │   ├── generate-seed.mjs            # defaults.ts → supabase/seed.sql
+│   ├── set-admin-password.mjs       # define o acesso único (só guarda o resumo)
 │   └── backup-content.mjs           # base de dados → content/snapshot.json
 └── .github/workflows/               # CI (qualidade) · content-backup (cópia)
 ```
@@ -102,17 +106,41 @@ npm run dev:admin  # painel em http://localhost:5173/admin.html
 2. Correr `supabase/migrations/0001_init.sql` no editor SQL — cria as tabelas, as políticas de
    segurança, o bucket `media` e oRealtime.
 3. Correr `supabase/seed.sql` para carregar o conteúdo atual do site.
-4. `cp .env.example .env.local` e preencher `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
-5. Reiniciar `npm run dev`. O painel passa a mostrar o ecrã de entrada.
+4. Definir o acesso ao painel (ver abaixo).
+5. Reiniciar `npm run dev`.
 
-**Segurança:** a chave `anon` é pública — quem a tem só **lê**. Escrever exige sessão iniciada
-(políticas RLS `to authenticated`). Para limitar quem pode entrar, use _Allow list_ em
-_Authentication → Sign In / Providers → Email_ com os emails da equipa.
+### Acesso ao painel
+
+**Um único utilizador, uma única palavra-passe — não há criação de contas nem recuperação por
+email.** A palavra-passe nunca é guardada nem enviada:
+
+```bash
+node scripts/set-admin-password.mjs utilizador palavra-passe --write
+```
+
+O que fica gravado no `.env.local` (e nas variáveis de ambiente do alojamento) é apenas:
+
+| Variável                | Conteúdo                                                     |
+| ----------------------- | ------------------------------------------------------------ |
+| `VITE_ADMIN_SALT`       | sal aleatório (não é segredo)                                |
+| `VITE_ADMIN_TOKEN_HASH` | resumo SHA-256 do token derivado — **não** é a palavra-passe |
+
+Como funciona:
+
+1. a palavra-passe é esticada com **PBKDF2-SHA256 (200 000 iterações)**, com o utilizador a entrar
+   no sal, produzindo o token de acesso;
+2. o painel compara o resumo desse token com `VITE_ADMIN_TOKEN_HASH` — sem falar com a base de dados;
+3. o **token** (nunca a palavra-passe) segue em cada pedido de escrita no cabeçalho `x-admin-token`
+   e é validado no servidor pela função `public.is_admin()` (`supabase/migrations/0002_admin_access.sql`);
+4. a sessão dura 12 horas e vive só nesse separador — fechar o separador termina a sessão.
+
+Quem abrir o repositório vê um sal e um resumo: a palavra-passe não está lá, e um utilizador errado
+produz um token diferente. Para mudar o acesso, correr outra vez o script (gera sal e resumo novos).
 
 ### Painel
 
-Abrir `/admin.html` → introduzir o email → abrir a ligação recebida (magic link, sem palavra-passe).
-Depois de entrar:
+Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
+`scripts/set-admin-password.mjs` e entrar. Não existe criação de contas. Depois de entrar:
 
 | Separador | O que edita                                                           |
 | --------- | --------------------------------------------------------------------- |

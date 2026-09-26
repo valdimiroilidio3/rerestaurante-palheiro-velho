@@ -1,4 +1,11 @@
-import { MEDIA_BUCKET, supabase } from "@/lib/supabase";
+import {
+  ADMIN_HEADER,
+  MEDIA_BUCKET,
+  getAdminToken,
+  supabase,
+  supabaseAnonKey,
+  supabaseUrl,
+} from "@/lib/supabase";
 import type { ImageAsset } from "@/content/types";
 
 /** Lado maior das imagens submetidas: chega para ecrãs grandes e mantém o peso baixo. */
@@ -53,10 +60,22 @@ export async function uploadImage(file: File): Promise<UploadedImage> {
     file.name.replace(/\.[^.]+$/, ""),
   )}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
-  const { error: uploadError } = await db.storage
-    .from(MEDIA_BUCKET)
-    .upload(path, blob, { contentType: blob.type, cacheControl: "31536000" });
-  if (uploadError) throw uploadError;
+  // o envio passa pela API do Storage com o token de acesso no cabeçalho:
+  // é ele que a política RLS valida (ver public.is_admin() na migração)
+  const response = await fetch(`${supabaseUrl}/storage/v1/object/${MEDIA_BUCKET}/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      "Content-Type": blob.type,
+      "cache-control": "31536000",
+      ...(getAdminToken() ? { [ADMIN_HEADER]: getAdminToken() as string } : {}),
+    },
+    body: blob,
+  });
+  if (!response.ok) {
+    throw new Error(`Não foi possível enviar a imagem (${response.status}).`);
+  }
 
   const { data } = db.storage.from(MEDIA_BUCKET).getPublicUrl(path);
   const url = data.publicUrl;
@@ -81,7 +100,14 @@ export async function deleteUploadedImage(url: string): Promise<void> {
   const index = url.indexOf(marker);
   if (index === -1) return;
   const path = decodeURIComponent(url.slice(index + marker.length).split("?")[0]);
-  await db.storage.from(MEDIA_BUCKET).remove([path]);
+  await fetch(`${supabaseUrl}/storage/v1/object/${MEDIA_BUCKET}/${path}`, {
+    method: "DELETE",
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      ...(getAdminToken() ? { [ADMIN_HEADER]: getAdminToken() as string } : {}),
+    },
+  });
   await db.from("media").delete().eq("path", path);
 }
 
