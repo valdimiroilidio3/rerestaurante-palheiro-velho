@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { PartyPopper, Phone } from "lucide-react";
-import { CONTACT, EVENT_PERKS, EVENTS, px } from "@/data/site";
+import { CONTACT, EVENT_PERKS, EVENTS, px, pxSrcSet } from "@/data/site";
 import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, IgIcon, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
@@ -59,7 +59,7 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
           </div>
         </div>
 
-        {/* list + cursor preview */}
+        {/* list + pré-visualização no hover */}
         <div ref={zone} onPointerMove={onMove} className="relative mt-16">
           {fine && (
             <div
@@ -73,7 +73,11 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
             >
               {hover !== null && (
                 <img
-                  src={px(EVENTS[hover].img, 600, 800)}
+                  src={px(EVENTS[hover].img, 400, 533)}
+                  srcSet={pxSrcSet(EVENTS[hover].img, 400, 533)}
+                  sizes="300px"
+                  width={400}
+                  height={533}
                   alt=""
                   className="h-full w-full object-cover"
                   loading="lazy"
@@ -92,7 +96,6 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
                 onFocus={() => setHover(i)}
                 onBlur={() => setHover(null)}
                 onClick={() => onReserve(`${ev.title}`)}
-                data-cursor="planear"
                 className={cn(
                   "group relative grid w-full grid-cols-[auto_1fr] items-center gap-x-5 gap-y-2 border-b border-cream/15 py-6 text-left transition-[background-color,padding] duration-500 sm:grid-cols-[3.5rem_1fr_auto] sm:py-8",
                   hover === i ? "bg-cream/[0.05] sm:px-5" : "sm:px-0",
@@ -121,7 +124,6 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
         {/* CTA */}
         <button
           onClick={() => onReserve("Pedido sobre eventos")}
-          data-cursor="enviar"
           className="group relative mt-14 flex w-full flex-col items-start gap-6 overflow-hidden border border-cream/25 p-7 text-left transition-colors duration-700 sm:flex-row sm:items-center sm:justify-between sm:p-10"
         >
           <span

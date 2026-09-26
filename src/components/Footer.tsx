@@ -143,7 +143,6 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
           <button
             onClick={scrollToTop}
             className="group label flex items-center gap-3 border border-cream/25 px-4 py-3 transition-colors hover:bg-cream hover:text-char"
-            data-cursor="topo"
           >
             voltar ao topo{" "}
             <ArrowUp size={13} className="transition-transform duration-500 group-hover:-translate-y-1" />

@@ -185,10 +185,6 @@
     will-change: transform;
   }
 
-  .hoverable {
-    cursor: none;
-  }
-
   .ken {
     animation: ken-burns 18s var(--ease-swell) infinite alternate;
   }
@@ -207,22 +203,6 @@
   .link-swipe:hover,
   .link-swipe:focus-visible {
     background-size: 100% 1px;
-  }
-}
-
-@media (pointer: coarse) {
-  .hoverable {
-    cursor: auto;
-  }
-  body {
-    cursor: auto;
-  }
-}
-@media (pointer: fine) {
-  body.has-cursor,
-  body.has-cursor a,
-  body.has-cursor button {
-    cursor: none;
   }
 }
 

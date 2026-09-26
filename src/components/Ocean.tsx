@@ -49,9 +49,13 @@ export function Ocean() {
     >
       <div ref={media} className="absolute inset-[-6%] will-change-transform">
         <picture>
-          <source media="(min-width: 1100px)" srcSet={OCEAN.wide} />
+          <source media="(min-width: 1100px)" srcSet={OCEAN.wide.srcSet} sizes="100vw" />
           <img
-            src={OCEAN.mid}
+            src={OCEAN.mid.src}
+            srcSet={OCEAN.mid.srcSet}
+            sizes="100vw"
+            width={OCEAN.mid.width}
+            height={OCEAN.mid.height}
             alt="Vista aérea do oceano e das dunas junto a Esmoriz ao fim da tarde"
             loading="lazy"
             decoding="async"
@@ -83,7 +87,6 @@ export function Ocean() {
             <button
               onClick={() => scrollToId("galeria")}
               className="group label flex items-center gap-3 border-b border-cream/35 pb-1 text-cream/85 transition-colors hover:border-sun hover:text-sun"
-              data-cursor="ver"
             >
               continuar a ver a casa
               <span className="inline-block h-px w-8 bg-current transition-transform duration-500 group-hover:translate-x-1" />

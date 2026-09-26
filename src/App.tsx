@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
-import { Cursor } from "@/components/Cursor";
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { Intro } from "@/components/Intro";
@@ -129,7 +128,6 @@ export default function App() {
   return (
     <div ref={root} className="relative bg-cream">
       <Curtain />
-      <Cursor />
       <Grain />
 
       <Nav onReserve={() => openReserve("Contacto direto")} />

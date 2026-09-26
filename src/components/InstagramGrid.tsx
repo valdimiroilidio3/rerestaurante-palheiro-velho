@@ -1,5 +1,5 @@
 import { Heart, ArrowUpRight } from "lucide-react";
-import { CONTACT, INSTAGRAM, px } from "@/data/site";
+import { CONTACT, INSTAGRAM, px, pxSrcSet } from "@/data/site";
 import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, Img, MaskWords, Marquee } from "./primitives";
 import { cn } from "@/utils/cn";
@@ -36,7 +36,6 @@ export function InstagramGrid() {
               target="_blank"
               rel="noreferrer"
               className="group flex items-center gap-4 border-y border-espresso/20 py-4"
-              data-cursor="seguir"
             >
               <IgIcon
                 size={26}
@@ -76,7 +75,15 @@ export function InstagramGrid() {
               className={cn("group relative overflow-hidden bg-shell", p.span)}
               aria-label="Abrir perfil oficial de Instagram"
             >
-              <Img src={px(p.id, 700, 700)} alt={p.cap} className="absolute inset-0 h-full w-full" />
+              <Img
+                src={px(p.id, 600, 600)}
+                srcSet={pxSrcSet(p.id, 600, 600)}
+                sizes="(min-width: 1024px) 16vw, (min-width: 640px) 23vw, 43vw"
+                width={600}
+                height={600}
+                alt={p.cap}
+                className="absolute inset-0 h-full w-full"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-char/85 via-char/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 transition-all duration-500 group-hover:opacity-100">
                 <p className="text-[0.85rem] leading-snug text-cream">{p.cap}</p>

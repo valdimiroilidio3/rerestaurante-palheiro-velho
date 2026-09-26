@@ -75,8 +75,8 @@ export function Intro() {
             <div ref={imgA} className="group relative">
               <div data-reveal="img">
                 <Img
-                  src={INTRO_IMAGES[0].src}
-                  alt={INTRO_IMAGES[0].alt}
+                  {...INTRO_IMAGES[0]}
+                  sizes="(min-width: 1024px) 45vw, 92vw"
                   ratio="4 / 5"
                   className="w-full"
                   imgClassName="grayscale-[18%]"
@@ -93,13 +93,13 @@ export function Intro() {
               className="absolute -bottom-10 -left-3 w-[46%] max-w-[230px] sm:-left-8 sm:w-[38%]"
             >
               <div data-reveal="img" className="border-[6px] border-cream bg-cream">
-                <Img src={INTRO_IMAGES[1].src} alt={INTRO_IMAGES[1].alt} ratio="3 / 4" />
+                <Img {...INTRO_IMAGES[1]} sizes="(min-width: 640px) 240px, 180px" ratio="3 / 4" />
               </div>
             </div>
 
             <div className="absolute -right-3 bottom-24 hidden w-[27%] max-w-[190px] -rotate-2 border-[6px] border-cream bg-cream shadow-[0_20px_50px_-25px_rgba(58,42,32,0.6)] lg:block">
               <div data-reveal="img">
-                <Img src={INTRO_IMAGES[2].src} alt={INTRO_IMAGES[2].alt} ratio="1 / 1" />
+                <Img {...INTRO_IMAGES[2]} sizes="190px" ratio="1 / 1" />
               </div>
             </div>
 
@@ -108,7 +108,6 @@ export function Intro() {
               target="_blank"
               rel="noreferrer"
               className="absolute -top-4 right-0 hidden w-[180px] rotate-[3deg] border border-espresso/15 bg-sand/90 p-3 backdrop-blur-sm sm:block"
-              data-cursor="fonte"
             >
               <img
                 src={BRAND.publicLogo}
@@ -130,7 +129,6 @@ export function Intro() {
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover(null)}
               className="group relative grid grid-cols-[auto_1fr] items-start gap-4 border-b border-espresso/15 py-6 transition-colors duration-500 hover:bg-sand/45 sm:grid-cols-[5rem_1fr_1.3fr] sm:items-center sm:gap-8 sm:py-8"
-              data-cursor="repare"
             >
               <span
                 className="font-mono text-[0.7rem] tracking-[0.2em] text-espresso/45 transition-transform duration-500 sm:translate-x-2"

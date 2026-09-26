@@ -177,7 +177,6 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 <a
                   href={`tel:${CONTACT.phone}`}
                   className="mt-3 block font-mono text-[1.15rem] tracking-[0.04em] transition-colors hover:text-ember"
-                  data-cursor="ligar"
                 >
                   {CONTACT.phoneLabel}
                 </a>
@@ -256,7 +255,6 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
               <button
                 onClick={() => setLive((v) => !v)}
                 className="label absolute top-4 right-4 border border-espresso/25 bg-cream/90 px-3 py-2 backdrop-blur-sm transition-colors hover:bg-char hover:text-cream"
-                data-cursor={live ? "esquema" : "mapa real"}
               >
                 {live ? "mapa ilustrativo" : "mapa interativo"}
               </button>

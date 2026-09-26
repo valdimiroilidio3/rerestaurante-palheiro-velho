@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { CONTACT, NAV } from "@/data/site";
+import { CONTACT, HERO, NAV } from "@/data/site";
 import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
 
@@ -61,7 +61,6 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
           <button
             onClick={() => (scrolled ? go("top") : scrollToTop())}
             className="group flex items-baseline gap-2 text-left"
-            data-cursor="topo"
           >
             <span className="font-display text-[1.05rem] leading-none font-semibold tracking-[0.02em] sm:text-[1.28rem]">
               Palheiro
@@ -82,7 +81,7 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                 key={item.id}
                 onClick={() => go(item.id)}
                 className={cn(
-                  "label relative px-4 py-3 transition-colors duration-300 hoverable",
+                  "label relative px-4 py-3 transition-colors duration-300",
                   active === item.id ? "text-current" : "opacity-60 hover:opacity-100",
                 )}
               >
@@ -101,7 +100,6 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
             <a
               href={`tel:${CONTACT.phone}`}
               className="label hidden items-center gap-2 opacity-70 transition-opacity hover:opacity-100 md:flex"
-              data-cursor="ligar"
             >
               <Phone size={13} strokeWidth={1.7} />
               {CONTACT.phoneLabel}
@@ -149,11 +147,11 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
           >
             <div className="absolute inset-0 opacity-45">
               <img
-                src={
-                  "https://images.pexels.com/videos/9259112/beach-cloud-dawn-dusk-9259112.jpeg?auto=compress&cs=tinysrgb&w=900"
-                }
+                src={HERO.overlay}
                 alt=""
                 aria-hidden
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-char/70 via-char/85 to-char" />

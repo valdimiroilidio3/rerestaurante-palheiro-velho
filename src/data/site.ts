@@ -13,11 +13,65 @@
   Fotografias Pexels abaixo são TEMPORÁRIAS: não retratam o negócio.
 */
 
-/** Fotografia editorial temporária com tamanho otimizado. Substituir por imagem autorizada da marca. */
-export const px = (id: number, w = 900, h?: number, ext: "jpeg" | "png" = "jpeg") =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.${ext}?auto=compress&cs=tinysrgb&fit=crop&w=${w}${
-    h ? `&h=${h}` : ""
-  }`;
+/* ——————————————————————————————————————————————————————————————
+   Imagens
+
+   As fotografias são servidas pelo CDN da Pexels, que converte para
+   AVIF/WebP e comprime no momento do pedido. Cada imagem é pedida no
+   tamanho em que realmente é mostrada — via `srcset` + `sizes` — e
+   nunca maior. É aqui que se ganha (ou se perde) o carregamento.
+   —————————————————————————————————————————————————————————————— */
+
+/** Qualidade de referência: o grão do tema disfarça a compressão. */
+const QUALITY = 72;
+
+/** Degraus do `srcset`, em fração da largura de referência. */
+const STEPS = [0.5, 0.75, 1, 1.5, 2] as const;
+
+/** Arredonda a larguras de 50 em 50 px: menos variantes, mais acertos na cache do CDN. */
+const step = (n: number) => Math.max(50, Math.round(n / 50) * 50);
+
+/** Fotografia editorial temporária. Substituir por imagem autorizada da marca. */
+export const px = (id: number, w = 900, h?: number, ext: "jpeg" | "png" = "jpeg", q = QUALITY) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.${ext}` +
+  `?auto=format%2Ccompress&cs=tinysrgb&fit=crop&q=${q}&w=${w}${h ? `&h=${h}` : ""}`;
+
+/** Cinco larguras da mesma fotografia, para o browser escolher a certa. */
+export function pxSrcSet(
+  id: number,
+  w: number,
+  h?: number,
+  ext: "jpeg" | "png" = "jpeg",
+  q = QUALITY,
+): string {
+  const ratio = h && w ? h / w : 0;
+  return STEPS.map((s) => {
+    const cw = step(w * s);
+    const ch = ratio ? step(cw * ratio) : undefined;
+    return `${px(id, cw, ch, ext, q)} ${cw}w`;
+  }).join(", ");
+}
+
+/** Uma fotografia completa: fonte, srcset, dimensões e texto alternativo. */
+export type Photo = {
+  src: string;
+  srcSet: string;
+  width: number;
+  height: number;
+  alt: string;
+};
+
+/**
+ * Constrói um objeto `Photo` pronto a espalhar no componente `<Img>`.
+ * O texto alternativo pode ser omitido quando é definido no componente.
+ */
+export const photo = (id: number, w: number, h: number, alt = "", ext: "jpeg" | "png" = "jpeg"): Photo => ({
+  src: px(id, w, h, ext),
+  srcSet: pxSrcSet(id, w, h, ext),
+  width: w,
+  height: h,
+  alt,
+});
 
 export const SOURCES = {
   instagram: "https://www.instagram.com/palheiro_velho_beach_bar/",
@@ -68,20 +122,32 @@ export const NAV = [
   { id: "contacto", label: "Contacto" },
 ];
 
+const HERO_VIDEO = 9259112;
+
+/** Fotograma do vídeo, pedido já à largura certa. */
+const heroFrame = (w: number) =>
+  `https://images.pexels.com/videos/${HERO_VIDEO}/beach-cloud-dawn-dusk-${HERO_VIDEO}.jpeg` +
+  `?auto=format%2Ccompress&cs=tinysrgb&w=${w}`;
+
 export const HERO = {
   videoSources: [
-    { src: "https://videos.pexels.com/video-files/9259112/9259112-hd_1920_1080_25fps.mp4" },
-    { src: "https://videos.pexels.com/video-files/9259112/9259112-hd_1280_720_25fps.mp4" },
+    { src: `https://videos.pexels.com/video-files/${HERO_VIDEO}/${HERO_VIDEO}-hd_1920_1080_25fps.mp4` },
+    { src: `https://videos.pexels.com/video-files/${HERO_VIDEO}/${HERO_VIDEO}-hd_1280_720_25fps.mp4` },
   ],
-  poster:
-    "https://images.pexels.com/videos/9259112/beach-cloud-dawn-dusk-9259112.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  /** Fotograma de abertura: LCP da página, por isso é pré-carregado. */
+  poster: heroFrame(1280),
+  posterSrcSet: [640, 960, 1280, 1440, 1920].map((w) => `${heroFrame(w)} ${w}w`).join(", "),
+  posterWidth: 1920,
+  posterHeight: 1080,
+  /** Fundo do menu móvel (só é pedido quando o menu abre). */
+  overlay: heroFrame(720),
   tagline: "Onde o mar encontra a mesa.",
 };
 
 export const INTRO_IMAGES = [
-  { src: px(8528125, 1000, 1250), alt: "Fotografia de referência temporária: esplanada junto à praia" },
-  { src: px(14808642, 1000, 700), alt: "Fotografia de referência temporária: praia e sombra de palha" },
-  { src: px(9119697, 900, 1150), alt: "Fotografia de referência temporária: construções de palha na praia" },
+  photo(8528125, 1000, 1250, "Fotografia de referência temporária: esplanada junto à praia"),
+  photo(14808642, 900, 1200, "Fotografia de referência temporária: praia e sombra de palha"),
+  photo(9119697, 800, 800, "Fotografia de referência temporária: construções de palha na praia"),
 ];
 
 /** Serviços identificados na página pública associada à marca. */
@@ -185,11 +251,14 @@ export const MENU: MenuCategory[] = [
 ];
 
 export const OCEAN = {
-  wide: px(16427691, 2000, 1000),
-  mid: px(16427691, 1200, 900),
+  wide: photo(16427691, 2000, 1000),
+  mid: photo(16427691, 1200, 900),
   line: ["TAKE", "YOUR", "TIME."],
   sub: "Um intervalo visual neste conceito, inspirado na relação do espaço com o mar.",
 };
+
+/** Formato (retrato) dos painéis do espaço: partilhado por desktop e mobile. */
+export const PANEL_PHOTO = { w: 1100, h: 1500 } as const;
 
 /** Elementos do espaço e serviços publicados. Imagens são referências temporárias. */
 export const EXPERIENCE = [
@@ -197,7 +266,7 @@ export const EXPERIENCE = [
     id: "view",
     label: "Vista",
     idx: "01",
-    img: px(5851469, 1100, 1500),
+    imgId: 5851469,
     text: "A página pública da marca indica vista para o mar.",
     meta: "serviço publicado",
   },
@@ -205,7 +274,7 @@ export const EXPERIENCE = [
     id: "outside",
     label: "Exterior",
     idx: "02",
-    img: px(33991146, 1100, 1500),
+    imgId: 33991146,
     text: "A marca indica mesas no espaço exterior.",
     meta: "serviço publicado",
   },
@@ -213,7 +282,7 @@ export const EXPERIENCE = [
     id: "music",
     label: "Música",
     idx: "03",
-    img: px(7502581, 1100, 1500),
+    imgId: 7502581,
     text: "Música ao vivo é mencionada no site público e na atividade recente do Facebook.",
     meta: "serviço publicado",
   },
@@ -221,7 +290,7 @@ export const EXPERIENCE = [
     id: "brunch",
     label: "Brunch",
     idx: "04",
-    img: px(3838633, 1100, 1500),
+    imgId: 3838633,
     text: "O brunch surge referido na página pública associada ao espaço.",
     meta: "serviço publicado",
   },
@@ -229,7 +298,7 @@ export const EXPERIENCE = [
     id: "parking",
     label: "Chegar",
     idx: "05",
-    img: px(7938813, 1100, 1500),
+    imgId: 7938813,
     text: "O site público indica estacionamento para clientes.",
     meta: "informação a confirmar",
   },

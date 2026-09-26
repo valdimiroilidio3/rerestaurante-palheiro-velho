@@ -117,8 +117,14 @@ export function MaskWords({
 }
 
 /* ————————————————— image with graceful load ————————————————— */
+/**
+ * Imagem responsiva: `srcSet` + `sizes` deixam o browser escolher a variante
+ * certa, `width`/`height` reservam o espaço (evita saltos de layout) e tudo o
+ * que fica abaixo da dobra é carregado de forma diferida.
+ */
 export function Img({
   src,
+  srcSet,
   alt,
   className,
   imgClassName,
@@ -126,8 +132,11 @@ export function Img({
   eager = false,
   hover = true,
   sizes,
+  width,
+  height,
 }: {
   src: string;
+  srcSet?: string;
   alt: string;
   className?: string;
   imgClassName?: string;
@@ -135,12 +144,17 @@ export function Img({
   eager?: boolean;
   hover?: boolean;
   sizes?: string;
+  width?: number;
+  height?: number;
 }) {
   const [loaded, setLoaded] = useState(false);
+  // Sem `ratio` explícito, a proporção vem das dimensões intrínsecas.
+  const aspect = ratio !== "auto" ? ratio : width && height ? `${width} / ${height}` : undefined;
+
   return (
     <div
       className={cn("relative overflow-hidden bg-shell/60", className)}
-      style={ratio !== "auto" ? { aspectRatio: ratio } : undefined}
+      style={aspect ? { aspectRatio: aspect } : undefined}
     >
       <div
         aria-hidden
@@ -151,11 +165,14 @@ export function Img({
       />
       <img
         src={src}
+        srcSet={srcSet}
+        sizes={srcSet ? sizes : undefined}
         alt={alt}
+        width={width}
+        height={height}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={eager ? "high" : "auto"}
-        sizes={sizes}
         onLoad={() => setLoaded(true)}
         className={cn(
           "h-full w-full object-cover transition-[opacity,transform,filter] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
@@ -179,7 +196,6 @@ type BtnProps = {
   icon?: ReactNode;
   magnetic?: boolean;
   ariaLabel?: string;
-  cursor?: string;
 };
 
 export function Btn({
@@ -192,7 +208,6 @@ export function Btn({
   icon,
   magnetic = true,
   ariaLabel,
-  cursor,
 }: BtnProps) {
   const ref = useMagnetic<HTMLAnchorElement & HTMLButtonElement>(magnetic ? 0.28 : 0);
 
@@ -258,7 +273,7 @@ export function Btn({
     </>
   );
 
-  const cls = cn(base, skin, "hoverable", className);
+  const cls = cn(base, skin, className);
 
   if (href) {
     const external = href.startsWith("http") || href.startsWith("mailto") || href.startsWith("tel");
@@ -268,7 +283,6 @@ export function Btn({
         href={href}
         aria-label={ariaLabel}
         className={cls}
-        data-cursor={cursor || "abrir"}
         {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
       >
         {inner}
@@ -276,14 +290,7 @@ export function Btn({
     );
   }
   return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className={cls}
-      data-cursor={cursor || "escolher"}
-    >
+    <button ref={ref} type="button" onClick={onClick} aria-label={ariaLabel} className={cls}>
       {inner}
     </button>
   );

@@ -2,15 +2,42 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
+import { HERO } from "./src/data/site";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Pré-carrega o fotograma de abertura (o maior elemento visível da primeira
+ * dobra). A URL vem dos dados — nunca é repetida à mão no index.html.
+ */
+function preloadHero(): Plugin {
+  return {
+    name: "preload-hero",
+    transformIndexHtml() {
+      return [
+        {
+          tag: "link",
+          injectTo: "head",
+          attrs: {
+            rel: "preload",
+            as: "image",
+            href: HERO.poster,
+            imagesrcset: HERO.posterSrcSet,
+            imagesizes: "100vw",
+            fetchpriority: "high",
+          },
+        },
+      ];
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), viteSingleFile()],
+  plugins: [react(), tailwindcss(), preloadHero(), viteSingleFile()],
   // O build é um único ficheiro: caminhos relativos permitem abrir dist/index.html
   // diretamente (file://) ou servir a partir de qualquer subdiretório.
   base: "./",

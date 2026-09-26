@@ -82,6 +82,27 @@ npm run dev        # http://localhost:5173
   eases são tokens Tailwind definidos em `src/index.css` — usar tokens, não valores soltos.
 - **Qualidade:** `npm run verify` antes de abrir um PR; a CI (`main` e PRs) corre o mesmo conjunto.
 
+## Imagens
+
+Todas as fotografias vêm do CDN da Pexels, que converte para **AVIF/WebP** e comprime no momento do
+pedido (`auto=format,compress`, `q=72`). Cada imagem é pedida **no tamanho em que é mostrada**:
+
+| Helper (em `src/data/site.ts`) | Para que serve                                                             |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `px(id, w, h?)`                | URL de uma fotografia com a largura/altura certas                          |
+| `pxSrcSet(id, w, h?)`          | as 5 variantes (`0.5×` → `2×`) da mesma fotografia                         |
+| `photo(id, w, h, alt?)`        | objeto `{ src, srcSet, width, height, alt }`, pronto a espalhar no `<Img>` |
+
+Regras do `<Img>` (`src/components/primitives.tsx`):
+
+- passar sempre `width`/`height` — reservam o espaço e evitam saltos de layout (CLS);
+- passar `sizes` sempre que há `srcSet`, senão o browser assume `100vw` e descarrega demais;
+- `eager` só para o que está na primeira dobra; todo o resto é `loading="lazy"`;
+- o fotograma de abertura tem `fetchPriority="high"` e um `<link rel="preload">` gerado no build
+  pelo plugin `preloadHero` (em `vite.config.ts`) — a URL sai dos dados, nunca é repetida à mão.
+
+O vídeo do hero só é montado em ecrãs ≥ 900 px e quando a ligação não está em modo de poupança.
+
 ## Conteúdo e imagem
 
 | Item                    | Estado                                                                 |

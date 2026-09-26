@@ -63,6 +63,10 @@ export function Hero() {
       <div ref={media} className="absolute inset-0 will-change-transform">
         <img
           src={HERO.poster}
+          srcSet={HERO.posterSrcSet}
+          sizes="100vw"
+          width={HERO.posterWidth}
+          height={HERO.posterHeight}
           alt="Imagem de ambiente temporária: praia ao pôr do sol"
           fetchPriority="high"
           decoding="async"
@@ -149,7 +153,7 @@ export function Hero() {
             </div>
 
             <div data-hero-fade className="flex flex-wrap items-center gap-3">
-              <Btn onClick={() => scrollToId("menu")} tone="light" className="px-8 py-4" cursor="a carta">
+              <Btn onClick={() => scrollToId("menu")} tone="light" className="px-8 py-4">
                 <span className="label">Ver estrutura de carta</span>
               </Btn>
               <Btn
