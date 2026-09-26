@@ -2,42 +2,48 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
-import { Cursor } from "./components/Cursor";
-import { Nav } from "./components/Nav";
-import { Hero } from "./components/Hero";
-import { Intro } from "./components/Intro";
-import { MenuSection } from "./components/MenuSection";
-import { Ocean } from "./components/Ocean";
-import { Experience } from "./components/Experience";
-import { Gallery } from "./components/Gallery";
-import { InstagramGrid } from "./components/InstagramGrid";
-import { Events } from "./components/Events";
-import { LocationSection } from "./components/LocationSection";
-import { Footer } from "./components/Footer";
-import { ReservePanel } from "./components/ReservePanel";
-import { Grain } from "./components/primitives";
-import { CONTACT } from "./data/site";
-import { reduced, useSmoothScroll } from "./lib/anim";
+import { Cursor } from "@/components/Cursor";
+import { Nav } from "@/components/Nav";
+import { Hero } from "@/components/Hero";
+import { Intro } from "@/components/Intro";
+import { MenuSection } from "@/components/MenuSection";
+import { Ocean } from "@/components/Ocean";
+import { Experience } from "@/components/Experience";
+import { Gallery } from "@/components/Gallery";
+import { InstagramGrid } from "@/components/InstagramGrid";
+import { Events } from "@/components/Events";
+import { LocationSection } from "@/components/LocationSection";
+import { Footer } from "@/components/Footer";
+import { ReservePanel } from "@/components/ReservePanel";
+import { Grain } from "@/components/primitives";
+import { CONTACT } from "@/data/site";
+import { reduced, useSmoothScroll } from "@/lib/anim";
 
 /* ————— cinematic curtain: no asset waiting, just a beat of anticipation ————— */
 function Curtain() {
-  const [done, setDone] = useState(false);
+  // Sem movimento reduzido o arranque começa logo concluído: evita escrever
+  // estado dentro do efeito só para saltar a cortina.
+  const [done, setDone] = useState(() => reduced());
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (reduced()) {
-      setDone(true);
-      return;
-    }
+    if (done || reduced()) return;
     const o = { v: 0 };
-    gsap.to(o, {
+    let hide = 0;
+    const tween = gsap.to(o, {
       v: 100,
       duration: 0.85,
       ease: "power2.inOut",
       onUpdate: () => setCount(Math.round(o.v)),
-      onComplete: () => window.setTimeout(() => setDone(true), 1000),
+      onComplete: () => {
+        hide = window.setTimeout(() => setDone(true), 1000);
+      },
     });
-  }, []);
+    return () => {
+      window.clearTimeout(hide);
+      tween.kill();
+    };
+  }, [done]);
 
   if (done) return null;
   return (
@@ -93,7 +99,10 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
           >
             <Phone size={14} /> Ligar
           </a>
-          <button onClick={onReserve} className="label flex flex-[1.2] items-center justify-center gap-2 bg-cream py-4 text-char">
+          <button
+            onClick={onReserve}
+            className="label flex flex-[1.2] items-center justify-center gap-2 bg-cream py-4 text-char"
+          >
             Contactar
           </button>
         </motion.div>
@@ -139,7 +148,11 @@ export default function App() {
 
       <Footer onReserve={openReserve} />
       <MobileBar onReserve={() => openReserve("Contacto direto")} />
-      <ReservePanel open={reserve.open} subject={reserve.subject} onClose={() => setReserve({ open: false })} />
+      <ReservePanel
+        open={reserve.open}
+        subject={reserve.subject}
+        onClose={() => setReserve({ open: false })}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { CONTACT, HERO } from "../data/site";
-import { reduced, scrollToId } from "../lib/anim";
+import { CONTACT, HERO } from "@/data/site";
+import { reduced, scrollToId } from "@/lib/anim";
 import { Btn, LightLeaks } from "./primitives";
 
 export function Hero() {
@@ -16,7 +16,8 @@ export function Hero() {
   useEffect(() => {
     if (reduced()) return;
     if (!window.matchMedia("(min-width: 900px)").matches) return;
-    const conn = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const conn = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
+      .connection;
     if (conn?.saveData || /(^|\b)2g/.test(conn?.effectiveType || "")) return;
     const t = window.setTimeout(() => setVideoOn(true), 900);
     return () => window.clearTimeout(t);
@@ -33,7 +34,12 @@ export function Hero() {
         { yPercent: 0, opacity: 1, duration: 1.45, stagger: 0.09 },
         0.15,
       )
-        .fromTo("[data-hero-fade]", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: 0.11 }, 0.75)
+        .fromTo(
+          "[data-hero-fade]",
+          { y: 18, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, stagger: 0.11 },
+          0.75,
+        )
         .fromTo("[data-hero-side]", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 1 }, 1.1);
 
       /* scroll: the film pulls back and blurs behind the page */
@@ -78,9 +84,7 @@ export function Hero() {
             }`}
           >
             <source
-              src={
-                window.innerWidth >= 1440 ? HERO.videoSources[0].src : HERO.videoSources[1].src
-              }
+              src={window.innerWidth >= 1440 ? HERO.videoSources[0].src : HERO.videoSources[1].src}
               type="video/mp4"
             />
           </video>
@@ -135,8 +139,12 @@ export function Hero() {
                   Onde o mar encontra a mesa.
                 </span>
               </p>
-              <p data-hero-fade className="mt-3 max-w-[34ch] text-[0.95rem] leading-relaxed text-cream/60 sm:text-base">
-                Um conceito editorial para uma presença digital de um bar de praia com vista para o mar e espaço exterior.
+              <p
+                data-hero-fade
+                className="mt-3 max-w-[34ch] text-[0.95rem] leading-relaxed text-cream/60 sm:text-base"
+              >
+                Um conceito editorial para uma presença digital de um bar de praia com vista para o mar e
+                espaço exterior.
               </p>
             </div>
 
@@ -144,7 +152,12 @@ export function Hero() {
               <Btn onClick={() => scrollToId("menu")} tone="light" className="px-8 py-4" cursor="a carta">
                 <span className="label">Ver estrutura de carta</span>
               </Btn>
-              <Btn onClick={() => scrollToId("contacto")} tone="light" variant="outline" className="px-6 py-4">
+              <Btn
+                onClick={() => scrollToId("contacto")}
+                tone="light"
+                variant="outline"
+                className="px-6 py-4"
+              >
                 <span className="label">Como chegar</span>
               </Btn>
             </div>
@@ -161,7 +174,12 @@ export function Hero() {
           <div data-hero-side className="hidden flex-1 items-center justify-center gap-3 lg:flex">
             <span className="label text-cream/40">perfís públicos identificados</span>
             <span className="h-px w-16 bg-cream/25" />
-            <a href={CONTACT.instagramUrl} target="_blank" rel="noreferrer" className="label text-cream/70 hover:text-sun">
+            <a
+              href={CONTACT.instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="label text-cream/70 hover:text-sun"
+            >
               Instagram oficial →
             </a>
           </div>

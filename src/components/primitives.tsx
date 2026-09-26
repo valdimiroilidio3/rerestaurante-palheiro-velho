@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { cn } from "../utils/cn";
-import { useMagnetic } from "../lib/anim";
+import { cn } from "@/utils/cn";
+import { useMagnetic } from "@/lib/anim";
 
 /* ————————————————— film grain + light leaks ————————————————— */
 export function Grain({ className }: { className?: string }) {
@@ -81,7 +81,13 @@ export function Eyebrow({
   tone?: "dark" | "light";
 }) {
   return (
-    <p className={cn("label flex items-center gap-3", tone === "light" ? "text-cream/65" : "text-espresso/60", className)}>
+    <p
+      className={cn(
+        "label flex items-center gap-3",
+        tone === "light" ? "text-cream/65" : "text-espresso/60",
+        className,
+      )}
+    >
       {index && <span className="tabular-nums opacity-70">{index}</span>}
       <span className={cn("h-px w-8", tone === "light" ? "bg-cream/35" : "bg-espresso/25")} />
       <span>{children}</span>
@@ -235,7 +241,14 @@ export function Btn({
       <span className={cn("relative z-10 flex items-center gap-3 transition-colors duration-500", hoverText)}>
         {children}
         {icon === undefined ? (
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden className="relative z-10 transition-transform duration-500 group-hover/btn:translate-x-1">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+            className="relative z-10 transition-transform duration-500 group-hover/btn:translate-x-1"
+          >
             <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" />
           </svg>
         ) : (
@@ -263,7 +276,14 @@ export function Btn({
     );
   }
   return (
-    <button ref={ref} type="button" onClick={onClick} aria-label={ariaLabel} className={cls} data-cursor={cursor || "escolher"}>
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={cls}
+      data-cursor={cursor || "escolher"}
+    >
       {inner}
     </button>
   );
@@ -291,7 +311,16 @@ export function IgIcon({ size = 18, className }: { size?: number; className?: st
 
 export function SunIcon({ size = 18, className }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden className={className} stroke="currentColor" strokeWidth="1.5">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className={className}
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
       <path d="M4 18h16M6.5 14.5h11M9 11h6" strokeLinecap="round" />
       <circle cx="12" cy="11" r="3" />
     </svg>

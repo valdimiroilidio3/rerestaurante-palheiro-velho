@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { BRAND, INTRO_FACTS, INTRO_IMAGES, TICKER } from "../data/site";
-import { isDesktop, reduced, useReveals } from "../lib/anim";
+import { BRAND, INTRO_FACTS, INTRO_IMAGES, TICKER } from "@/data/site";
+import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, Img, Marquee, MaskWords } from "./primitives";
 
 export function Intro() {
@@ -32,7 +32,11 @@ export function Intro() {
   const [hover, setHover] = useState<number | null>(null);
 
   return (
-    <section ref={root} id="intro" className="relative overflow-hidden bg-cream pt-16 pb-0 text-char sm:pt-24">
+    <section
+      ref={root}
+      id="intro"
+      className="relative overflow-hidden bg-cream pt-16 pb-0 text-char sm:pt-24"
+    >
       {/* warm paper texture lines */}
       <div
         aria-hidden
@@ -54,14 +58,14 @@ export function Intro() {
 
             <div className="mt-9 grid gap-6 sm:grid-cols-2">
               <p data-reveal className="text-[1.05rem] leading-[1.75] text-char/80">
-                O <strong className="font-semibold">Palheiro Velho</strong> é identificado publicamente como um
-                bar de praia em Esmoriz, na Travessa da Barrinha. As páginas públicas associadas ao espaço referem
-                vista para o mar e mesas exteriores.
+                O <strong className="font-semibold">Palheiro Velho</strong> é identificado publicamente como
+                um bar de praia em Esmoriz, na Travessa da Barrinha. As páginas públicas associadas ao espaço
+                referem vista para o mar e mesas exteriores.
               </p>
               <p data-reveal data-delay="0.1" className="text-[1.05rem] leading-[1.75] text-char/70">
-                Este website é um conceito privado de design, criado a partir dos canais públicos encontrados. A
-                carta, o horário, as imagens e qualquer campanha comercial devem ser confirmados com a marca antes
-                de serem publicados.
+                Este website é um conceito privado de design, criado a partir dos canais públicos encontrados.
+                A carta, o horário, as imagens e qualquer campanha comercial devem ser confirmados com a marca
+                antes de serem publicados.
               </p>
             </div>
           </div>
@@ -84,7 +88,10 @@ export function Intro() {
               </figcaption>
             </div>
 
-            <div ref={imgB} className="absolute -bottom-10 -left-3 w-[46%] max-w-[230px] sm:-left-8 sm:w-[38%]">
+            <div
+              ref={imgB}
+              className="absolute -bottom-10 -left-3 w-[46%] max-w-[230px] sm:-left-8 sm:w-[38%]"
+            >
               <div data-reveal="img" className="border-[6px] border-cream bg-cream">
                 <Img src={INTRO_IMAGES[1].src} alt={INTRO_IMAGES[1].alt} ratio="3 / 4" />
               </div>
@@ -103,7 +110,13 @@ export function Intro() {
               className="absolute -top-4 right-0 hidden w-[180px] rotate-[3deg] border border-espresso/15 bg-sand/90 p-3 backdrop-blur-sm sm:block"
               data-cursor="fonte"
             >
-              <img src={BRAND.publicLogo} alt="Logótipo público Palheiro Velho" loading="lazy" decoding="async" className="h-14 w-full object-contain" />
+              <img
+                src={BRAND.publicLogo}
+                alt="Logótipo público Palheiro Velho"
+                loading="lazy"
+                decoding="async"
+                className="h-14 w-full object-contain"
+              />
               <p className="label mt-2 text-espresso/50">{BRAND.assetStatus}</p>
             </a>
           </div>

@@ -1,8 +1,8 @@
 import { Heart, ArrowUpRight } from "lucide-react";
-import { CONTACT, INSTAGRAM, px } from "../data/site";
-import { useReveals } from "../lib/anim";
+import { CONTACT, INSTAGRAM, px } from "@/data/site";
+import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, Img, MaskWords, Marquee } from "./primitives";
-import { cn } from "../utils/cn";
+import { cn } from "@/utils/cn";
 
 const HASHTAGS = [
   "@palheiro_velho_beach_bar",
@@ -38,7 +38,10 @@ export function InstagramGrid() {
               className="group flex items-center gap-4 border-y border-espresso/20 py-4"
               data-cursor="seguir"
             >
-              <IgIcon size={26} className="text-espresso transition-transform duration-500 group-hover:scale-110" />
+              <IgIcon
+                size={26}
+                className="text-espresso transition-transform duration-500 group-hover:scale-110"
+              />
               <span className="min-w-0">
                 <span className="block font-display text-[1.4rem] leading-none">@{CONTACT.instagram}</span>
                 <span className="label mt-2 block text-espresso/55">
@@ -51,8 +54,8 @@ export function InstagramGrid() {
               />
             </a>
             <p className="text-[0.95rem] leading-relaxed text-char/65">
-              As publicações oficiais não são reproduzidas neste conceito sem autorização. Abra o perfil da marca
-              para ver o conteúdo atual e usar os seus canais de contacto.
+              As publicações oficiais não são reproduzidas neste conceito sem autorização. Abra o perfil da
+              marca para ver o conteúdo atual e usar os seus canais de contacto.
             </p>
             <Btn href={CONTACT.instagramUrl} tone="dark" className="self-start">
               <span className="label">Abrir Instagram</span>
@@ -91,7 +94,12 @@ export function InstagramGrid() {
       </div>
 
       <div className="mt-14 border-y border-espresso/15 py-3 text-espresso/70">
-        <Marquee items={HASHTAGS} speed={38} className="font-mono text-[0.72rem] tracking-[0.18em] uppercase" separator="◦" />
+        <Marquee
+          items={HASHTAGS}
+          speed={38}
+          className="font-mono text-[0.72rem] tracking-[0.18em] uppercase"
+          separator="◦"
+        />
       </div>
     </section>
   );

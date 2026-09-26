@@ -2,10 +2,10 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
-import { GALLERY, px } from "../data/site";
-import { reduced, useIsDesktop } from "../lib/anim";
+import { GALLERY, px } from "@/data/site";
+import { reduced, useIsDesktop } from "@/lib/anim";
 import { Eyebrow, Img, MaskWords } from "./primitives";
-import { cn } from "../utils/cn";
+import { cn } from "@/utils/cn";
 
 /** Horizontal gallery: pinned rail on desktop, native snap-scroll on mobile. */
 export function Gallery() {
@@ -51,7 +51,7 @@ export function Gallery() {
   const tiles = (
     <>
       <div className="flex w-[86vw] shrink-0 flex-col justify-center pr-6 lg:w-[34vw] lg:max-w-[520px]">
-          <Eyebrow index="05" tone="light">
+        <Eyebrow index="05" tone="light">
           Referências visuais
         </Eyebrow>
         <h2 className="mt-6 font-display text-[clamp(2.2rem,5vw,4.2rem)] leading-[0.92] text-cream">
@@ -62,8 +62,8 @@ export function Gallery() {
           </span>
         </h2>
         <p className="mt-6 max-w-[36ch] text-[0.98rem] leading-relaxed text-cream/60">
-          Imagens editoriais temporárias para demonstrar a composição. Substitua por fotografia e vídeo autorizados
-          do Palheiro Velho antes de publicar.
+          Imagens editoriais temporárias para demonstrar a composição. Substitua por fotografia e vídeo
+          autorizados do Palheiro Velho antes de publicar.
         </p>
         <span className="label mt-8 flex items-center gap-3 text-cream/45">
           <ArrowRight size={16} /> swipe
@@ -102,7 +102,11 @@ export function Gallery() {
   );
 
   return (
-    <section ref={root} id="galeria" className="relative overflow-hidden bg-[#0f2429] py-16 lg:h-[100svh] lg:py-0">
+    <section
+      ref={root}
+      id="galeria"
+      className="relative overflow-hidden bg-[#0f2429] py-16 lg:h-[100svh] lg:py-0"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.5] mix-blend-overlay grain-layer"

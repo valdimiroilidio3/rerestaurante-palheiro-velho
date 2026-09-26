@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone } from "lucide-react";
-import { cn } from "../utils/cn";
-import { CONTACT, NAV } from "../data/site";
-import { isDesktop, reduced, scrollToId, scrollToTop } from "../lib/anim";
+import { cn } from "@/utils/cn";
+import { CONTACT, NAV } from "@/data/site";
+import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
 
 export function Nav({ onReserve }: { onReserve: () => void }) {
@@ -189,7 +189,14 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
             </nav>
 
             <div className="relative mt-8 space-y-3 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-              <Btn onClick={() => { setOpen(false); onReserve(); }} tone="light" className="w-full">
+              <Btn
+                onClick={() => {
+                  setOpen(false);
+                  onReserve();
+                }}
+                tone="light"
+                className="w-full"
+              >
                 Contactar a casa
               </Btn>
               <div className="grid grid-cols-2 gap-3 pt-1">
@@ -208,7 +215,10 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                   <IgIcon size={14} /> Instagram
                 </a>
               </div>
-              <button onClick={() => go("contacto")} className="label w-full pt-2 opacity-60 underline decoration-1 underline-offset-4">
+              <button
+                onClick={() => go("contacto")}
+                className="label w-full pt-2 opacity-60 underline decoration-1 underline-offset-4"
+              >
                 Como chegar →
               </button>
             </div>

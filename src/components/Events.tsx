@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import { PartyPopper, Phone } from "lucide-react";
-import { CONTACT, EVENT_PERKS, EVENTS, px } from "../data/site";
-import { isDesktop, reduced, useReveals } from "../lib/anim";
+import { CONTACT, EVENT_PERKS, EVENTS, px } from "@/data/site";
+import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, IgIcon, MaskWords } from "./primitives";
-import { cn } from "../utils/cn";
+import { cn } from "@/utils/cn";
 
 export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
   const [hover, setHover] = useState<number | null>(null);
@@ -45,8 +45,8 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
           <div className="grid gap-5 sm:grid-cols-2 lg:pb-4">
             <p className="text-[0.98rem] leading-relaxed text-cream/65">
               O site público associado à marca refere música ao vivo. O registo empresarial público indica a
-              organização de eventos culturais e desportivos. Não são apresentadas datas, capacidades ou condições
-              sem confirmação direta da casa.
+              organização de eventos culturais e desportivos. Não são apresentadas datas, capacidades ou
+              condições sem confirmação direta da casa.
             </p>
             <ul className="space-y-2">
               {EVENT_PERKS.map((p) => (
@@ -116,7 +116,6 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
               </button>
             ))}
           </div>
-
         </div>
 
         {/* CTA */}

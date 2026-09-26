@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { OCEAN } from "../data/site";
-import { reduced, scrollToId } from "../lib/anim";
+import { OCEAN } from "@/data/site";
+import { reduced, scrollToId } from "@/lib/anim";
 import { Eyebrow } from "./primitives";
 
 /** Full-bleed panorama with a scrubbed giant line: the visual exhale of the page. */
@@ -30,7 +30,12 @@ export function Ocean() {
         })
         .fromTo(text.current, { xPercent: 7 }, { xPercent: -7, ease: "none" }, 0);
       gsap.utils.toArray<HTMLElement>("[data-ocean-word]").forEach((w, i) => {
-        tl.fromTo(w, { yPercent: 55 + i * 8, opacity: 0.15 }, { yPercent: 0, opacity: 1, ease: "none" }, 0.02 * i);
+        tl.fromTo(
+          w,
+          { yPercent: 55 + i * 8, opacity: 0.15 },
+          { yPercent: 0, opacity: 1, ease: "none" },
+          0.02 * i,
+        );
       });
     }, root);
     ScrollTrigger.refresh();

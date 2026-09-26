@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { isTouch, reduced } from "../lib/anim";
+import { isTouch, reduced } from "@/lib/anim";
 
 /** Cinematic cursor: a dot that snaps and a ring that lags + carries labels. */
 export function Cursor() {
@@ -29,7 +29,11 @@ export function Cursor() {
       yD(e.clientY);
       const t = (e.target as HTMLElement)?.closest?.("a,button,[data-cursor]") as HTMLElement | null;
       if (t) {
-        setVariant({ label: t.dataset.cursor || "", big: !!t.dataset.cursorBig || t.matches("button,a"), hidden: false });
+        setVariant({
+          label: t.dataset.cursor || "",
+          big: !!t.dataset.cursorBig || t.matches("button,a"),
+          hidden: false,
+        });
       } else {
         setVariant((v) => (v.hidden ? v : { label: "", big: false, hidden: true }));
       }

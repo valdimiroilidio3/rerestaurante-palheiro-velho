@@ -10,8 +10,7 @@ export const EASE = "power3.out";
 let lenis: Lenis | null = null;
 export const getLenis = () => lenis;
 
-export const isTouch = () =>
-  typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+export const isTouch = () => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 
 export const reduced = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -183,8 +182,6 @@ export function useReveals(deps: unknown[] = [], opts: RevealOpts = {}) {
   }, deps);
 }
 
-
-
 /** Vertical parallax tied to scroll progress. */
 export function useParallax(
   target: React.RefObject<HTMLElement | null>,
@@ -251,7 +248,11 @@ export function useScrubDrift(
     const tween = gsap.fromTo(
       el,
       { xPercent: from },
-      { xPercent: to, ease: "none", scrollTrigger: { trigger: trig, start: "top bottom", end: "bottom top", scrub: true } },
+      {
+        xPercent: to,
+        ease: "none",
+        scrollTrigger: { trigger: trig, start: "top bottom", end: "bottom top", scrub: true },
+      },
     );
     return () => {
       tween.kill();

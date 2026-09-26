@@ -1,12 +1,23 @@
 {
-  "name": "react-vite-tailwind",
+  "name": "palheiro-velho",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "description": "Conceito de website para o Palheiro Velho, bar de praia em Esmoriz (Ovar, Portugal).",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.19"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --build --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && vite build"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -19,13 +30,21 @@
     "tailwind-merge": "3.4.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "4.1.17",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
+    "typescript-eslint": "^8.70.1",
     "vite": "7.3.2",
     "vite-plugin-singlefile": "2.3.0"
   }

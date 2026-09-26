@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Info } from "lucide-react";
-import { MENU, px, type Dish } from "../data/site";
-import { reduced } from "../lib/anim";
+import { MENU, px, type Dish } from "@/data/site";
+import { reduced } from "@/lib/anim";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 
 function useSpotlight() {
@@ -105,8 +105,8 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
             <div className="flex items-start gap-3 border border-dashed border-cream/25 p-4">
               <Info size={15} className="mt-0.5 shrink-0 text-sun" />
               <p className="text-[0.82rem] leading-relaxed text-cream/55">
-                Carta <em className="not-italic text-cream/80">provisória</em> para este site: nomes e preços são
-                marcadores editáveis (00 €) e substituem-se pela tabela oficial da casa.
+                Carta <em className="not-italic text-cream/80">provisória</em> para este site: nomes e preços
+                são marcadores editáveis (00 €) e substituem-se pela tabela oficial da casa.
               </p>
             </div>
           </div>
@@ -120,7 +120,9 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                 key={c.id}
                 onClick={() => setCat(i)}
                 className={`relative shrink-0 snap-start border px-4 py-3 label transition-colors duration-400 sm:px-6 ${
-                  i === cat ? "border-cream/70 text-cream" : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
+                  i === cat
+                    ? "border-cream/70 text-cream"
+                    : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
                 }`}
               >
                 {i === cat && (
@@ -160,31 +162,46 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                 <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
                 <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
                   <p className="label text-sun">{active.label} · imagem de referência</p>
-                  <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">{feature.name}</h3>
-                  <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">{feature.desc}</p>
+                  <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
+                    {feature.name}
+                  </h3>
+                  <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
+                    {feature.desc}
+                  </p>
                   <div className="mt-5 flex items-center gap-4">
-                    <span className="label border border-cream/25 px-3 py-2 tabular-nums">{feature.price}</span>
+                    <span className="label border border-cream/25 px-3 py-2 tabular-nums">
+                      {feature.price}
+                    </span>
                     {feature.flag && <span className="label text-cream/50">{feature.flag}</span>}
                   </div>
                 </div>
               </div>
-              <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">{active.blurb}</p>
+              <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
+                {active.blurb}
+              </p>
             </div>
 
             {/* list */}
             <div>
               <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
                 <p className="label text-cream/50">{active.kicker}</p>
-                <p className="label text-cream/35 tabular-nums">{String(active.items.length).padStart(2, "0")} itens</p>
+                <p className="label text-cream/35 tabular-nums">
+                  {String(active.items.length).padStart(2, "0")} itens
+                </p>
               </div>
               {rest.map((d, i) => (
-                <DishRow key={`${d.name}-${i}`} dish={d} i={i} onPick={() => onReserve(`Carta: ${active.label}`)} />
+                <DishRow
+                  key={`${d.name}-${i}`}
+                  dish={d}
+                  i={i}
+                  onPick={() => onReserve(`Carta: ${active.label}`)}
+                />
               ))}
 
               <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
                 <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">
-                  Esta é uma estrutura de demonstração. Use os canais oficiais abaixo para confirmar a carta e a
-                  disponibilidade atual.
+                  Esta é uma estrutura de demonstração. Use os canais oficiais abaixo para confirmar a carta e
+                  a disponibilidade atual.
                 </p>
                 <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
                   <span className="label">Contactar a casa</span>

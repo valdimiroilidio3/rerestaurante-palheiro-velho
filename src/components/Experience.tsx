@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { EXPERIENCE } from "../data/site";
-import { useIsDesktop, useReveals } from "../lib/anim";
+import { EXPERIENCE } from "@/data/site";
+import { useIsDesktop, useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
-import { cn } from "../utils/cn";
+import { cn } from "@/utils/cn";
 
 const ACCENT: Record<string, string> = {
   view: "#d1854a",
@@ -32,8 +32,8 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
             </h2>
           </div>
           <p data-reveal className="max-w-[38ch] text-[0.98rem] leading-relaxed text-char/65 lg:pb-3">
-            Informação recolhida em canais públicos associados à marca. As fotografias desta secção são referências
-            temporárias e não representam o Palheiro Velho.
+            Informação recolhida em canais públicos associados à marca. As fotografias desta secção são
+            referências temporárias e não representam o Palheiro Velho.
           </p>
         </div>
       </div>
@@ -68,9 +68,7 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                   aria-hidden
                   className={cn(
                     "absolute inset-0 transition-opacity duration-700",
-                    isOpen
-                      ? "bg-gradient-to-t from-char/90 via-char/25 to-transparent"
-                      : "bg-char/55",
+                    isOpen ? "bg-gradient-to-t from-char/90 via-char/25 to-transparent" : "bg-char/55",
                   )}
                 />
                 {/* collapsed label */}
@@ -146,8 +144,8 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
 
       <div className="mx-auto mt-14 flex max-w-[1680px] flex-wrap items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
         <p className="max-w-[46ch] text-[0.95rem] leading-relaxed text-char/60">
-          Os serviços publicados incluem vista para o mar, mesas exteriores, música ao vivo, brunch e estacionamento.
-          Horários, carta e condições devem ser confirmados diretamente com a marca.
+          Os serviços publicados incluem vista para o mar, mesas exteriores, música ao vivo, brunch e
+          estacionamento. Horários, carta e condições devem ser confirmados diretamente com a marca.
         </p>
         <Btn onClick={() => onReserve("Informações e disponibilidade")} tone="dark">
           <span className="label">Contactar a casa</span>
