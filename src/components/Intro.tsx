@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState } from "react";
 import { useSite } from "@/content/context";
-import { isDesktop, reduced, useReveals } from "@/lib/anim";
+import { isDesktop, useAnim, useReveals } from "@/lib/anim";
 import { Eyebrow, Img, Marquee, MaskWords } from "./primitives";
 
 export function Intro() {
@@ -14,8 +12,8 @@ export function Intro() {
   const imgB = useRef<HTMLDivElement>(null);
   useReveals([]);
 
-  useEffect(() => {
-    if (!isDesktop() || reduced()) return;
+  useAnim(({ gsap, ScrollTrigger }) => {
+    if (!isDesktop()) return;
     const ctx = gsap.context(() => {
       gsap.to(imgA.current, {
         yPercent: -9,

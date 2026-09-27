@@ -1,13 +1,57 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger);
+/**
+ * Animação em carga diferida.
+ *
+ * gsap, ScrollTrigger e Lenis são pesados e não são precisos para a página
+ * aparecer: são pedidos depois da primeira pintura. Até lá o site funciona
+ * na mesma, só sem animações — e no telemóvel o scroll suave nem carrega.
+ */
+
+async function importAnim() {
+  const [g, st] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")]);
+  const gsap = g.default;
+  gsap.registerPlugin(st.ScrollTrigger);
+  return { gsap, ScrollTrigger: st.ScrollTrigger };
+}
+
+export type Anim = Awaited<ReturnType<typeof importAnim>>;
+
+type Tween = ReturnType<Anim["gsap"]["to"]>;
+
+/** Só o que o site usa do Lenis — assim não se carregam os tipos do módulo. */
+type ScrollSmoother = {
+  raf: (time: number) => void;
+  on: (event: "scroll", cb: () => void) => void;
+  off: (event: "scroll", cb: () => void) => void;
+  destroy: () => void;
+  stop: () => void;
+  start: () => void;
+  scrollTo: (target: number | HTMLElement, opts?: { offset?: number; duration?: number }) => void;
+};
+
+let pending: Promise<Anim> | null = null;
+
+/**
+ * O conteúdo só pode estar escondido enquanto o gsap não chega: assim que a
+ * biblioteca entra (ou falha), o CSS volta a mostrá-lo.
+ */
+export const markReady = () => document.documentElement.classList.add("anim-ready");
+
+/** Carrega o gsap (com o ScrollTrigger registado) uma única vez. */
+export function loadAnim(): Promise<Anim> {
+  pending ??= importAnim().then((anim) => {
+    markReady();
+    return anim;
+  });
+  // se a biblioteca não carregar, o conteúdo aparece na mesma
+  void pending.catch(markReady);
+  return pending;
+}
 
 export const EASE = "power3.out";
 
-let lenis: Lenis | null = null;
+let lenis: ScrollSmoother | null = null;
 export const getLenis = () => lenis;
 
 export const isTouch = () => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
@@ -48,34 +92,73 @@ export function scrollToTop() {
   else window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
 }
 
-/** Momentum scrolling, synced with the GSAP ticker + ScrollTrigger. */
-export function useSmoothScroll() {
+/**
+ * Corre `setup` assim que o gsap estiver disponível.
+ * A limpeza é chamada mesmo que o componente saia antes de a biblioteca chegar.
+ */
+export function useAnim(setup: (anim: Anim) => void | (() => void), deps: unknown[] = []) {
   useEffect(() => {
     if (reduced()) return;
-    const l = new Lenis({
-      duration: 1.12,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.7,
-      autoRaf: false,
-      anchors: false,
+    let cleanup: void | (() => void);
+    let alive = true;
+    void loadAnim().then((anim) => {
+      if (!alive) return;
+      cleanup = setup(anim);
     });
-    lenis = l;
+    return () => {
+      alive = false;
+      cleanup?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
 
-    const tick = (time: number) => l.raf(time * 1000);
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
-    const onScroll = () => ScrollTrigger.update();
-    l.on("scroll", onScroll);
+/**
+ * Scroll com inércia, sincronizado com o gsap.
+ * Só em ecrãs grandes com rato: no telemóvel o scroll nativo é melhor e não
+ * se descarrega a biblioteca.
+ */
+export function useSmoothScroll() {
+  const smooth = useMedia("(pointer: fine) and (min-width: 1024px)");
+
+  useEffect(() => {
+    if (!smooth || reduced()) return;
+    let cleanup: (() => void) | undefined;
+    let alive = true;
+
+    void Promise.all([loadAnim(), import("lenis")]).then(([anim, lenisModule]) => {
+      if (!alive) return;
+      const { gsap, ScrollTrigger } = anim;
+      const l = new lenisModule.default({
+        duration: 1.12,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 0.95,
+        touchMultiplier: 1.7,
+        autoRaf: false,
+        anchors: false,
+      });
+      lenis = l;
+
+      const tick = (time: number) => l.raf(time * 1000);
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+      const onScroll = () => ScrollTrigger.update();
+      l.on("scroll", onScroll);
+
+      cleanup = () => {
+        l.off("scroll", onScroll);
+        gsap.ticker.remove(tick);
+        l.destroy();
+        lenis = null;
+      };
+    });
 
     return () => {
-      l.off("scroll", onScroll);
-      gsap.ticker.remove(tick);
-      l.destroy();
-      lenis = null;
+      alive = false;
+      cleanup?.();
     };
-  }, []);
+  }, [smooth]);
 }
 
 /** Splits a phrase into words wrapped in masked lines for reveal animations. */
@@ -91,10 +174,9 @@ type RevealOpts = { start?: string; stagger?: number };
  * position when created render in their final, visible state.
  */
 export function useReveals(deps: unknown[] = [], opts: RevealOpts = {}) {
-  const start = opts.start ?? "top 86%";
-  useEffect(() => {
-    if (reduced()) return;
-    const tweens: gsap.core.Tween[] = [];
+  useAnim(({ gsap, ScrollTrigger }) => {
+    const start = opts.start ?? "top 86%";
+    const tweens: Tween[] = [];
     const st = { start, once: true };
 
     gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
@@ -171,6 +253,7 @@ export function useReveals(deps: unknown[] = [], opts: RevealOpts = {}) {
     });
 
     ScrollTrigger.refresh();
+
     return () => {
       tweens.forEach((t) => {
         t.scrollTrigger?.kill();
@@ -178,7 +261,6 @@ export function useReveals(deps: unknown[] = [], opts: RevealOpts = {}) {
       });
       document.querySelectorAll<HTMLElement>("[data-reveal][data-rv]").forEach((el) => delete el.dataset.rv);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
@@ -188,49 +270,57 @@ export function useParallax(
   trigger: React.RefObject<HTMLElement | null>,
   amount = 14,
 ) {
-  useEffect(() => {
-    const el = target.current;
-    const trig = trigger.current;
-    if (!el || !trig || reduced() || !isDesktop()) return;
-    const st = ScrollTrigger.create({
-      trigger: trig,
-      start: "top bottom",
-      end: "bottom top",
-      scrub: true,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        gsap.set(el, { yPercent: (0.5 - self.progress) * -2 * amount });
-      },
-    });
-    return () => st.kill();
-  }, [target, trigger, amount]);
+  useAnim(
+    ({ gsap, ScrollTrigger }) => {
+      const el = target.current;
+      const trig = trigger.current;
+      if (!el || !trig || !isDesktop()) return;
+      const st = ScrollTrigger.create({
+        trigger: trig,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          gsap.set(el, { yPercent: (0.5 - self.progress) * -2 * amount });
+        },
+      });
+      return () => st.kill();
+    },
+    [target, trigger, amount],
+  );
 }
 
 /** Magnetic pull toward the pointer. */
 export function useMagnetic<T extends HTMLElement>(strength = 0.4) {
   const ref = useRef<T | null>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || reduced() || isTouch()) return;
-    const xTo = gsap.quickTo(el, "x", { duration: 0.7, ease: "elastic.out(1, 0.42)" });
-    const yTo = gsap.quickTo(el, "y", { duration: 0.7, ease: "elastic.out(1, 0.42)" });
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      xTo((e.clientX - (r.left + r.width / 2)) * strength);
-      yTo((e.clientY - (r.top + r.height / 2)) * strength);
-    };
-    const leave = () => {
-      xTo(0);
-      yTo(0);
-    };
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerleave", leave);
-    return () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerleave", leave);
-      gsap.killTweensOf(el);
-    };
-  }, [strength]);
+
+  useAnim(
+    ({ gsap }) => {
+      const el = ref.current;
+      if (!el || isTouch()) return;
+      const xTo = gsap.quickTo(el, "x", { duration: 0.7, ease: "elastic.out(1, 0.42)" });
+      const yTo = gsap.quickTo(el, "y", { duration: 0.7, ease: "elastic.out(1, 0.42)" });
+      const move = (e: PointerEvent) => {
+        const r = el.getBoundingClientRect();
+        xTo((e.clientX - (r.left + r.width / 2)) * strength);
+        yTo((e.clientY - (r.top + r.height / 2)) * strength);
+      };
+      const leave = () => {
+        xTo(0);
+        yTo(0);
+      };
+      el.addEventListener("pointermove", move);
+      el.addEventListener("pointerleave", leave);
+      return () => {
+        el.removeEventListener("pointermove", move);
+        el.removeEventListener("pointerleave", leave);
+        gsap.killTweensOf(el);
+      };
+    },
+    [strength],
+  );
+
   return ref;
 }
 
@@ -241,21 +331,24 @@ export function useScrubDrift(
   from = -6,
   to = 6,
 ) {
-  useEffect(() => {
-    const el = target.current;
-    const trig = trigger.current;
-    if (!el || !trig || reduced() || !isDesktop()) return;
-    const tween = gsap.fromTo(
-      el,
-      { xPercent: from },
-      {
-        xPercent: to,
-        ease: "none",
-        scrollTrigger: { trigger: trig, start: "top bottom", end: "bottom top", scrub: true },
-      },
-    );
-    return () => {
-      tween.kill();
-    };
-  }, [target, trigger, from, to]);
+  useAnim(
+    ({ gsap }) => {
+      const el = target.current;
+      const trig = trigger.current;
+      if (!el || !trig || !isDesktop()) return;
+      const tween = gsap.fromTo(
+        el,
+        { xPercent: from },
+        {
+          xPercent: to,
+          ease: "none",
+          scrollTrigger: { trigger: trig, start: "top bottom", end: "bottom top", scrub: true },
+        },
+      );
+      return () => {
+        tween.kill();
+      };
+    },
+    [target, trigger, from, to],
+  );
 }

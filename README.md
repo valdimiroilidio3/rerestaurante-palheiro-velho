@@ -86,19 +86,20 @@ npm run dev:admin  # painel em http://localhost:5173/admin.html
 
 ### Scripts
 
-| Script                | O que faz                                                |
-| --------------------- | -------------------------------------------------------- |
-| `npm run dev`         | servidor do site (HMR)                                   |
-| `npm run dev:admin`   | servidor do painel                                       |
-| `npm run build`       | `build:site` + `build:admin`                             |
-| `npm run build:site`  | verifica tipos e gera `dist/index.html` (ficheiro único) |
-| `npm run build:admin` | gera `dist/admin.html` + `dist/admin-assets/`            |
-| `npm run preview`     | serve `dist/` como em produção                           |
-| `npm run typecheck`   | `tsc --build --noEmit` (strict)                          |
-| `npm run lint`        | ESLint em todo o projeto                                 |
-| `npm run format`      | Prettier                                                 |
-| `npm run verify`      | formato + lint + tipos + build (o mesmo que a CI)        |
-| `npm run db:check`    | diagnóstico da base de dados (inclui teste de envio)     |
+| Script                 | O que faz                                                    |
+| ---------------------- | ------------------------------------------------------------ |
+| `npm run dev`          | servidor do site (HMR)                                       |
+| `npm run dev:admin`    | servidor do painel                                           |
+| `npm run build`        | `build:site` + `build:admin`                                 |
+| `npm run build:site`   | verifica tipos e gera `dist/` com o site em blocos separados |
+| `npm run build:single` | gera `dist-single/index.html`: tudo num só ficheiro          |
+| `npm run build:admin`  | gera `dist/admin.html` + `dist/admin-assets/`                |
+| `npm run preview`      | serve `dist/` como em produção                               |
+| `npm run typecheck`    | `tsc --build --noEmit` (strict)                              |
+| `npm run lint`         | ESLint em todo o projeto                                     |
+| `npm run format`       | Prettier                                                     |
+| `npm run verify`       | formato + lint + tipos + build (o mesmo que a CI)            |
+| `npm run db:check`     | diagnóstico da base de dados (inclui teste de envio)         |
 
 ### Ligar a base de dados (Supabase)
 
@@ -230,10 +231,31 @@ Para publicar:
 
 ## Publicação
 
-`npm run build` gera `dist/` com o site num único `index.html` e o painel em `admin.html` +
-`admin-assets/`. Basta enviar `dist/` para qualquer alojamento estático (Netlify, Vercel, GitHub
+`npm run build` gera `dist/` com o site em blocos separados (ver abaixo) e o painel em
+`admin.html` + `admin-assets/`. Basta enviar `dist/` para qualquer alojamento estático (Netlify, Vercel, GitHub
 Pages, Cloudflare Pages). Lembre-se de configurar as variáveis `VITE_SUPABASE_*` no alojamento —
 são lidas no build, não em tempo de execução.
+
+## Desempenho
+
+O site abre primeiro e só depois afina os detalhes:
+
+| Bloco                                 | Quando carrega                                                          |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| `index.html` + CSS                    | primeiro — é o que pinta a página                                       |
+| `react`, `motion` e o código do site  | a seguir, em paralelo e com `modulepreload`                             |
+| `anim` (gsap + ScrollTrigger + Lenis) | **depois da primeira pintura**; no telemóvel o scroll suave nem carrega |
+| `supabase`                            | só se existir `VITE_SUPABASE_URL` — sem base de dados, nunca é pedido   |
+
+Consequências práticas:
+
+- **primeira pintura mais leve**: ~156 kB gzip em vez de ~262 kB de um ficheiro único;
+- **cache a sério**: mudar um texto não invalida o React nem o gsap;
+- **telemóvel**: sem scroll suave a consumir processamento e o vídeo de abertura só entra em ecrãs com largura ≥ 900 px, sem `save-data` e fora de 2G;
+- **segurança**: se o gsap falhar (ou a rede cair), a classe `anim-ready` é posta na mesma e o conteúdo aparece — há um prazo de segurança de 2,5 s no `main.tsx`.
+
+Para enviar o site como **um só ficheiro** (útil para abrir em `file://` ou mandar por email):
+`npm run build:single` gera `dist-single/index.html`.
 
 ## Licença e direitos
 

@@ -1,8 +1,6 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import { useSite } from "@/content/context";
-import { reduced, scrollToId } from "@/lib/anim";
+import { scrollToId, useAnim } from "@/lib/anim";
 import { Eyebrow } from "./primitives";
 
 /** Full-bleed panorama with a scrubbed giant line: the visual exhale of the page. */
@@ -12,8 +10,7 @@ export function Ocean() {
   const media = useRef<HTMLDivElement>(null);
   const text = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (reduced()) return;
+  useAnim(({ gsap, ScrollTrigger }) => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         media.current,

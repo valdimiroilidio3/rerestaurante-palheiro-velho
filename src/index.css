@@ -108,6 +108,19 @@
   * {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Enquanto o gsap não chega, o que vai ser animado fica escondido para não
+     "piscar". A classe `anim-ready` é posta mesmo que a biblioteca falhe, e
+     o main.tsx tem um prazo de segurança — o conteúdo aparece sempre. */
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.anim-ready) [data-reveal],
+    html:not(.anim-ready) [data-hero-mask] .word,
+    html:not(.anim-ready) [data-hero-fade],
+    html:not(.anim-ready) [data-hero-side] {
+      opacity: 0;
+    }
+  }
+
   html {
     scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;

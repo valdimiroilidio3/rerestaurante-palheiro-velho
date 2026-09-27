@@ -1,9 +1,7 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { useSite } from "@/content/context";
-import { reduced, useIsDesktop } from "@/lib/anim";
+import { reduced, useAnim, useIsDesktop } from "@/lib/anim";
 import { Eyebrow, Img, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
 
@@ -15,39 +13,42 @@ export function Gallery() {
   const bar = useRef<HTMLDivElement>(null);
   const desktop = useIsDesktop();
 
-  useEffect(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 1024px)", () => {
-      const el = track.current;
-      if (reduced() || !el) return;
-      const distance = () => Math.max(0, el.scrollWidth - window.innerWidth + 48);
-      const move = gsap.to(el, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: () => `+=${distance() + 120}`,
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`;
+  useAnim(
+    ({ gsap, ScrollTrigger }) => {
+      const mm = gsap.matchMedia();
+      mm.add("(min-width: 1024px)", () => {
+        const el = track.current;
+        if (reduced() || !el) return;
+        const distance = () => Math.max(0, el.scrollWidth - window.innerWidth + 48);
+        const move = gsap.to(el, {
+          x: () => -distance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top top",
+            end: () => `+=${distance() + 120}`,
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`;
+            },
           },
-        },
+        });
+        return () => {
+          move.kill();
+          move.scrollTrigger?.kill();
+        };
       });
+      const id = window.setTimeout(() => ScrollTrigger.refresh(), 600);
       return () => {
-        move.kill();
-        move.scrollTrigger?.kill();
+        mm.revert();
+        window.clearTimeout(id);
       };
-    });
-    const id = window.setTimeout(() => ScrollTrigger.refresh(), 600);
-    return () => {
-      mm.revert();
-      window.clearTimeout(id);
-    };
-  }, [desktop]);
+    },
+    [desktop],
+  );
 
   const tiles = (
     <>

@@ -1,4 +1,3 @@
-import { supabase, supabaseEnabled } from "@/lib/supabase";
 import { storageVariants, toImageAsset } from "@/lib/images";
 import { defaultContent } from "@/content/defaults";
 import type {
@@ -31,6 +30,20 @@ const merge = <T>(base: T, patch?: Partial<T>): T => (patch ? { ...base, ...patc
 /** Imagem guardada numa coluna jsonb (`{ src, width, height }`). */
 const jsonImage = (r: Row, k: string, alt?: string) => toImageAsset(r[k], alt);
 
+/**
+ * O cliente da base de dados só é descarregado quando é preciso: sem
+ * variáveis de ambiente ninguém paga o peso do SDK.
+ */
+const importSupabase = () => import("@/lib/supabase");
+type SupabaseModule = Awaited<ReturnType<typeof importSupabase>>;
+
+let dbModule: SupabaseModule | null = null;
+const loadSupabase = async (): Promise<SupabaseModule> => (dbModule ??= await importSupabase());
+
+/** As variáveis estão definidas? (sem carregar o cliente.) */
+export const isSupabaseConfigured = () =>
+  Boolean(import.meta.env.VITE_SUPABASE_URL?.trim() && import.meta.env.VITE_SUPABASE_ANON_KEY?.trim());
+
 /* ——————————————————————————— leitura ——————————————————————————— */
 
 /**
@@ -38,7 +51,9 @@ const jsonImage = (r: Row, k: string, alt?: string) => toImageAsset(r[k], alt);
  * políticas RLS têm de permitir leitura pública.
  */
 export async function fetchSiteContent(): Promise<SiteContent> {
-  if (!supabase || !supabaseEnabled) return defaultContent;
+  if (!isSupabaseConfigured()) return defaultContent;
+  const { supabase } = await loadSupabase();
+  if (!supabase) return defaultContent;
   const db = supabase;
 
   const [settings, categories, dishes, gallery, instagram, introImages, facts, panels, events] =
@@ -203,9 +218,11 @@ export async function fetchSiteContent(): Promise<SiteContent> {
  * Avisa sempre que algo muda na base de dados, para que qualquer pessoa com o
  * site aberto veja a alteração sem recarregar.
  */
-export function subscribeToContent(onChange: () => void): () => void {
+export async function subscribeToContent(onChange: () => void): Promise<() => void> {
+  if (!isSupabaseConfigured()) return () => {};
+  const { supabase } = await loadSupabase();
+  if (!supabase) return () => {};
   const db = supabase;
-  if (!db || !supabaseEnabled) return () => {};
   const channel = db
     .channel("site-content")
     .on("postgres_changes", { event: "*", schema: "public" }, onChange);

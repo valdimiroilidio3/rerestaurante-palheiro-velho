@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { SiteContent } from "@/content/types";
 import { defaultContent } from "@/content/defaults";
-import { fetchSiteContent, subscribeToContent } from "@/content/store";
-import { supabaseEnabled } from "@/lib/supabase";
+import { fetchSiteContent, isSupabaseConfigured, subscribeToContent } from "@/content/store";
 import { SiteContentContext, type SiteContentValue } from "@/content/context";
 
 /**
@@ -17,9 +16,10 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
   const timer = useRef(0);
 
   useEffect(() => {
-    if (!supabaseEnabled) return;
+    if (!isSupabaseConfigured()) return;
 
     let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
 
     const load = async () => {
       try {
@@ -36,16 +36,19 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
     void load();
 
-    const unsubscribe = subscribeToContent(() => {
+    void subscribeToContent(() => {
       window.clearTimeout(timer.current);
       // agrupa rajadas de alterações (arrastar para reordenar, por exemplo)
       timer.current = window.setTimeout(load, 250);
+    }).then((fn) => {
+      if (cancelled) fn();
+      else unsubscribe = fn;
     });
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer.current);
-      unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 

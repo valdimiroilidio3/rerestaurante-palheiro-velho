@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import { useSite } from "@/content/context";
-import { reduced, scrollToId } from "@/lib/anim";
+import { reduced, scrollToId, useAnim } from "@/lib/anim";
 import { Btn, LightLeaks } from "./primitives";
 
 export function Hero() {
@@ -24,8 +23,7 @@ export function Hero() {
     return () => window.clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    if (reduced()) return;
+  useAnim(({ gsap }) => {
     const ctx = gsap.context(() => {
       /* entrance */
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });

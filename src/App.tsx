@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
 import { Nav } from "@/components/Nav";
@@ -25,22 +24,25 @@ function Curtain() {
   const [done, setDone] = useState(() => reduced());
   const [count, setCount] = useState(0);
 
+  // contador da cortina: um simples requestAnimationFrame, sem biblioteca
   useEffect(() => {
     if (done || reduced()) return;
-    const o = { v: 0 };
+    let frame = 0;
     let hide = 0;
-    const tween = gsap.to(o, {
-      v: 100,
-      duration: 0.85,
-      ease: "power2.inOut",
-      onUpdate: () => setCount(Math.round(o.v)),
-      onComplete: () => {
-        hide = window.setTimeout(() => setDone(true), 1000);
-      },
-    });
+    const began = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - began) / 850);
+      setCount(Math.round(progress * 100));
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+        return;
+      }
+      hide = window.setTimeout(() => setDone(true), 1000);
+    };
+    frame = requestAnimationFrame(step);
     return () => {
+      cancelAnimationFrame(frame);
       window.clearTimeout(hide);
-      tween.kill();
     };
   }, [done]);
 
