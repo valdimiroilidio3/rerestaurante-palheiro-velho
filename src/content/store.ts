@@ -124,6 +124,8 @@ export async function fetchSiteContent(): Promise<SiteContent> {
     cap: str(p, "cap"),
     likes: str(p, "likes"),
     span: str(p, "span"),
+    url: str(p, "url") || undefined,
+    kind: str(p, "kind") === "reel" ? "reel" : "foto",
     image: {
       src: str(p, "src"),
       srcSet: toImageAsset({ src: str(p, "src") }).srcSet,

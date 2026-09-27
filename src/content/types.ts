@@ -109,6 +109,10 @@ export type InstagramItem = {
   likes: string;
   /** Classes Tailwind do mosaico (ex.: "sm:col-span-2 sm:row-span-2"). */
   span: string;
+  /** Liga à publicação; sem valor abre o perfil. */
+  url?: string;
+  /** Foto ou vídeo — só muda o selo da peça. */
+  kind?: "foto" | "reel";
 };
 
 export type EventItem = {

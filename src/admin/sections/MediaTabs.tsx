@@ -139,7 +139,7 @@ export function InstagramTab() {
     <div>
       <SectionHeader
         title="Instagram"
-        description="O mosaico em forma de grelha. Escolha o tamanho de cada peça para compor o mosaico."
+        description="O mosaico em forma de grelha. Escolha o tamanho de cada peça, a ligação para a publicação e o tipo (foto ou reel)."
         action={<span className="label text-cream/40">{draft.length} publicações</span>}
       />
 
@@ -205,6 +205,29 @@ export function InstagramTab() {
                   onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, likes: v } : it)))}
                 />
               </Field>
+              <Field label="Ligação da publicação" hint="Opcional. Sem ligação, a peça abre o perfil.">
+                <Input
+                  value={item.url ?? ""}
+                  placeholder="https://www.instagram.com/p/..."
+                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, url: v } : it)))}
+                />
+              </Field>
+              <Field label="Tipo">
+                <select
+                  value={item.kind ?? "foto"}
+                  onChange={(e) =>
+                    update(
+                      draft.map((it, j) =>
+                        j === i ? { ...it, kind: e.target.value as InstagramItem["kind"] } : it,
+                      ),
+                    )
+                  }
+                  className="w-full border border-cream/15 bg-char/60 px-3 py-2.5 text-[0.95rem] text-cream outline-none focus:border-sun"
+                >
+                  <option value="foto">foto</option>
+                  <option value="reel">reel (vídeo)</option>
+                </select>
+              </Field>
               <Field label="Tamanho no mosaico">
                 <select
                   value={item.span}
@@ -236,6 +259,8 @@ export function InstagramTab() {
                 cap: "Nova publicação",
                 likes: "",
                 span: "",
+                url: "",
+                kind: "foto" as const,
                 image: { src: "", alt: "" },
               },
             ])

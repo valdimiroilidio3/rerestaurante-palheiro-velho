@@ -149,7 +149,8 @@ Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
 | Carta     | categorias, pratos, descrições, preços, etiquetas e fotografias       |
 | O espaço  | painéis do espaço (vista, exterior, música, brunch, chegar)           |
 | Galeria   | carrossel de fotografias                                              |
-| Instagram | mosaico de publicações e hashtags                                     |
+| Instagram | mosaico de publicações (imagem, legenda, gostos, ligação, foto/reel)  |
+| Hashtags  | faixa em movimento no fim da secção do Instagram                      |
 | Momentos  | tipos de evento                                                       |
 | Serviços  | fotografias de abertura e lista de serviços                           |
 | Textos    | separadores, faixas do rodapé e nota de conceito                      |

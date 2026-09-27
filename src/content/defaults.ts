@@ -341,14 +341,21 @@ export const IG_SPAN = [
   "",
 ];
 
-export const INSTAGRAM = [
+export const INSTAGRAM_IDS = [
   3320497, 2531184, 38942913, 17779122, 6073595, 9685877, 14808642, 28843593, 10099363, 5840411, 7938813,
   6529722,
-].map((id, i) => ({
+];
+
+/** Demonstração do selo de vídeo: duas peças marcadas como reel (editável no painel). */
+const IG_REELS = new Set([2, 7]);
+
+const INSTAGRAM = INSTAGRAM_IDS.map((id, i) => ({
   id,
   cap: "Imagem editorial temporária",
   likes: "conceito privado",
   span: IG_SPAN[i % IG_SPAN.length],
+  url: "",
+  kind: (IG_REELS.has(i) ? "reel" : "foto") as "foto" | "reel",
 }));
 
 export const EVENTS = [
@@ -478,6 +485,8 @@ export const defaultContent: SiteContent = {
     cap: p.cap,
     likes: p.likes,
     span: p.span,
+    url: p.url,
+    kind: p.kind,
   })),
 
   events: EVENTS.map((e): EventItem => ({

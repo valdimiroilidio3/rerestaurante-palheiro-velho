@@ -83,11 +83,11 @@ try {
 
   c.instagram.forEach((p, i) =>
     lines.push(
-      `insert into public.instagram_posts (src, width, height, cap, likes, span, position) values (${q(
+      `insert into public.instagram_posts (src, width, height, cap, likes, span, url, kind, position) values (${q(
         p.image.src,
       )}, ${p.image.width ?? "null"}, ${p.image.height ?? "null"}, ${q(p.cap)}, ${q(p.likes)}, ${q(
         p.span,
-      )}, ${i});`,
+      )}, ${p.url ? q(p.url) : "null"}, ${q(p.kind ?? "foto")}, ${i});`,
     ),
   );
   lines.push("");

@@ -152,6 +152,8 @@ export async function saveInstagram(items: InstagramItem[]): Promise<void> {
       cap: p.cap,
       likes: p.likes,
       span: p.span,
+      url: p.url?.trim() || null,
+      kind: p.kind ?? "foto",
       position: i,
     })),
   );
