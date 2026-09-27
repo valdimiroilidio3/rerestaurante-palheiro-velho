@@ -9,7 +9,7 @@ import {
   startSession,
   verifyCredentials,
 } from "@/admin/lib/access";
-import { ContactTab, HeroTab, TextsTab } from "@/admin/sections/SettingsTabs";
+import { ContactTab, HeroTab, HoursTab, TextsTab } from "@/admin/sections/SettingsTabs";
 import { MenuTab } from "@/admin/sections/MenuTab";
 import { GalleryTab, InstagramTab, IntroTab } from "@/admin/sections/MediaTabs";
 import { FilesTab } from "@/admin/sections/FilesTab";
@@ -28,6 +28,7 @@ const TABS: Tab[] = [
     hint: "morada, telefone, email, redes",
     render: () => <ContactTab />,
   },
+  { id: "horario", label: "Horário", hint: "dias e horas de funcionamento", render: () => <HoursTab /> },
   { id: "abertura", label: "Abertura", hint: "vídeo, fotograma e panorâmica", render: () => <HeroTab /> },
   { id: "carta", label: "Carta", hint: "categorias, pratos e preços", render: () => <MenuTab /> },
   { id: "espaco", label: "O espaço", hint: "painéis do espaço", render: () => <ExperienceTab /> },

@@ -118,6 +118,36 @@ export type InstagramItem = {
   kind?: "foto" | "reel";
 };
 
+/** Dias da semana: o `schema` é o nome que o Google espera (schema.org). */
+export const WEEK_DAYS = [
+  { id: "mon", label: "Segunda", short: "Seg", schema: "Monday" },
+  { id: "tue", label: "Terça", short: "Ter", schema: "Tuesday" },
+  { id: "wed", label: "Quarta", short: "Qua", schema: "Wednesday" },
+  { id: "thu", label: "Quinta", short: "Qui", schema: "Thursday" },
+  { id: "fri", label: "Sexta", short: "Sex", schema: "Friday" },
+  { id: "sat", label: "Sábado", short: "Sáb", schema: "Saturday" },
+  { id: "sun", label: "Domingo", short: "Dom", schema: "Sunday" },
+] as const;
+
+export type DayId = (typeof WEEK_DAYS)[number]["id"];
+
+/**
+ * Uma linha do horário. Sem horas de abertura e fecho, a linha conta como
+ * encerrada nesses dias — assim também se publica o dia de descanso.
+ */
+export type HoursEntry = {
+  id: string;
+  /** Rótulo que aparece no site, por exemplo "Terça a domingo". */
+  label: string;
+  days: DayId[];
+  /** Abertura, formato "HH:MM". */
+  open: string;
+  /** Fecho, formato "HH:MM". */
+  close: string;
+  /** Observação opcional, por exemplo "cozinha até às 22:00". */
+  note?: string;
+};
+
 export type EventItem = {
   id: string;
   n: string;
@@ -140,6 +170,8 @@ export type SiteContent = {
   experience: ExperiencePanel[];
   gallery: GalleryItem[];
   instagram: InstagramItem[];
+  /** Horário de funcionamento. Vazio = ainda por confirmar. */
+  hours: HoursEntry[];
   events: EventItem[];
   eventPerks: string[];
   conceptNotice: string;

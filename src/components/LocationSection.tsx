@@ -133,7 +133,7 @@ function StylisedMap() {
 }
 
 export function LocationSection({ onReserve }: { onReserve: (s?: string) => void }) {
-  const { brand: BRAND, contact: CONTACT, conceptNotice: CONCEPT_NOTICE } = useSite().content;
+  const { brand: BRAND, contact: CONTACT, conceptNotice: CONCEPT_NOTICE, hours: HOURS } = useSite().content;
   const maps = mapsUrls(CONTACT.mapsQuery);
   const [live, setLive] = useState(false);
   useReveals([]);
@@ -193,10 +193,31 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
               </div>
               <div className="border-y border-espresso/20 py-5 sm:col-span-2">
                 <p className="label text-espresso/50">Horário</p>
-                <p className="mt-3 max-w-[58ch] text-[0.98rem] leading-relaxed text-char/75">
-                  Não publicamos um horário neste conceito: as fontes públicas consultadas apresentam horários
-                  diferentes. Confirme sempre por telefone ou nos perfis oficiais antes da visita.
-                </p>
+                {HOURS.length > 0 ? (
+                  <ul className="mt-4">
+                    {HOURS.map((h) => (
+                      <li
+                        key={h.id}
+                        className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 py-2 first:pt-0 last:pb-0"
+                      >
+                        <span className="text-[0.98rem] text-char/80">
+                          {h.label}
+                          {h.note ? (
+                            <span className="block text-[0.82rem] leading-snug text-char/50">{h.note}</span>
+                          ) : null}
+                        </span>
+                        <span className="label shrink-0 font-mono tabular-nums text-char/65">
+                          {h.open && h.close ? `${h.open} — ${h.close}` : "encerrado"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 max-w-[58ch] text-[0.98rem] leading-relaxed text-char/75">
+                    Horário ainda por publicar. Confirme sempre por telefone ou nos perfis oficiais antes da
+                    visita.
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-9 flex flex-wrap gap-3">

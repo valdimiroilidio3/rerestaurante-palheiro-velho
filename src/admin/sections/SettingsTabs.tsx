@@ -1,8 +1,27 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, Wand2 } from "lucide-react";
 import { useAdminContent } from "@/admin/lib/hooks";
-import { saveSettings } from "@/admin/lib/api";
-import type { Contact, Hero, NavItem, Ocean } from "@/content/types";
-import { Button, Card, Field, Input, SaveBar, SectionHeader, Textarea } from "@/admin/components/ui";
+import { saveHours, saveSettings } from "@/admin/lib/api";
+import {
+  WEEK_DAYS,
+  type Contact,
+  type DayId,
+  type Hero,
+  type HoursEntry,
+  type NavItem,
+  type Ocean,
+} from "@/content/types";
+import {
+  AddButton,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  SaveBar,
+  SectionHeader,
+  Textarea,
+} from "@/admin/components/ui";
+import { cn } from "@/utils/cn";
 import { useDraft, useSave } from "@/admin/lib/hooks";
 import { ImageField } from "@/admin/components/ImageField";
 
@@ -314,6 +333,187 @@ export function TextsTab() {
         <Field label="Nota de conceito" hint="Aviso legal que aparece no mapa e no rodapé.">
           <Textarea value={notice.draft} onChange={notice.update} rows={5} />
         </Field>
+      </div>
+
+      <SaveBar dirty={dirty} saving={saving} onSave={() => void save()} onReset={reset} />
+    </div>
+  );
+}
+
+/* ————————————————————————————— horário ————————————————————————————— */
+
+/** Rótulo legível a partir dos dias escolhidos: "Terça a domingo", "Segunda"… */
+function labelFromDays(days: DayId[]): string {
+  if (!days.length) return "";
+  const order = WEEK_DAYS.map((w) => w.id);
+  const sorted = order.filter((d) => days.includes(d));
+  const labels = sorted.map((d) => WEEK_DAYS.find((w) => w.id === d)!.label);
+
+  if (labels.length === 1) return labels[0];
+  if (labels.length === order.length) return "Todos os dias";
+
+  const first = order.indexOf(sorted[0]);
+  const last = order.indexOf(sorted[sorted.length - 1]);
+  const consecutive = last - first === sorted.length - 1;
+  if (consecutive) return `${labels[0]} a ${labels[labels.length - 1]}`;
+  return `${labels.slice(0, -1).join(", ")} e ${labels[labels.length - 1]}`;
+}
+
+export function HoursTab() {
+  const { content, loading } = useAdminContent();
+  const { draft, update, commit, reset, dirty } = useDraft<HoursEntry[]>(content?.hours ?? []);
+  const { saving, save } = useSave(
+    draft,
+    commit,
+    saveHours,
+    "Horário atualizado — o site já mostra as alterações.",
+  );
+
+  if (loading) return <Loading />;
+
+  const setEntry = (i: number, patch: Partial<HoursEntry>) =>
+    update(draft.map((h, j) => (j === i ? { ...h, ...patch } : h)));
+
+  const toggleDay = (i: number, day: DayId) => {
+    const entry = draft[i];
+    const days = entry.days.includes(day)
+      ? entry.days.filter((d) => d !== day)
+      : WEEK_DAYS.map((w) => w.id).filter((d) => d === day || entry.days.includes(d));
+    setEntry(i, { days });
+  };
+
+  return (
+    <div>
+      <SectionHeader
+        title="Horário"
+        description="Os períodos de funcionamento da casa. Sem horas de abertura e fecho, a linha aparece como encerrada nesses dias — serve também para publicar o dia de descanso."
+        action={<span className="label text-cream/40">{draft.length} linhas</span>}
+      />
+
+      {draft.length === 0 && (
+        <EmptyState>Sem horário definido. O site mostra “a confirmar” até haver uma linha.</EmptyState>
+      )}
+
+      <div className="grid gap-4">
+        {draft.map((item, i) => (
+          <Card key={item.id || i}>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="label text-cream/35">{String(i + 1).padStart(2, "0")}</span>
+              <span className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = [...draft];
+                    [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                    update(next);
+                  }}
+                  disabled={i === 0}
+                  className="label px-2 py-1 text-cream/45 transition-colors hover:text-cream disabled:opacity-25"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = [...draft];
+                    [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                    update(next);
+                  }}
+                  disabled={i === draft.length - 1}
+                  className="label px-2 py-1 text-cream/45 transition-colors hover:text-cream disabled:opacity-25"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => update(draft.filter((_, j) => j !== i))}
+                  className="label px-2 py-1 text-cream/45 transition-colors hover:text-ember"
+                >
+                  remover
+                </button>
+              </span>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+              <Field label="Rótulo" hint="É o que se lê no site, por exemplo “Terça a domingo”.">
+                <Input
+                  value={item.label}
+                  onChange={(v) => setEntry(i, { label: v })}
+                  placeholder={labelFromDays(item.days) || "Terça a domingo"}
+                />
+              </Field>
+              <div className="flex items-end">
+                <Button
+                  variant="ghost"
+                  onClick={() => setEntry(i, { label: labelFromDays(item.days) })}
+                  className="mb-[2px]"
+                >
+                  <Wand2 size={13} />
+                  <span className="label">sugerir</span>
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p className="label mb-2 text-cream/45">Dias da semana</p>
+              <div className="flex flex-wrap gap-1.5">
+                {WEEK_DAYS.map((day) => {
+                  const on = item.days.includes(day.id);
+                  return (
+                    <button
+                      key={day.id}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => toggleDay(i, day.id)}
+                      className={cn(
+                        "label px-3 py-2 border transition-colors",
+                        on
+                          ? "border-sun bg-sun/15 text-cream"
+                          : "border-cream/15 text-cream/45 hover:border-cream/30 hover:text-cream/70",
+                      )}
+                    >
+                      {day.short}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label="Abertura" hint="Vazio = encerrado nestes dias.">
+                <Input value={item.open} onChange={(v) => setEntry(i, { open: v })} placeholder="12:30" />
+              </Field>
+              <Field label="Fecho">
+                <Input value={item.close} onChange={(v) => setEntry(i, { close: v })} placeholder="23:00" />
+              </Field>
+            </div>
+
+            <div className="mt-4">
+              <Field label="Observação" hint="Opcional: “cozinha até às 22:00”, “a confirmar”…">
+                <Input value={item.note ?? ""} onChange={(v) => setEntry(i, { note: v })} />
+              </Field>
+            </div>
+
+            <p className="mt-4 border-t border-cream/10 pt-4 text-[0.9rem] text-cream/55">
+              {item.label || labelFromDays(item.days) || "Sem rótulo"} ·{" "}
+              <span className="font-mono">
+                {item.open && item.close ? `${item.open} — ${item.close}` : "encerrado"}
+              </span>
+            </p>
+          </Card>
+        ))}
+      </div>
+
+      <div className="mt-5">
+        <AddButton
+          label="adicionar período"
+          onClick={() =>
+            update([
+              ...draft,
+              { id: crypto.randomUUID(), label: "", days: [], open: "12:30", close: "23:00" },
+            ])
+          }
+        />
       </div>
 
       <SaveBar dirty={dirty} saving={saving} onSave={() => void save()} onReset={reset} />

@@ -7,6 +7,7 @@ import type {
   ExperiencePanel,
   GalleryItem,
   Hero,
+  HoursEntry,
   InstagramItem,
   IntroFact,
   MenuCategory,
@@ -34,8 +35,14 @@ export type SettingsPatch = {
   ticker?: string[];
   hashtags?: string[];
   eventPerks?: string[];
+  hours?: HoursEntry[];
   conceptNotice?: string;
 };
+
+/** O horário vive na linha única de definições. */
+export async function saveHours(items: HoursEntry[]): Promise<void> {
+  await saveSettings({ hours: items });
+}
 
 export async function saveSettings(patch: SettingsPatch): Promise<void> {
   const client = db();
@@ -48,6 +55,7 @@ export async function saveSettings(patch: SettingsPatch): Promise<void> {
   if (patch.ticker) row.ticker = patch.ticker;
   if (patch.hashtags) row.hashtags = patch.hashtags;
   if (patch.eventPerks) row.event_perks = patch.eventPerks;
+  if (patch.hours) row.hours = patch.hours;
   if (patch.conceptNotice !== undefined) row.concept_notice = patch.conceptNotice;
 
   const { error } = await client.from("site_settings").upsert(row);

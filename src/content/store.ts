@@ -9,6 +9,7 @@ import type {
   ExperiencePanel,
   GalleryItem,
   Hero,
+  HoursEntry,
   InstagramItem,
   IntroFact,
   MenuCategory,
@@ -16,6 +17,7 @@ import type {
   Ocean,
   SiteContent,
 } from "@/content/types";
+import { WEEK_DAYS, type DayId } from "@/content/types";
 
 /** Uma linha da base de dados, sem tipo à partida. */
 type Row = Record<string, unknown>;
@@ -75,6 +77,20 @@ export async function fetchSiteContent(): Promise<SiteContent> {
   if (failed?.error) throw failed.error;
 
   const s = (settings.data ?? {}) as Row;
+
+  // o horário vem inteiro da base de dados; sem linhas, fica o de origem
+  const hours: HoursEntry[] = (Array.isArray(s.hours) ? (s.hours as Row[]) : [])
+    .map((h) => ({
+      id: str(h, "id"),
+      label: str(h, "label"),
+      days: (Array.isArray(h.days) ? (h.days as string[]) : []).filter((d): d is DayId =>
+        WEEK_DAYS.some((w) => w.id === d),
+      ),
+      open: str(h, "open"),
+      close: str(h, "close"),
+      note: str(h, "note") || undefined,
+    }))
+    .filter((h) => h.label);
 
   const contact = merge<Contact>(defaultContent.contact, json<Contact>(s, "contact"));
   const brand = merge<Brand>(defaultContent.brand, json<Brand>(s, "brand"));
@@ -193,6 +209,7 @@ export async function fetchSiteContent(): Promise<SiteContent> {
     brand,
     nav,
     hero,
+    hours: hours.length ? hours : defaultContent.hours,
     intro: {
       images: introImgs.length ? introImgs : defaultContent.intro.images,
       facts: introFactItems.length ? introFactItems : defaultContent.intro.facts,

@@ -4,6 +4,7 @@ import type {
   ExperiencePanel,
   GalleryItem,
   IdentifiedImage,
+  HoursEntry,
   InstagramItem,
   MenuCategory as SiteMenuCategory,
   SiteContent,
@@ -400,6 +401,29 @@ export const EVENT_PERKS = [
   "Disponibilidade a confirmar diretamente",
 ];
 
+/**
+ * Horário de referência, como todo o resto do conceito: **a confirmar com a
+ * casa** (as fontes públicas divergem). É editável no separador Horário.
+ */
+export const HOURS: HoursEntry[] = [
+  {
+    id: "verao",
+    label: "Terça a domingo",
+    days: ["tue", "wed", "thu", "fri", "sat", "sun"],
+    open: "12:30",
+    close: "23:00",
+    note: "Horário de referência, a confirmar com a casa antes de publicar.",
+  },
+  {
+    id: "descanso",
+    label: "Segunda",
+    days: ["mon"],
+    open: "",
+    close: "",
+    note: "Encerrado (a confirmar).",
+  },
+];
+
 export const CONCEPT_NOTICE =
   "Conceito privado de design. Dados públicos conferidos em 17/09/2026; validar com a marca antes de qualquer publicação ou campanha.";
 
@@ -478,6 +502,8 @@ export const defaultContent: SiteContent = {
     cap: g.cap,
     loc: g.loc,
   })),
+
+  hours: HOURS.map((h): HoursEntry => ({ ...h, days: [...h.days] })),
 
   instagram: INSTAGRAM.map((p): InstagramItem => ({
     id: `ig-${p.id}`,

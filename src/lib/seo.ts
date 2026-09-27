@@ -1,4 +1,4 @@
-import type { SiteContent } from "../content/types";
+import { WEEK_DAYS, type SiteContent } from "../content/types";
 
 /**
  * Títulos, descrição e dados estruturados — tudo função pura do conteúdo.
@@ -35,6 +35,17 @@ export function restaurantSchema(content: SiteContent, siteUrl = "") {
   };
 
   if (siteUrl) schema.url = siteUrl;
+
+  // horário: uma especificação por linha, no formato que o Google lê
+  const openingHours = content.hours
+    .filter((h) => h.open && h.close && h.days.length)
+    .map((h) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: h.days.map((d) => WEEK_DAYS.find((w) => w.id === d)?.schema).filter(Boolean),
+      opens: h.open,
+      closes: h.close,
+    }));
+  if (openingHours.length) schema.openingHoursSpecification = openingHours;
 
   // as coordenadas são opcionais: sem elas o Google fica só com a morada
   if (typeof c.lat === "number" && typeof c.lng === "number") {

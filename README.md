@@ -156,19 +156,20 @@ produz um token diferente. Para mudar o acesso, correr outra vez o script (gera 
 Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
 `scripts/set-admin-password.mjs` e entrar. Não existe criação de contas. Depois de entrar:
 
-| Separador | O que edita                                                           |
-| --------- | --------------------------------------------------------------------- |
-| Ficheiros | biblioteca de fotografias: enviar várias de uma vez, copiar, remover  |
-| Contactos | morada, telefone, email, Instagram, Facebook, consulta do Google Maps |
-| Abertura  | vídeo, fotograma, frase e panorâmica do oceano                        |
-| Carta     | categorias, pratos, descrições, preços, etiquetas e fotografias       |
-| O espaço  | painéis do espaço (vista, exterior, música, brunch, chegar)           |
-| Galeria   | carrossel de fotografias                                              |
-| Instagram | mosaico de publicações (imagem, legenda, gostos, ligação, foto/reel)  |
-| Hashtags  | faixa em movimento no fim da secção do Instagram                      |
-| Momentos  | tipos de evento                                                       |
-| Serviços  | fotografias de abertura e lista de serviços                           |
-| Textos    | separadores, faixas do rodapé e nota de conceito                      |
+| Separador | O que edita                                                                         |
+| --------- | ----------------------------------------------------------------------------------- |
+| Ficheiros | biblioteca de fotografias: enviar várias de uma vez, copiar, remover                |
+| Contactos | morada, telefone, email, Instagram, Facebook, coordenadas e consulta do Google Maps |
+| Horário   | períodos de funcionamento: dias, abertura, fecho e observações                      |
+| Abertura  | vídeo, fotograma, frase e panorâmica do oceano                                      |
+| Carta     | categorias, pratos, descrições, preços, etiquetas e fotografias                     |
+| O espaço  | painéis do espaço (vista, exterior, música, brunch, chegar)                         |
+| Galeria   | carrossel de fotografias                                                            |
+| Instagram | mosaico de publicações (imagem, legenda, gostos, ligação, foto/reel)                |
+| Hashtags  | faixa em movimento no fim da secção do Instagram                                    |
+| Momentos  | tipos de evento                                                                     |
+| Serviços  | fotografias de abertura e lista de serviços                                         |
+| Textos    | separadores, faixas do rodapé e nota de conceito                                    |
 
 Cada secção tem **arrastar e largar** (ou clique) para fotografias, **biblioteca** com os ficheiros
 já enviados, **ordenar** com setas, **adicionar/remover** e uma barra de **Guardar alterações** que
@@ -225,7 +226,8 @@ build pelo plugin `preloadHero`, com a URL a sair dos dados.
 
 Para publicar:
 
-1. substituir os dados e as imagens no painel;
+1. substituir os dados e as imagens no painel — **incluindo o horário**, que
+   vem de referência e tem de ser confirmado com a casa;
 2. remover `conceptNotice` (nota de conceito) no separador Textos;
 3. remover `<meta name="robots" content="noindex, nofollow">` de `index.html`;
 4. definir `VITE_SITE_URL` com o endereço real (canonical, sitemap e robots).
@@ -252,9 +254,12 @@ Tudo o que o Google e as redes sociais lêm vem do conteúdo — nada está escr
 
 Notas:
 
+- o **horário** entra nos dados estruturados como `openingHoursSpecification`
+  (dias, abertura e fecho de cada linha); as linhas sem horas contam como
+  encerradas e não são publicadas;
 - os dados estruturados só escrevem **o que se sabe**: sem coordenadas
   preenchidas no separador Contactos, o bloco `geo` não aparece (e não se
-  inventam horários nem tipo de cozinha);
+  inventa o tipo de cozinha);
 - as etiquetas também vão no HTML gerado (`vite.config.ts`), para os robots de
   partilhas que não correm JavaScript;
 - **sem `VITE_SITE_URL`** o build avisa e os ficheiros saem com um endereço de
