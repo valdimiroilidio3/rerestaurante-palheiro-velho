@@ -227,7 +227,8 @@ Para publicar:
 
 1. substituir os dados e as imagens no painel;
 2. remover `conceptNotice` (nota de conceito) no separador Textos;
-3. remover `<meta name="robots" content="noindex, nofollow">` de `index.html`.
+3. remover `<meta name="robots" content="noindex, nofollow">` de `index.html`;
+4. definir `VITE_SITE_URL` com o endereço real (canonical, sitemap e robots).
 
 ## Publicação
 
@@ -235,6 +236,31 @@ Para publicar:
 `admin.html` + `admin-assets/`. Basta enviar `dist/` para qualquer alojamento estático (Netlify, Vercel, GitHub
 Pages, Cloudflare Pages). Lembre-se de configurar as variáveis `VITE_SUPABASE_*` no alojamento —
 são lidas no build, não em tempo de execução.
+
+## SEO e partilhas
+
+Tudo o que o Google e as redes sociais lêm vem do conteúdo — nada está escrito
+à mão no `index.html`:
+
+| O quê                                      | Como                                                                             |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| título e descrição                         | gerados do conteúdo (`src/lib/seo.ts`), no build e a cada alteração              |
+| `og:` e `twitter:` (partilhas)             | título, descrição e **imagem de partilha** — acabaram-se os quadrados vazios     |
+| `robots.txt` e `sitemap.xml`               | gerados no build a partir de `VITE_SITE_URL` (ninguém os mantém à mão)           |
+| `canonical` e `og:url`                     | só aparecem quando `VITE_SITE_URL` está definida                                 |
+| dados estruturados (`application/ld+json`) | esquema `Restaurant`: nome, morada, telefone, email, redes sociais e coordenadas |
+
+Notas:
+
+- os dados estruturados só escrevem **o que se sabe**: sem coordenadas
+  preenchidas no separador Contactos, o bloco `geo` não aparece (e não se
+  inventam horários nem tipo de cozinha);
+- as etiquetas também vão no HTML gerado (`vite.config.ts`), para os robots de
+  partilhas que não correm JavaScript;
+- **sem `VITE_SITE_URL`** o build avisa e os ficheiros saem com um endereço de
+  exemplo;
+- acessibilidade que também é SEO: a página tem **um só `h1`** e o menu marca
+  a secção ativa com `aria-current`.
 
 ## Desempenho
 

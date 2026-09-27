@@ -73,6 +73,18 @@ export function ContactTab() {
         <Field label="Página de Facebook">
           <Input value={draft.facebookUrl} onChange={(v) => set({ facebookUrl: v })} />
         </Field>
+        <Field label="Latitude" hint="Opcional. Usada nos dados estruturados para o Google (40.95).">
+          <Input
+            value={draft.lat === undefined ? "" : String(draft.lat)}
+            onChange={(v) => set({ lat: v.trim() === "" ? undefined : Number(v.replace(",", ".")) })}
+          />
+        </Field>
+        <Field label="Longitude" hint="Opcional. mesma ideia (-8.64).">
+          <Input
+            value={draft.lng === undefined ? "" : String(draft.lng)}
+            onChange={(v) => set({ lng: v.trim() === "" ? undefined : Number(v.replace(",", ".")) })}
+          />
+        </Field>
       </div>
 
       <Card className="mt-5">

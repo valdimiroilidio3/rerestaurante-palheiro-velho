@@ -82,6 +82,7 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
               <button
                 key={item.id}
                 onClick={() => go(item.id)}
+                aria-current={active === item.id ? "true" : undefined}
                 className={cn(
                   "label relative px-4 py-3 transition-colors duration-300",
                   active === item.id ? "text-current" : "opacity-60 hover:opacity-100",

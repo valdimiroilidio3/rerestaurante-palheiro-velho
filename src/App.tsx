@@ -16,6 +16,7 @@ import { ReservePanel } from "@/components/ReservePanel";
 import { Grain } from "@/components/primitives";
 import { useSite } from "@/content/context";
 import { reduced, useSmoothScroll } from "@/lib/anim";
+import { applySeo } from "@/lib/seo-dom";
 
 /* ————— cinematic curtain: no asset waiting, just a beat of anticipation ————— */
 function Curtain() {
@@ -57,11 +58,11 @@ function Curtain() {
     >
       <div className="absolute inset-0 opacity-[0.5] mix-blend-overlay grain-layer" />
       <p className="label relative mb-6 text-cream/45">Esmoriz · Portugal</p>
-      <h1 className="relative font-display text-[clamp(2.4rem,11vw,7rem)] leading-[0.86] tracking-[-0.03em]">
+      <p className="relative font-display text-[clamp(2.4rem,11vw,7rem)] leading-[0.86] tracking-[-0.03em]">
         Palheiro
         <br />
         <span className="italic text-sand/85">Velho</span>
-      </h1>
+      </p>
       <p className="label relative mt-8 flex items-center gap-4 tabular-nums text-cream/60">
         <span className="h-px w-16 bg-cream/25" />
         {String(count).padStart(3, "0")}% · a acender a luz do fim da tarde
@@ -115,10 +116,16 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
 
 export default function App() {
   useSmoothScroll();
+  const { content } = useSite();
   const [reserve, setReserve] = useState<{ open: boolean; subject?: string }>({ open: false });
   const root = useRef<HTMLDivElement>(null);
 
   const openReserve = (subject?: string) => setReserve({ open: true, subject });
+
+  // título, descrição, partilhas e dados estruturados seguem o conteúdo real
+  useEffect(() => {
+    applySeo(content);
+  }, [content]);
 
   useEffect(() => {
     // keep ScrollTrigger honest once webfonts + above-the-fold images have landed

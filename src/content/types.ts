@@ -32,6 +32,9 @@ export type Contact = {
   facebookUrl: string;
   mapsQuery: string;
   note: string;
+  /** Coordenadas, só para os dados estruturados e o mapa. Opcionais. */
+  lat?: number;
+  lng?: number;
 };
 
 export type Brand = {
