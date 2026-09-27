@@ -12,13 +12,16 @@ import {
 import { ContactTab, HeroTab, TextsTab } from "@/admin/sections/SettingsTabs";
 import { MenuTab } from "@/admin/sections/MenuTab";
 import { GalleryTab, InstagramTab, IntroTab } from "@/admin/sections/MediaTabs";
+import { FilesTab } from "@/admin/sections/FilesTab";
 import { EventsTab, ExperienceTab } from "@/admin/sections/StoryTabs";
 import { Button, Card, LiveDot } from "@/admin/components/ui";
+import { DiagnosticsButton } from "@/admin/components/Diagnostics";
 import { cn } from "@/utils/cn";
 
 type Tab = { id: string; label: string; hint: string; render: () => ReactNode };
 
 const TABS: Tab[] = [
+  { id: "ficheiros", label: "Ficheiros", hint: "biblioteca de fotografias", render: () => <FilesTab /> },
   {
     id: "contactos",
     label: "Contactos",
@@ -156,6 +159,7 @@ function Shell() {
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <LiveDot live />
+            <DiagnosticsButton />
             <a
               href="./index.html"
               target="_blank"
@@ -231,13 +235,22 @@ function SetupScreen() {
             </li>
             <li>
               <span className="label block text-cream/45">2 · criar as tabelas</span>
-              Correr <span className="text-sand">supabase/migrations/0001_init.sql</span> no editor SQL e
-              depois o<span className="text-sand"> supabase/seed.sql</span> para carregar o conteúdo atual.
+              Correr, no editor SQL do projeto e por esta ordem,{" "}
+              <span className="text-sand">0001_init.sql</span>,{" "}
+              <span className="text-sand">0002_admin_access.sql</span> e{" "}
+              <span className="text-sand">0003_instagram_posts_fields.sql</span> (em{" "}
+              <span className="text-sand">supabase/migrations/</span>). Depois o{" "}
+              <span className="text-sand">supabase/seed.sql</span> para carregar o conteúdo atual.
             </li>
             <li>
               <span className="label block text-cream/45">3 · configurar o ambiente</span>
               Copiar <span className="text-sand">.env.example</span> para{" "}
-              <span className="text-sand">.env.local</span> com as duas variáveis e reiniciar o servidor.
+              <span className="text-sand">.env.local</span> com as variáveis e reiniciar o servidor.
+            </li>
+            <li>
+              <span className="label block text-cream/45">4 · conferir</span>
+              Correr <span className="text-sand">npm run db:check</span> — diz o que está bem e o que falta,
+              incluindo um teste de envio de fotografia.
             </li>
           </ol>
         </Card>

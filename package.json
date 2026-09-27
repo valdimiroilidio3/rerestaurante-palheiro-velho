@@ -20,7 +20,8 @@
     "verify": "npm run format:check && npm run lint && npm run typecheck && vite build",
     "build:site": "npm run typecheck && vite build",
     "build:admin": "vite build --config vite.admin.config.ts",
-    "dev:admin": "vite --config vite.admin.config.ts"
+    "dev:admin": "vite --config vite.admin.config.ts",
+    "db:check": "node scripts/check-supabase.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

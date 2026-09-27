@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_ADMIN_SALT?: string;
   /** Resumo do token de acesso — nunca a palavra-passe. */
   readonly VITE_ADMIN_TOKEN_HASH?: string;
+  /** "1" para servir as fotografias do Storage com reduções por largura. */
+  readonly VITE_SUPABASE_TRANSFORM?: string;
 }
 
 interface ImportMeta {

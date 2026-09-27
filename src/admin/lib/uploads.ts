@@ -11,6 +11,15 @@ import type { ImageAsset } from "@/content/types";
 /** Lado maior das imagens submetidas: chega para ecrãs grandes e mantém o peso baixo. */
 const MAX_EDGE = 1800;
 const QUALITY = 0.82;
+/** Acima disto nem vale a pena processar. */
+const MAX_BYTES = 40 * 1024 * 1024;
+
+/** Erro legível: usa a mensagem que o Supabase mandou, quando houver. */
+async function explain(res: Response, fallback: string): Promise<string> {
+  const body = (await res.json().catch(() => null)) as { message?: string; error?: string } | null;
+  const detail = body?.message ?? body?.error ?? "";
+  return detail ? `${fallback} ${res.status}: ${detail}` : `${fallback} ${res.status}`;
+}
 
 export type UploadedImage = ImageAsset & { bytes: number };
 
@@ -28,6 +37,11 @@ const slug = (name: string) =>
  * Um telemóvel envia ficheiros de 5 a 10 MB; assim vão sempre abaixo de 1 MB.
  */
 async function compress(file: File): Promise<{ blob: Blob; width: number; height: number }> {
+  if (file.size > MAX_BYTES) {
+    throw new Error(
+      `A fotografia é demasiado grande (${Math.round(file.size / 1024 / 1024)} MB, máximo 40 MB).`,
+    );
+  }
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);
@@ -74,13 +88,19 @@ export async function uploadImage(file: File): Promise<UploadedImage> {
     body: blob,
   });
   if (!response.ok) {
-    throw new Error(`Não foi possível enviar a imagem (${response.status}).`);
+    throw new Error(
+      (await explain(response, "Não foi possível enviar a imagem.")) +
+        (response.status === 403 || response.status === 401
+          ? " A base de dados não autorizou o envio: confirme a migração 0002 e o token de acesso."
+          : ""),
+    );
   }
 
   const { data } = db.storage.from(MEDIA_BUCKET).getPublicUrl(path);
   const url = data.publicUrl;
 
-  await db.from("media").insert({
+  // a fotografia já está no Storage; se o registo falhar não se perde o envio
+  const { error } = await db.from("media").insert({
     bucket: MEDIA_BUCKET,
     path,
     url,
@@ -88,8 +108,18 @@ export async function uploadImage(file: File): Promise<UploadedImage> {
     height,
     bytes: blob.size,
   });
+  if (error) {
+    console.warn("A imagem foi enviada mas não ficou registada na biblioteca:", error.message);
+  }
 
   return { src: url, width, height, bytes: blob.size, alt: file.name.replace(/\.[^.]+$/, "") };
+}
+
+/** Envia várias fotografias, uma a seguir à outra (para não sobrecarregar a rede). */
+export async function uploadImages(files: File[]): Promise<UploadedImage[]> {
+  const done: UploadedImage[] = [];
+  for (const file of files) done.push(await uploadImage(file));
+  return done;
 }
 
 /** Remove o ficheiro do Storage e da biblioteca. */

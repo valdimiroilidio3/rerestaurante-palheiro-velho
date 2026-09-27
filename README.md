@@ -98,16 +98,29 @@ npm run dev:admin  # painel em http://localhost:5173/admin.html
 | `npm run lint`        | ESLint em todo o projeto                                 |
 | `npm run format`      | Prettier                                                 |
 | `npm run verify`      | formato + lint + tipos + build (o mesmo que a CI)        |
+| `npm run db:check`    | diagnóstico da base de dados (inclui teste de envio)     |
 
 ### Ligar a base de dados (Supabase)
 
 1. Criar um projeto em [supabase.com](https://supabase.com) e copiar a **URL** e a chave **anon**
    (_Project Settings → API_).
-2. Correr `supabase/migrations/0001_init.sql` no editor SQL — cria as tabelas, as políticas de
-   segurança, o bucket `media` e oRealtime.
+2. Correr as migrações no editor SQL, **por esta ordem**:
+   `supabase/migrations/0001_init.sql` (tabelas, políticas, bucket `media`, Realtime),
+   `0002_admin_access.sql` (acesso único por token) e
+   `0003_instagram_posts_fields.sql` (ligação e tipo das publicações).
 3. Correr `supabase/seed.sql` para carregar o conteúdo atual do site.
 4. Definir o acesso ao painel (ver abaixo).
-5. Reiniciar `npm run dev`.
+5. Reiniciar `npm run dev` e **conferir tudo**:
+
+```bash
+npm run db:check                                                # verificação sem palavra-passe
+npm run db:check -- --utilizador <user> --palavra-passe <senha>  # inclui teste de envio de fotografia
+```
+
+O `db:check` diz o que está bem e o que falta: variáveis, as 10 tabelas, o conteúdo carregado, o
+bucket `media`, a função `is_admin()`, se o token é aceite e — com as credenciais — **envia uma
+imagem de teste ao Storage e apaga-a a seguir**. É a prova de que as fotografias da casa entram
+mesmo. O painel tem o mesmo diagnóstico no botão **diagnóstico** do cabeçalho.
 
 ### Acesso ao painel
 
@@ -144,6 +157,7 @@ Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
 
 | Separador | O que edita                                                           |
 | --------- | --------------------------------------------------------------------- |
+| Ficheiros | biblioteca de fotografias: enviar várias de uma vez, copiar, remover  |
 | Contactos | morada, telefone, email, Instagram, Facebook, consulta do Google Maps |
 | Abertura  | vídeo, fotograma, frase e panorâmica do oceano                        |
 | Carta     | categorias, pratos, descrições, preços, etiquetas e fotografias       |
@@ -160,6 +174,12 @@ já enviados, **ordenar** com setas, **adicionar/remover** e uma barra de **Guar
 só aparece quando há algo por gravar. As imagens são reduzidas no browser (máx. 1800 px, WebP) antes
 de seguirem para o Storage.
 
+**Por onde começar:** separador **Ficheiros** → largar as fotografias da casa (pode ser um lote
+inteiro) → ir aos separadores da carta, galeria, Instagram e espaço e escolhê-las na **biblioteca**.
+
+Se alguma coisa não entrar, o botão **diagnóstico** (cabeçalho do painel) ou `npm run db:check`
+dizem exatamente onde está o problema.
+
 ## Imagens
 
 Todas as fotografias são servidas por CDN e pedidas **no tamanho em que são mostradas**
@@ -171,6 +191,11 @@ Todas as fotografias são servidas por CDN e pedidas **no tamanho em que são mo
 | `pxSrcSet(id, w, h?)`                  | as 5 variantes (`0,5×` → `2×`) da mesma fotografia           |
 | `photo(id, w, h, alt?)`                | objeto `{ src, srcSet, width, height, alt }` pronto a usar   |
 | `storageVariants(url)`                 | variantes para imagens submetidas para o Storage do Supabase |
+
+As fotografias enviadas pelo painel já vão comprimidas (máx. 1800 px, WebP), por isso servem-se bem
+como estão. Quem tiver **transformações de imagem** ativas no projeto pode servir reduções por
+largura com `VITE_SUPABASE_TRANSFORM=1` — o `srcSet` passa a apontar ao endpoint de transformação do
+Storage.
 
 Regras do `<Img>` (`src/components/primitives.tsx`): declarar `width`/`height` (evita saltos de
 layout), passar `sizes` sempre que há `srcSet`, `eager` só na primeira dobra e `loading="lazy"` no
