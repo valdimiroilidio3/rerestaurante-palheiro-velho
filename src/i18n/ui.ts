@@ -92,6 +92,8 @@ const pt = {
   "menu.provisional":
     "Carta provisória: os nomes e os preços são marcadores editáveis e substituem-se pela tabela oficial da casa.",
   "menu.items": "itens",
+  "menu.priceRange": "de {min} a {max}",
+  "rail.label": "Secções da página",
   "menu.reference": "imagem de referência",
   "menu.confirm": "confirmar com a casa",
   "menu.contains": "contém",
@@ -358,6 +360,8 @@ const en: UiStrings = {
   "menu.provisional":
     "Provisional menu: names and prices are editable placeholders, to be replaced by the house’s official list.",
   "menu.items": "items",
+  "menu.priceRange": "from {min} to {max}",
+  "rail.label": "Page sections",
   "menu.reference": "reference image",
   "menu.confirm": "confirm with the house",
   "menu.contains": "contains",

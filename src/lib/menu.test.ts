@@ -4,9 +4,12 @@ import {
   allergensIn,
   allergenLine,
   dishAllergens,
+  formatPrice,
   hasAllergen,
   menuWithoutAllergen,
   mergeAllergens,
+  parsePrice,
+  priceStats,
   splitAllergens,
 } from "@/lib/menu";
 import type { Text } from "@/i18n";
@@ -124,5 +127,49 @@ describe("alergénios", () => {
     expect(mergeAllergens("glúten, ovo", "")).toEqual(["glúten", "ovo"]);
     expect(mergeAllergens("", "gluten")).toEqual(["gluten"]);
     expect(allergenLine(mergeAllergens("glúten", "gluten"), "en")).toBe("gluten");
+  });
+});
+
+describe("preços", () => {
+  it("lê o que a casa escreveu", () => {
+    expect(parsePrice("14 €")).toEqual({ amount: 14, currency: "€" });
+    expect(parsePrice("14,50€")).toEqual({ amount: 14.5, currency: "€" });
+    expect(parsePrice("9.50 EUR")).toEqual({ amount: 9.5, currency: "EUR" });
+    expect(parsePrice("1 234")).toEqual({ amount: 1234, currency: "" });
+  });
+
+  it("não inventa preços onde não há número", () => {
+    expect(parsePrice("—")).toBeNull();
+    expect(parsePrice("sob consulta")).toBeNull();
+    expect(parsePrice("")).toBeNull();
+  });
+
+  it("resume o intervalo de uma lista", () => {
+    const carta = (prices: string[]): MenuCategory[] => [
+      {
+        id: "c",
+        label: "C",
+        kicker: "",
+        blurb: "",
+        items: prices.map((price, i) => ({ ...dish(`p${i}`, []), price })),
+      },
+    ];
+    expect(priceStats(carta(["9 €", "34 €", "14,50 €"])[0].items)).toEqual({
+      min: 9,
+      max: 34,
+      currency: "€",
+    });
+    // sem preços publicados não há intervalo nenhum
+    expect(priceStats(carta(["—", "sob consulta"])[0].items)).toBeNull();
+    expect(priceStats([])).toBeNull();
+  });
+
+  it("escreve os números na língua certa", () => {
+    // dinheiro escreve-se sempre com duas casas
+    expect(formatPrice(14.5, "pt")).toBe("14,50");
+    expect(formatPrice(14.5, "en")).toBe("14.50");
+    // menos de um euro também
+    expect(formatPrice(0.8, "pt")).toBe("0,80");
+    expect(formatPrice(9, "pt")).toBe("9");
   });
 });

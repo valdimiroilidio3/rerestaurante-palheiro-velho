@@ -86,3 +86,58 @@ export function mergeAllergens(pt: string, en: string): Text[] {
 /** A linha que o painel mostra para editar, na língua pedida. */
 export const allergenLine = (items: readonly Text[] | undefined, locale: Locale): string =>
   (items ?? []).map((item) => resolve(item, locale)).join(", ");
+
+/* ————————————————————————————— preços ————————————————————————————— */
+
+export type PriceStats = { min: number; max: number; currency: string };
+
+/**
+ * Lê um preço escrito pela casa: "14 €", "14,50€", "9.50 EUR".
+ * Sem número (por exemplo "—" ou "sob consulta") devolve `null` — o site
+ * mostra então só o que souber, sem inventar valores.
+ */
+export function parsePrice(value: string): { amount: number; currency: string } | null {
+  const text = value.trim();
+  if (!text) return null;
+
+  // o último número da frase é o preço; o que vem a seguir é a moeda
+  const match = /(\d[\d.,\s]*\d|\d)\s*([^\d\s]*)\s*$/.exec(text);
+  if (!match) return null;
+
+  const raw = match[1].replace(/\s/g, "");
+  // "1.234,50" e "1,234.50": fica-se com o separador que aparece em último
+  const amount = Number(
+    /[.,]\d{1,2}$/.test(raw)
+      ? raw.replace(/[.,](?=\d{1,2}$)/, ".").replace(/[.,](?=\d{3}\b)/g, "")
+      : raw.replace(/[.,]/g, ""),
+  );
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  return { amount, currency: match[2].trim() };
+}
+
+/** O intervalo de preços de uma lista de pratos. Vazio = a casa não publicou. */
+export function priceStats(items: readonly Dish[]): PriceStats | null {
+  let min = Number.POSITIVE_INFINITY;
+  let max = 0;
+  let currency = "";
+
+  for (const dish of items) {
+    const price = parsePrice(dish.price ?? "");
+    if (!price) continue;
+    min = Math.min(min, price.amount);
+    max = Math.max(max, price.amount);
+    // a moeda da casa: a última que apareceu (todas deviam ser a mesma)
+    currency = price.currency || currency;
+  }
+
+  if (!Number.isFinite(min)) return null;
+  return { min, max, currency };
+}
+
+/** "9,50" em português e "9.50" em inglês — a moeda é a que a casa escreveu. */
+export const formatPrice = (value: number, locale: Locale): string =>
+  new Intl.NumberFormat(locale === "en" ? "en-GB" : "pt-PT", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);

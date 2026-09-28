@@ -4,7 +4,7 @@ import { ArrowUpRight, Info } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
-import { allergensIn, dishAllergens, menuWithoutAllergen } from "@/lib/menu";
+import { allergensIn, dishAllergens, formatPrice, menuWithoutAllergen, priceStats } from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 import { useLocale, useUi } from "@/i18n/context";
 import { fill } from "@/i18n/ui";
@@ -101,6 +101,16 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
   const index = Math.min(cat, Math.max(0, menu.length - 1));
   const active = menu[index];
   const feature = active?.items[0];
+  // os preços da categoria que se está a ver (só quando a casa os publicou)
+  const prices = useMemo(() => (active ? priceStats(active.items) : null), [active]);
+  const priceRange = (stats: NonNullable<typeof prices>): string => {
+    const money = (value: number) =>
+      `${formatPrice(value, locale)}${stats.currency ? ` ${stats.currency}` : ""}`;
+    return stats.min === stats.max
+      ? money(stats.min)
+      : fill(ui["menu.priceRange"], { min: money(stats.min), max: money(stats.max) });
+  };
+
   const rest = active ? active.items.slice(1) : [];
 
   return (
@@ -250,6 +260,8 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   <p className="label text-cream/50">{t(active.kicker)}</p>
                   <p className="label text-cream/35 tabular-nums">
                     {String(active.items.length).padStart(2, "0")} {ui["menu.items"]}
+                    {/* o intervalo sai dos preços que a casa publicou — nada inventado */}
+                    {prices && ` · ${priceRange(prices)}`}
                   </p>
                 </div>
                 {rest.map((d, i) => (

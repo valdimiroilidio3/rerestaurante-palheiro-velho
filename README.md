@@ -394,6 +394,22 @@ No pedido de mesa, o mesmo horário dá os atalhos **“hoje”** e **“amanhã
 (só quando a casa abre nesse dia e ainda vai a horas) e a nota com os serviços
 de hoje por baixo da escolha da hora.
 
+## Navegar numa página longa
+
+A **régua de secções** (ecrãs grandes, encostada à direita) mostra onde se
+está: cada traço é uma secção, o nome aparece na que está ativa e tanto o rato
+como o teclado o revelam nas outras. Clicar salta para lá sem voltar ao topo.
+Usa `mix-blend-difference` para se ler tanto sobre o creme como sobre o carvão
+— as secções alternam entre os dois.
+
+## A carta resume o que a casa publicou
+
+Por cima de cada categoria aparecem os **números que existem**: quantos itens e
+o intervalo de preços (`de 9,00 € a 34,00 €`). Tudo sai dos próprios pratos —
+se a casa ainda não publicou preços, o intervalo não aparece (não se inventam
+valores). Os preços lêem-se como a casa os escreve (`14,50 €`, `9.50 EUR`),
+com as casas decimais da língua escolhida.
+
 ## Página 404
 
 Endereço errado? A casa responde na mesma: `404.html` diz que a página não

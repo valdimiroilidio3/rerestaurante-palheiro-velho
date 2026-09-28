@@ -114,7 +114,11 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
                   </span>
                 </span>
                 <span className="col-span-2 label flex items-center gap-2 text-sun opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100 sm:col-span-1 sm:col-start-3">
-                  {ui["events.plan"]} <PartyPopper size={13} />
+                  {ui["events.plan"]}{" "}
+                  <PartyPopper
+                    size={13}
+                    className="transition-transform duration-500 group-hover:translate-x-1"
+                  />
                 </span>
               </button>
             ))}

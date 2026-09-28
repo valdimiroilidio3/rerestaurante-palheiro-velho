@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
 import { Nav } from "@/components/Nav";
+import { SectionRail } from "@/components/SectionRail";
 import { Hero } from "@/components/Hero";
 import { Intro } from "@/components/Intro";
 import { MenuSection } from "@/components/MenuSection";
@@ -163,6 +164,7 @@ export default function App() {
       </a>
 
       <Nav onReserve={() => openReserve("Contacto direto")} />
+      <SectionRail />
 
       <main>
         <Hero />

@@ -90,7 +90,7 @@ export function Ocean() {
               className="group label flex items-center gap-3 border-b border-cream/35 pb-1 text-cream/85 transition-colors hover:border-sun hover:text-sun"
             >
               {ui["ocean.continue"]}
-              <span className="inline-block h-px w-8 bg-current transition-transform duration-500 group-hover:translate-x-1" />
+              <span className="inline-block h-px w-8 bg-current transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2" />
             </button>
           </div>
         </div>

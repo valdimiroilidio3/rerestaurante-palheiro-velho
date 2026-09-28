@@ -86,7 +86,7 @@ export function Gallery() {
             <Img
               {...g.image}
               sizes="(min-width: 1280px) 30vw, (min-width: 1024px) 38vw, (min-width: 640px) 58vw, 78vw"
-              className="h-full w-full"
+              className="h-full w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
               imgClassName="brightness-[0.92]"
             />
             <span className="absolute inset-0 bg-gradient-to-t from-abyss/75 via-transparent to-transparent" />

@@ -110,7 +110,7 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                   <p className="mt-4 max-w-[42ch] text-[0.98rem] leading-relaxed text-cream/75">
                     {t(x.text)}
                   </p>
-                  <span className="label mt-6 inline-flex items-center gap-2 border-b border-cream/35 pb-1 text-cream">
+                  <span className="label mt-6 inline-flex items-center gap-2 border-b border-cream/35 pb-1 text-cream transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
                     {ui["experience.confirm"]}
                   </span>
                 </div>
