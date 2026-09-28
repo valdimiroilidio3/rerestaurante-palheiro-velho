@@ -6,6 +6,7 @@ import {
   dishAllergens,
   formatPrice,
   hasAllergen,
+  hasPrice,
   menuWithoutAllergen,
   mergeAllergens,
   parsePrice,
@@ -162,6 +163,15 @@ describe("preços", () => {
     // sem preços publicados não há intervalo nenhum
     expect(priceStats(carta(["—", "sob consulta"])[0].items)).toBeNull();
     expect(priceStats([])).toBeNull();
+  });
+
+  it("só conta como preço o que tem número", () => {
+    expect(hasPrice("9 €")).toBe(true);
+    expect(hasPrice("14,50€")).toBe(true);
+    expect(hasPrice("—")).toBe(false);
+    expect(hasPrice("")).toBe(false);
+    expect(hasPrice(undefined)).toBe(false);
+    expect(hasPrice("sob consulta")).toBe(false);
   });
 
   it("escreve os números na língua certa", () => {

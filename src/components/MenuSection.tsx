@@ -6,7 +6,14 @@ import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
 import { PRICE_RANGE } from "@/content/defaults";
 import { cn } from "@/utils/cn";
-import { allergensIn, dishAllergens, formatPrice, menuWithoutAllergen, priceStats } from "@/lib/menu";
+import {
+  allergensIn,
+  dishAllergens,
+  formatPrice,
+  hasPrice,
+  menuWithoutAllergen,
+  priceStats,
+} from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 import { useLocale, useUi } from "@/i18n/context";
 import { fill } from "@/i18n/ui";
@@ -64,10 +71,14 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
               {t(dish.flag)}
             </span>
           )}
-          <span className="mx-2 hidden h-px flex-1 self-end border-b border-dotted border-cream/25 sm:block" />
-          <span className="label ml-auto shrink-0 tabular-nums text-cream/55 transition-colors duration-500 group-hover/row:text-sun sm:ml-0">
-            {dish.price}
-          </span>
+          {hasPrice(dish.price) && (
+            <>
+              <span className="mx-2 hidden h-px flex-1 self-end border-b border-dotted border-cream/25 sm:block" />
+              <span className="label ml-auto shrink-0 tabular-nums text-cream/55 transition-colors duration-500 group-hover/row:text-sun sm:ml-0">
+                {dish.price}
+              </span>
+            </>
+          )}
         </div>
         <p className="mt-1 max-w-[52ch] text-[0.88rem] leading-relaxed text-cream/50">{t(dish.desc)}</p>
         {dish.allergens.length > 0 && (
@@ -140,6 +151,13 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
           </div>
           <div className="flex flex-col gap-5 lg:pb-3">
             <p className="text-[1rem] leading-relaxed text-cream/60">{ui["menu.intro"]}</p>
+            {/* a única informação de preço que a casa confirmou: quanto se
+                gasta por pessoa. Os preços por prato entram quando a casa os
+                publicar — e só então aparecem. */}
+            <p className="label flex items-center gap-3 text-cream/70">
+              <span aria-hidden className="inline-block h-px w-8 bg-sun/70" />
+              {ui["menu.perPerson"]}: {PRICE_RANGE}
+            </p>
           </div>
         </div>
 
@@ -231,12 +249,16 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
                     {t(feature.desc)}
                   </p>
-                  <div className="mt-5 flex items-center gap-4">
-                    <span className="label border border-cream/25 px-3 py-2 tabular-nums">
-                      {feature.price}
-                    </span>
-                    {feature.flag && <span className="label text-cream/50">{t(feature.flag)}</span>}
-                  </div>
+                  {(hasPrice(feature.price) || feature.flag) && (
+                    <div className="mt-5 flex items-center gap-4">
+                      {hasPrice(feature.price) && (
+                        <span className="label border border-cream/25 px-3 py-2 tabular-nums">
+                          {feature.price}
+                        </span>
+                      )}
+                      {feature.flag && <span className="label text-cream/50">{t(feature.flag)}</span>}
+                    </div>
+                  )}
                 </div>
               </div>
               <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
@@ -253,7 +275,6 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   {/* números que existem: o intervalo dos preços publicados e
                       o gasto médio por pessoa, confirmado pela casa */}
                   {prices && ` · ${priceRange(prices)}`}
-                  {` · ${ui["menu.perPerson"]}: ${PRICE_RANGE}`}
                 </p>
               </div>
               {rest.map((d, i) => (

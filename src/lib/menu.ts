@@ -141,3 +141,6 @@ export const formatPrice = (value: number, locale: Locale): string =>
     minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(value);
+
+/** A casa publicou um preço com número? "—", "" ou "sob consulta" não contam. */
+export const hasPrice = (value: string | undefined): boolean => parsePrice(value ?? "") !== null;
