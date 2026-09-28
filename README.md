@@ -103,12 +103,17 @@ npm run dev:admin  # painel em http://localhost:5173/admin.html
 
 ### Ligar a base de dados (Supabase)
 
+Sem base de dados o painel abre na mesma: mostra o conteúdo que já está no código, deixa navegar e
+editar, e avisa numa faixa no topo que **nada fica guardado** até o projeto estar ligado. Os passos
+seguem abaixo.
+
 1. Criar um projeto em [supabase.com](https://supabase.com) e copiar a **URL** e a chave **anon**
    (_Project Settings → API_).
 2. Correr as migrações no editor SQL, **por esta ordem**:
    `supabase/migrations/0001_init.sql` (tabelas, políticas, bucket `media`, Realtime),
    `0002_admin_access.sql` (acesso único por token) e
-   `0003_instagram_posts_fields.sql` (ligação e tipo das publicações).
+   `0003_instagram_posts_fields.sql` (ligação e tipo das publicações) e
+   `0004_opening_hours.sql` (horário de funcionamento).
 3. Correr `supabase/seed.sql` para carregar o conteúdo atual do site.
 4. Definir o acesso ao painel (ver abaixo).
 5. Reiniciar `npm run dev` e **conferir tudo**:

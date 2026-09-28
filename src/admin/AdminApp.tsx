@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from "react";
-import { ExternalLink, LogOut } from "lucide-react";
+import { AlertTriangle, ExternalLink, LogOut } from "lucide-react";
 import { supabaseEnabled } from "@/lib/supabase";
 import {
   accessConfigured,
@@ -48,7 +48,6 @@ export function AdminApp() {
   // a sessão vive só neste separador: fechar o separador termina a sessão
   const [entered] = useState(() => restoreSession());
 
-  if (!supabaseEnabled) return <SetupScreen />;
   if (!entered) return <LoginScreen />;
 
   return <Shell />;
@@ -159,7 +158,7 @@ function Shell() {
             <p className="mt-1 font-display text-[1.25rem] leading-none">Painel</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <LiveDot live />
+            <LiveDot live={supabaseEnabled} />
             <DiagnosticsButton />
             <a
               href="./index.html"
@@ -183,6 +182,8 @@ function Shell() {
           </div>
         </div>
       </header>
+
+      {!supabaseEnabled && <DbNotice />}
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-8 lg:flex-row">
         <nav className="lg:w-60 lg:shrink-0">
@@ -217,18 +218,27 @@ function Shell() {
 
 /* ————————————————————————————— configuração em falta ————————————————————————————— */
 
-function SetupScreen() {
+/**
+ * Sem base de dados o painel abre na mesma — só não grava. O aviso fica
+ * numa faixa discreta, com os passos guardados para quem os precisar.
+ */
+function DbNotice() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-char px-5 py-16 text-cream">
-      <div className="w-full max-w-xl">
-        <p className="label text-sun">Palheiro Velho</p>
-        <h1 className="mt-4 font-display text-[2.4rem] leading-[1]">Falta ligar a base de dados</h1>
-        <p className="mt-4 text-[0.95rem] leading-relaxed text-cream/60">
-          O painel precisa de um projeto Supabase. São três passos e o site continua a funcionar entretanto.
+    <div className="border-b border-sun/25 bg-sun/10">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
+        <span className="flex items-center gap-2 text-sun">
+          <AlertTriangle size={15} />
+          <span className="label">sem base de dados</span>
+        </span>
+        <p className="text-[0.9rem] text-cream/75">
+          Pode navegar e editar à vontade, mas <span className="text-cream">nada fica guardado</span> até o
+          projeto Supabase estar ligado.
         </p>
-
-        <Card className="mt-8">
-          <ol className="space-y-4 text-[0.92rem] leading-relaxed text-cream/70">
+        <details className="w-full lg:w-auto">
+          <summary className="label inline-flex cursor-pointer list-none text-sun transition-colors hover:text-cream lg:ml-auto">
+            como ligar
+          </summary>
+          <ol className="mt-3 w-full space-y-3 border-t border-sun/20 pt-3 text-[0.88rem] leading-relaxed text-cream/70 lg:max-w-3xl">
             <li>
               <span className="label block text-cream/45">1 · criar o projeto</span>
               Criar um projeto em <span className="text-sand">supabase.com</span> e copiar a URL e a chave
@@ -236,11 +246,12 @@ function SetupScreen() {
             </li>
             <li>
               <span className="label block text-cream/45">2 · criar as tabelas</span>
-              Correr, no editor SQL do projeto e por esta ordem,{" "}
+              Correr, no editor SQL do projeto e por esta ordem, as migrações em{" "}
+              <span className="text-sand">supabase/migrations/</span> — hoje:{" "}
               <span className="text-sand">0001_init.sql</span>,{" "}
-              <span className="text-sand">0002_admin_access.sql</span> e{" "}
-              <span className="text-sand">0003_instagram_posts_fields.sql</span> (em{" "}
-              <span className="text-sand">supabase/migrations/</span>). Depois o{" "}
+              <span className="text-sand">0002_admin_access.sql</span>,{" "}
+              <span className="text-sand">0003_instagram_posts_fields.sql</span> e{" "}
+              <span className="text-sand">0004_opening_hours.sql</span>. Depois o{" "}
               <span className="text-sand">supabase/seed.sql</span> para carregar o conteúdo atual.
             </li>
             <li>
@@ -254,14 +265,7 @@ function SetupScreen() {
               incluindo um teste de envio de fotografia.
             </li>
           </ol>
-        </Card>
-
-        <a
-          href="./index.html"
-          className="label mt-6 inline-flex items-center gap-2 text-cream/40 transition-colors hover:text-sun"
-        >
-          <ExternalLink size={12} /> voltar ao site
-        </a>
+        </details>
       </div>
     </div>
   );
