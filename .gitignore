@@ -1,0 +1,45 @@
+# dependências
+node_modules/
+.pnp
+.pnp.js
+
+# build
+dist/
+dist-single/
+dist-ssr/
+build/
+out/
+*.local
+
+# caches
+.vite/
+*.tsbuildinfo
+
+# ambiente
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# editores / SO
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# artefactos de distribuição (gerar com scripts, não versionar)
+*.zip

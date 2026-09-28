@@ -1,0 +1,41 @@
+name: Cópia do conteúdo
+
+# O site lê da base de dados em tempo real, mas o conteúdo também fica
+# arquivado no repositório: histórico no Git e uma recuperação possível
+# mesmo que a base de dados desapareça.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    name: Exportar conteúdo para content/snapshot.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Exportar tabelas públicas
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/backup-content.mjs
+
+      - name: Guardar alterações
+        run: |
+          if git diff --quiet -- content/snapshot.json; then
+            echo "Sem alterações no conteúdo."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/snapshot.json
+          git commit -m "chore(content): cópia de segurança do conteúdo"
+          git push
