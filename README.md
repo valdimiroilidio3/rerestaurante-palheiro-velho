@@ -317,7 +317,8 @@ build pelo plugin `preloadHero`, com a URL a sair dos dados.
 | Fotografias        | **Temporárias** (Pexels) — substituir no painel por material autorizado         |
 | Vídeo do hero      | **Temporário** (Pexels) — substituir ou remover                                 |
 | Logótipo           | Imagem pública de referência (Junta de Freguesia de Esmoriz)                    |
-| Carta              | **Pratos reais** da casa (fontes públicas) — falta a casa publicar os preços    |
+| Preços por prato   | Em branco até a casa publicar (ver abaixo)                                      |
+| Carta              | **Pratos reais** da casa (fontes públicas)                                      |
 | Horário            | **Confirmado pela casa**: todos os dias 10:00–22:00; sextas e sábados até 00:00 |
 | Preço médio        | **Confirmado pela casa**: 5 €–15 € por pessoa                                   |
 | Regras dos pedidos | Valores de referência (máx. 12 pessoas, até 60 dias) — a confirmar              |
@@ -440,8 +441,12 @@ da Junta de Freguesia e o perfil público da marca):
 
 Regras com que isto foi escrito — valem para quem editar a seguir:
 
-- **não se inventam preços**: ficam a `—` até a casa os publicar (é por isso
-  que o resumo de preços não aparece — ele só mostra o que existe);
+- **não se inventam preços**: nenhum sítio público tem os preços por prato
+  (só fotografias da ementa), por isso ficam em branco. Enquanto não houver
+  preço, a carta não desenha travessões nem guias de pontinhos a fingir que
+  há — mostra apenas o que a casa confirmou: **5 €–15 € por pessoa**. No dia
+  em que a casa escrever `4,50 €` num prato, o preço aparece nesse prato e o
+  resumo “de X a Y” aparece sozinho;
 - **não se inventam alergénios**: é a casa que os declara no painel;
 - as descrições dizem **o que o prato é**, não a receita da casa;
 - a casa classifica-se como **cozinha sul-americana** — é isso que vai para os
