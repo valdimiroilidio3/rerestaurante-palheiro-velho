@@ -87,7 +87,7 @@ export function Hero() {
           sizes="100vw"
           width={HERO.posterWidth}
           height={HERO.posterHeight}
-          alt="Imagem de ambiente temporária: praia ao pôr do sol"
+          alt=""
           fetchPriority="high"
           decoding="async"
           className={`absolute inset-0 h-full w-full object-cover ${playing ? "opacity-0" : "ken opacity-100"}`}
@@ -132,9 +132,6 @@ export function Hero() {
             <span className="hidden sm:block">{CONTACT.locality}</span>
             {/* vivo: aberto agora, a fechar ou a que horas abre — sempre do horário publicado */}
             <OpenNow tone="dark" className="mt-1" />
-          </div>
-          <div data-hero-fade className="border border-cream/25 bg-char/25 px-3 py-2 backdrop-blur-md">
-            <span className="label text-cream/75">{ui["hero.ambient"]}</span>
           </div>
         </div>
 

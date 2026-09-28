@@ -83,10 +83,6 @@ export function Intro() {
                   imgClassName="grayscale-[18%]"
                 />
               </div>
-              <figcaption className="label mt-3 flex items-center justify-between text-espresso/55">
-                <span>{ui["intro.image"]}</span>
-                <span>{ui["intro.notHouse"]}</span>
-              </figcaption>
             </div>
 
             <div

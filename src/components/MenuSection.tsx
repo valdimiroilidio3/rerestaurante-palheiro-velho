@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 
-import { ArrowUpRight, Info } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
@@ -139,10 +139,6 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
           </div>
           <div className="flex flex-col gap-5 lg:pb-3">
             <p className="text-[1rem] leading-relaxed text-cream/60">{ui["menu.intro"]}</p>
-            <div className="flex items-start gap-3 border border-dashed border-cream/25 p-4">
-              <Info size={15} className="mt-0.5 shrink-0 text-sun" />
-              <p className="text-[0.82rem] leading-relaxed text-cream/55">{ui["menu.provisional"]}</p>
-            </div>
           </div>
         </div>
 
@@ -227,9 +223,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
                 <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                  <p className="label text-sun">
-                    {t(active.label)} · {ui["menu.reference"]}
-                  </p>
+                  <p className="label text-sun">{t(active.label)}</p>
                   <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
                     {t(feature.name)}
                   </h3>

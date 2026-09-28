@@ -1,4 +1,5 @@
 import { WEEK_DAYS, type SiteContent } from "../content/types";
+import { CUISINE } from "../content/defaults";
 import type { Locale } from "../i18n/types";
 import { resolve } from "../i18n/resolve";
 
@@ -34,6 +35,8 @@ export function restaurantSchema(content: SiteContent, siteUrl = "", locale: Loc
       addressRegion: c.region,
       addressCountry: "PT",
     },
+    // sul-americana: a classificação publicada nos diretórios da casa
+    servesCuisine: CUISINE,
     sameAs: [c.instagramUrl, c.facebookUrl].filter(Boolean),
     // vem do painel: se a casa desligou os pedidos, o Google também fica a saber
     acceptsReservations: content.reservations.enabled ? "True" : "False",

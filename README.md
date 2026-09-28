@@ -412,6 +412,28 @@ como o teclado o revelam nas outras. Clicar salta para lá sem voltar ao topo.
 Usa `mix-blend-difference` para se ler tanto sobre o creme como sobre o carvão
 — as secções alternam entre os dois.
 
+## A carta tem os pratos da casa
+
+A carta deixou de ser uma estrutura com “itens a confirmar”. Tem agora os
+pratos que as **fontes públicas da casa** confirmam (Restaurant Guru, diretório
+da Junta de Freguesia e o perfil público da marca):
+
+| Categoria      | O que lá está                            |
+| -------------- | ---------------------------------------- |
+| Para partilhar | Empanadas, Arepa, Ceviche, Rolinhos      |
+| Com as mãos    | Tacos, Lobster roll, Hambúrguer, Empadas |
+| Cocktails      | Mojito, Caipirinha                       |
+| Bebidas        | Cerveja, Água/sumos/refrigerantes        |
+
+Regras com que isto foi escrito — valem para quem editar a seguir:
+
+- **não se inventam preços**: ficam a `—` até a casa os publicar (é por isso
+  que o resumo de preços não aparece — ele só mostra o que existe);
+- **não se inventam alergénios**: é a casa que os declara no painel;
+- as descrições dizem **o que o prato é**, não a receita da casa;
+- a casa classifica-se como **cozinha sul-americana** — é isso que vai para os
+  dados estruturados (`servesCuisine`).
+
 ## A carta resume o que a casa publicou
 
 Por cima de cada categoria aparecem os **números que existem**: quantos itens e
@@ -419,6 +441,28 @@ o intervalo de preços (`de 9,00 € a 34,00 €`). Tudo sai dos próprios prato
 se a casa ainda não publicou preços, o intervalo não aparece (não se inventam
 valores). Os preços lêem-se como a casa os escreve (`14,50 €`, `9.50 EUR`),
 com as casas decimais da língua escolhida.
+
+## Fora com os textos de estaleiro
+
+O site deixou de anunciar que é um conceito: saíram o “imagem de ambiente” do
+topo, a nota de **carta provisória**, o “imagem de referência” da carta, as
+legendas “Referência de atmosfera” da galeria, o “não representa a casa” da
+introdução, as descrições “temporária” das fotografias e os “gostos” das
+publicações do Instagram (não se inventam números — sem valor, o coração não
+aparece). O que era aviso interno vive agora no README e nos comentários do
+código, que é onde a casa precisa dele.
+
+## Pequenos gestos de elegância
+
+- **eixo ótico da Fraunces** ligado (`font-optical-sizing: auto`): a letra
+  ajusta-se ao tamanho em que é desenhada;
+- **fins de linha equilibrados**: `text-wrap: balance` nos títulos e `pretty`
+  nos parágrafos — acabaram-se as palavras sozinhas no fim;
+- **seleção e foco** quentes e discretos: `::selection` em tom de sol, contorno
+  de foco de 1 px com 4 px de respiro;
+- **`scroll-padding-top`**, para as secções não ficarem escondidas atrás da
+  barra quando se salta para elas;
+- suavização de fonte (`antialiased`) e sem pesos fintidos (`font-synthesis`).
 
 ## Página 404
 

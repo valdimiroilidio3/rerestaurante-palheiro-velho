@@ -167,7 +167,11 @@ function Tile({
           {t(item.cap)}
         </span>
         <span className="label mt-2 flex items-center gap-2 text-cream/75">
-          <Heart size={11} className="fill-sun text-sun" /> {item.likes}
+          {item.likes ? (
+            <>
+              <Heart size={11} className="fill-sun text-sun" /> {item.likes}
+            </>
+          ) : null}
           <span className="ml-auto inline-flex items-center gap-1 text-cream/60">
             {ui["instagram.view"]} <Maximize2 size={10} />
           </span>

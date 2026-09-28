@@ -63,7 +63,7 @@ export function Gallery() {
           <MaskWords text="Atmosferas" tone="light" />
           <br />
           <span className="italic text-sand/80">
-            <MaskWords text="de referência." tone="light" />
+            <MaskWords text="da casa." tone="light" />
           </span>
         </h2>
         <p className="mt-6 max-w-[36ch] text-[0.98rem] leading-relaxed text-cream/60">{ui["gallery.note"]}</p>

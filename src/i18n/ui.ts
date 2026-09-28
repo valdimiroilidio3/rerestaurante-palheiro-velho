@@ -26,7 +26,6 @@ const pt = {
   "nav.place": "Esmoriz · Portugal",
 
   /* abertura */
-  "hero.ambient": "imagem de ambiente",
   "hero.place": "Esmoriz · Aveiro · Portugal",
   "hero.intro": "Uma presença digital para um bar de praia com vista para o mar e espaço exterior.",
   "hero.structure": "Ver estrutura de carta",
@@ -37,8 +36,6 @@ const pt = {
 
   /* introdução */
   "intro.confirmed": "Informação confirmada",
-  "intro.image": "imagem de referência",
-  "intro.notHouse": "não representa a casa",
   "intro.body":
     "O Palheiro Velho é identificado publicamente como um bar de praia em Esmoriz, na Travessa da Barrinha. As páginas públicas associadas ao espaço referem vista para o mar e mesas exteriores.",
   "intro.note":
@@ -61,9 +58,8 @@ const pt = {
   "experience.subject": "Contacto sobre: {label}",
 
   /* galeria */
-  "gallery.eyebrow": "Referências visuais",
-  "gallery.note":
-    "Imagens de referência para demonstrar a composição. Substitua por fotografia e vídeo autorizados do espaço antes de publicar.",
+  "gallery.eyebrow": "Atmosferas",
+  "gallery.note": "A luz, a sombra da palha e o mar a dois passos: o espaço visto de perto.",
   "gallery.swipe": "swipe",
 
   /* instagram */
@@ -88,13 +84,10 @@ const pt = {
   "menu.title1": "Comer junto,",
   "menu.title2": "sem pressa.",
   "menu.intro":
-    "Uma carta organizada por momentos: entradas para partilhar, pratos de mar, snacks e o brunch de fim de semana.",
-  "menu.provisional":
-    "Carta provisória: os nomes e os preços são marcadores editáveis e substituem-se pela tabela oficial da casa.",
+    "Uma carta curta de cozinha sul-americana: para partilhar, para comer com as mãos e para beber devagar.",
   "menu.items": "itens",
   "menu.priceRange": "de {min} a {max}",
   "rail.label": "Secções da página",
-  "menu.reference": "imagem de referência",
   "menu.confirm": "confirmar com a casa",
   "menu.contains": "contém",
   "menu.avoid": "Evitar",
@@ -295,7 +288,6 @@ const en: UiStrings = {
   "nav.place": "Esmoriz · Portugal",
 
   /* abertura */
-  "hero.ambient": "atmosphere image",
   "hero.place": "Esmoriz · Aveiro · Portugal",
   "hero.intro": "A digital home for a beach bar with sea views and outdoor tables.",
   "hero.structure": "See the menu structure",
@@ -306,8 +298,6 @@ const en: UiStrings = {
 
   /* introdução */
   "intro.confirmed": "Confirmed information",
-  "intro.image": "reference image",
-  "intro.notHouse": "not the actual venue",
   "intro.body":
     "Palheiro Velho is publicly listed as a beach bar in Esmoriz, at Travessa da Barrinha. Public pages about the space mention sea views and outdoor tables.",
   "intro.note":
@@ -330,9 +320,8 @@ const en: UiStrings = {
   "experience.subject": "Enquiry about: {label}",
 
   /* galeria */
-  "gallery.eyebrow": "Visual references",
-  "gallery.note":
-    "Reference images used to show the layout. Replace them with authorised photography and video of the space before publishing.",
+  "gallery.eyebrow": "Atmospheres",
+  "gallery.note": "The light, the shade of the straw and the sea two steps away: the space up close.",
   "gallery.swipe": "swipe",
 
   /* instagram */
@@ -356,13 +345,10 @@ const en: UiStrings = {
   "menu.title1": "Eating together,",
   "menu.title2": "no rush.",
   "menu.intro":
-    "A menu organised by moment: starters to share, dishes from the sea, snacks and the weekend brunch.",
-  "menu.provisional":
-    "Provisional menu: names and prices are editable placeholders, to be replaced by the house’s official list.",
+    "A short menu of South American cooking: to share, to eat with your hands, and to drink slowly.",
   "menu.items": "items",
   "menu.priceRange": "from {min} to {max}",
   "rail.label": "Page sections",
-  "menu.reference": "reference image",
   "menu.confirm": "confirm with the house",
   "menu.contains": "contains",
   "menu.avoid": "Avoid",

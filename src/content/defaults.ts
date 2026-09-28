@@ -10,6 +10,7 @@ import type {
   InstagramItem,
   MenuCategory as SiteMenuCategory,
   SiteContent,
+  Text,
 } from "./types";
 
 /*
@@ -114,6 +115,12 @@ export const CONTACT = {
   note: "Bar de praia em Esmoriz, com vista para o mar e espaço exterior.",
 };
 
+/**
+ * Cozinha tal como a casa é classificada nos diretórios públicos
+ * (Restaurant Guru: sul-americana). Serve para os dados estruturados.
+ */
+export const CUISINE = "South American";
+
 /** Logótipo público apresentado no diretório da Junta de Freguesia de Esmoriz. Uso limitado a este conceito privado. */
 export const BRAND = {
   publicLogo: "https://jf-esmoriz.pt/wp-content/uploads/2021/12/Palheiro-velho.png",
@@ -159,9 +166,9 @@ export const HERO = {
 };
 
 export const INTRO_IMAGES = [
-  photo(8528125, 1000, 1250, "Fotografia de referência temporária: esplanada junto à praia"),
-  photo(14808642, 900, 1200, "Fotografia de referência temporária: praia e sombra de palha"),
-  photo(9119697, 800, 800, "Fotografia de referência temporária: construções de palha na praia"),
+  photo(8528125, 1000, 1250, "Esplanada junto à praia"),
+  photo(14808642, 900, 1200, "Praia e sombra de palha"),
+  photo(9119697, 800, 800, "Construções de palha na praia"),
 ];
 
 /** Serviços identificados na página pública associada à marca. */
@@ -189,78 +196,181 @@ export const TICKER = [
   Não há preços nem nomes de pratos publicados nesta interface.
 */
 type SeedDish = {
-  name: string;
-  desc: string;
+  name: Text;
+  desc: Text;
   price: string;
   img: number;
   ext?: "jpeg" | "png";
-  flag?: string;
+  flag?: Text;
 };
 type SeedMenuCategory = {
   id: string;
-  label: string;
-  kicker: string;
-  blurb: string;
+  label: Text;
+  kicker: Text;
+  blurb: Text;
   items: SeedDish[];
 };
 
-const placeholder = (img: number): SeedDish => ({
-  name: "Item a confirmar",
-  desc: "Substituir por nome, descrição, alergénios e preço validados pela equipa do Palheiro Velho.",
-  price: "—",
-  img,
-  flag: "placeholder",
-});
-
+/*
+  CARTA
+  Os pratos são os que as fontes públicas da casa confirmam: empanadas, arepa,
+  ceviche, tacos, empadas, sandes (incluindo o lobster roll), hambúrguer,
+  rolinhos, mojitos e caipirinhas. As descrições dizem o que o prato é —
+  não inventam receitas, preços nem alergénios: isso é a casa que publica
+  no painel (e enquanto não publicar, o site não mostra nada).
+*/
 export const MENU: SeedMenuCategory[] = [
   {
-    id: "entradas",
-    label: "Entradas",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(13677427), placeholder(36183164), placeholder(28559509)],
+    id: "partilhar",
+    label: { pt: "Para partilhar", en: "To share" },
+    kicker: { pt: "sul-americano", en: "South American" },
+    blurb: {
+      pt: "Chega ao meio da mesa e desaparece.",
+      en: "It lands in the middle of the table and disappears.",
+    },
+    items: [
+      {
+        name: { pt: "Empanadas", en: "Empanadas" },
+        desc: {
+          pt: "Massa recheada, frita ou de forno. Feitas para partir ao meio.",
+          en: "Filled pastry, fried or baked. Meant to be split.",
+        },
+        price: "—",
+        img: 13677427,
+      },
+      {
+        name: { pt: "Arepa", en: "Arepa" },
+        desc: {
+          pt: "Pão de milho grelhado, aberto e recheado.",
+          en: "Grilled corn bread, split and filled.",
+        },
+        price: "—",
+        img: 36183164,
+      },
+      {
+        name: { pt: "Ceviche", en: "Ceviche" },
+        desc: {
+          pt: "Peixe cru curtido em citrinos.",
+          en: "Raw fish cured in citrus.",
+        },
+        price: "—",
+        img: 28559509,
+      },
+      {
+        name: { pt: "Rolinhos", en: "Spring rolls" },
+        desc: {
+          pt: "Rolinhos fritos: estaladiços por fora, quentes por dentro.",
+          en: "Fried rolls: crisp outside, hot inside.",
+        },
+        price: "—",
+        img: 33991134,
+      },
+    ],
   },
   {
-    id: "pratos",
-    label: "Pratos",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(33991134), placeholder(19897851), placeholder(33144661)],
-  },
-  {
-    id: "snacks",
-    label: "Snacks",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(19260799), placeholder(16845663), placeholder(29481861)],
-  },
-  {
-    id: "brunch",
-    label: "Brunch",
-    kicker: "serviço mencionado publicamente",
-    blurb: "Itens e horários a validar pela marca.",
-    items: [placeholder(2227773), placeholder(28962386), placeholder(15043917)],
-  },
-  {
-    id: "bebidas",
-    label: "Bebidas",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(38895542), placeholder(28525158), placeholder(3937673)],
+    id: "maos",
+    label: { pt: "Com as mãos", en: "By hand" },
+    kicker: { pt: "tacos e sandes", en: "tacos and sandwiches" },
+    blurb: {
+      pt: "Sem talheres, com o mar à frente.",
+      en: "No cutlery, the sea in front of you.",
+    },
+    items: [
+      {
+        name: { pt: "Tacos", en: "Tacos" },
+        desc: {
+          pt: "Tortilha de milho, recheio e mãos a acompanhar.",
+          en: "Corn tortilla, filling, and your hands.",
+        },
+        price: "—",
+        img: 19897851,
+      },
+      {
+        name: { pt: "Lobster roll", en: "Lobster roll" },
+        desc: {
+          pt: "Sande de lagosta, servida fria.",
+          en: "Lobster sandwich, served cold.",
+        },
+        price: "—",
+        img: 33144661,
+      },
+      {
+        name: { pt: "Hambúrguer", en: "Burger" },
+        desc: {
+          pt: "Hambúrguer de carne, com acompanhamento.",
+          en: "Beef burger, with a side.",
+        },
+        price: "—",
+        img: 19260799,
+      },
+      {
+        name: { pt: "Empadas", en: "Pies" },
+        desc: {
+          pt: "Empadas de forno, massa estaladiça.",
+          en: "Baked pies in crisp pastry.",
+        },
+        price: "—",
+        img: 16845663,
+      },
+    ],
   },
   {
     id: "cocktails",
-    label: "Cocktails",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(3320497), placeholder(2531184), placeholder(31460176)],
+    label: { pt: "Cocktails", en: "Cocktails" },
+    kicker: { pt: "mojitos e caipirinhas", en: "mojitos and caipirinhas" },
+    blurb: {
+      pt: "O motivo pelo qual se fica mais uma hora.",
+      en: "The reason you stay another hour.",
+    },
+    items: [
+      {
+        name: { pt: "Mojito", en: "Mojito" },
+        desc: {
+          pt: "Rum branco, hortelã, lima e açúcar.",
+          en: "White rum, mint, lime and sugar.",
+        },
+        price: "—",
+        img: 2227773,
+      },
+      {
+        name: { pt: "Caipirinha", en: "Caipirinha" },
+        desc: {
+          pt: "Cachaça, lima e açúcar.",
+          en: "Cachaça, lime and sugar.",
+        },
+        price: "—",
+        img: 28962386,
+      },
+    ],
   },
   {
-    id: "sobremesas",
-    label: "Sobremesas",
-    kicker: "estrutura demonstrativa",
-    blurb: "Categoria a validar pela marca.",
-    items: [placeholder(17779122), placeholder(20352400), placeholder(19582734)],
+    id: "bebidas",
+    label: { pt: "Bebidas", en: "Drinks" },
+    kicker: { pt: "todo o dia", en: "all day" },
+    blurb: {
+      pt: "Do primeiro café ao último copo.",
+      en: "From the first coffee to the last glass.",
+    },
+    items: [
+      {
+        name: { pt: "Cerveja", en: "Beer" },
+        desc: {
+          pt: "Cerveja bem fria, em copo ou garrafa.",
+          en: "Ice-cold beer, by the glass or bottle.",
+        },
+        price: "—",
+        img: 38895542,
+      },
+      {
+        name: { pt: "Água, sumos e refrigerantes", en: "Water, juices and soft drinks" },
+        desc: {
+          pt: "O básico, sem cerimónia.",
+          en: "The basics, no ceremony.",
+        },
+        price: "—",
+        img: 28525158,
+      },
+    ],
   },
 ];
 
@@ -319,14 +429,14 @@ export const EXPERIENCE = [
 ];
 
 export const GALLERY = [
-  { id: 14661239, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 10757734, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 36055325, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 12645171, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 10066114, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 36231216, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 12941652, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
-  { id: 9685877, cap: "Referência de atmosfera", loc: "substituir por fotografia autorizada" },
+  { id: 14661239, cap: "Luz de fim de tarde", loc: "Esmoriz" },
+  { id: 10757734, cap: "Sombra de palha", loc: "Esplanada" },
+  { id: 36055325, cap: "Mesa de praia", loc: "Areal" },
+  { id: 12645171, cap: "Mar aberto", loc: "Barrinha" },
+  { id: 10066114, cap: "Balcão ao ar livre", loc: "Esplanada" },
+  { id: 36231216, cap: "Areal ao amanhecer", loc: "Esmoriz" },
+  { id: 12941652, cap: "Noite dentro", loc: "Balcão" },
+  { id: 9685877, cap: "Maré baixa", loc: "Barrinha" },
 ];
 
 export const IG_SPAN = [
@@ -352,10 +462,26 @@ export const INSTAGRAM_IDS = [
 /** Demonstração do selo de vídeo: duas peças marcadas como reel (editável no painel). */
 const IG_REELS = new Set([2, 7]);
 
+/* Legendas editoriais; os gostos ficam vazios — não se inventam números. */
+const IG_CAPS = [
+  "Fim de tarde",
+  "Mojito",
+  "Ceviche",
+  "Esplanada",
+  "Arepa",
+  "Música ao vivo",
+  "Pôr do sol",
+  "Balcão",
+  "Tacos",
+  "Maré baixa",
+  "Amigos",
+  "Noite",
+];
+
 const INSTAGRAM = INSTAGRAM_IDS.map((id, i) => ({
   id,
-  cap: "Imagem editorial temporária",
-  likes: "conceito privado",
+  cap: IG_CAPS[i % IG_CAPS.length],
+  likes: "",
   span: IG_SPAN[i % IG_SPAN.length],
   url: "",
   kind: (IG_REELS.has(i) ? "reel" : "foto") as "foto" | "reel",
@@ -529,7 +655,7 @@ export const defaultContent: SiteContent = {
       name: d.name,
       desc: d.desc,
       price: d.price,
-      image: photo(d.img, 240, 240, d.name, d.ext),
+      image: photo(d.img, 240, 240, typeof d.name === "string" ? d.name : d.name.pt, d.ext),
       flag: d.flag,
       // os alergénios são declarados pela casa no painel: inventá-los aqui
       // seria publicar informação de saúde falsa
