@@ -65,6 +65,8 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   │   ├── store.ts                 # leitura da base de dados + tempo real
 │   │   └── SiteContentProvider.tsx  # mantém o conteúdo em memória
 │   ├── components/                  # secções do site
+│   ├── i18n/                        # idiomas: dicionário da interface e Text
+│   ├── legal/                       # página legal (privacidade, cookies, termos)
 │   ├── lib/                         # supabase, imagens, animação, reservas
 │   └── utils/cn.ts
 ├── supabase/
@@ -73,6 +75,7 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   ├── migrations/0003–0004 … sql   # campos do Instagram · horário de funcionamento
 │   ├── migrations/0005_reservations.sql  # pedidos de mesa (tabela + políticas)
 │   ├── migrations/0006_dish_allergens.sql # alergénios por prato
+│   ├── migrations/0007_localized_content.sql # listas e alergénios em jsonb (bilingue)
 │   └── seed.sql                     # conteúdo atual (gerado)
 ├── scripts/
 │   ├── generate-seed.mjs            # defaults.ts → supabase/seed.sql
@@ -333,6 +336,39 @@ os pontos acima contam mesmo.
 `admin.html` + `admin-assets/`. Basta enviar `dist/` para qualquer alojamento estático (Netlify, Vercel, GitHub
 Pages, Cloudflare Pages). Lembre-se de configurar as variáveis `VITE_SUPABASE_*` no alojamento —
 são lidas no build, não em tempo de execução.
+
+## Idiomas (português e inglês)
+
+O site é bilingue. Quem visita escolhe a língua no topo ou no rodapé (PT / EN) e
+a escolha fica guardada **e** visível no endereço:
+
+| O quê             | Como funciona                                                               |
+| ----------------- | --------------------------------------------------------------------------- |
+| primeira visita   | segue o idioma do navegador; sem pista, entra em português                  |
+| escolha da pessoa | `localStorage` (`palheiro-velho:locale`) + `?lang=en` na barra de endereços |
+| link partilhado   | `?lang=en` abre logo em inglês, sem ninguém ter de escolher outra vez       |
+| `<html lang>`     | acompanha a escolha (`pt-PT` / `en-GB`)                                     |
+
+Há dois tipos de texto, e a diferença interessa:
+
+- **textos da interface** (botões, títulos, erros) — estão no dicionário
+  `src/i18n/ui.ts`, com uma entrada por língua. Se uma chave faltar numa
+  língua, o TypeScript não deixa o build passar: ou se traduz tudo, ou não se
+  publica meia interface;
+- **textos da casa** (nomes de pratos, secções, horários, textos legais…) — são
+  `Text`: ou uma simples `string` (igual nas duas línguas) ou um par
+  `{ "pt": …, "en": … }`. **O que não estiver traduzido cai no português —
+  nunca aparece um buraco.** Assim a casa traduz ao seu ritmo, uma secção de
+  cada vez.
+
+No painel, cada texto traduzível tem **duas caixas** (PT e EN); a da direita
+pode ficar vazia. Nas listas (faixa do rodapé, hashtags, vantagens) escreve-se
+uma entrada por linha, na mesma ordem nas duas línguas.
+
+Os motores de busca também ficam a saber das duas versões: cada página anuncia
+`canonical` + `hreflang` (`pt-PT`, `en-GB` e `x-default`) no HTML e no
+`sitemap.xml`, e os erros de validação do pedido de mesa já falam a língua
+escolhida.
 
 ## SEO e partilhas
 
