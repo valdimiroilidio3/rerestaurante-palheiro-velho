@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Presence } from "@/lib/presence";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useSite } from "@/content/context";
@@ -152,94 +152,89 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
       </header>
 
       {/* ————— mobile overlay ————— */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduced() ? 0 : 0.35 }}
-            className="fixed inset-0 z-[92] flex flex-col bg-char text-cream lg:hidden"
+      <Presence
+        show={open}
+        duration={reduced() ? 1 : 350}
+        className="fixed inset-0 z-[92] flex flex-col bg-char text-cream lg:hidden"
+      >
+        <div className="absolute inset-0 opacity-45">
+          <img
+            src={HERO.overlay}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-char/70 via-char/85 to-char" />
+        </div>
+
+        <div className="relative flex items-center justify-between px-5 py-5">
+          <span className="label opacity-60">{ui["nav.place"]}</span>
+          <button
+            onClick={() => setOpen(false)}
+            aria-label={ui["nav.close"]}
+            className="flex h-11 w-11 items-center justify-center border border-cream/25"
           >
-            <div className="absolute inset-0 opacity-45">
-              <img
-                src={HERO.overlay}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-char/70 via-char/85 to-char" />
-            </div>
+            <X size={19} strokeWidth={1.5} />
+          </button>
+        </div>
 
-            <div className="relative flex items-center justify-between px-5 py-5">
-              <span className="label opacity-60">{ui["nav.place"]}</span>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label={ui["nav.close"]}
-                className="flex h-11 w-11 items-center justify-center border border-cream/25"
-              >
-                <X size={19} strokeWidth={1.5} />
-              </button>
-            </div>
+        <nav className="relative mt-6 flex flex-1 flex-col justify-center gap-1 px-5">
+          {["top", ...NAV.map((n) => n.id)].map((id, i) => (
+            <button
+              key={id}
+              onClick={() => (id === "top" ? scrollToTop() : go(id))}
+              style={{ "--delay": `${0.06 * i + 0.1}s` } as React.CSSProperties}
+              className={cn(
+                "group flex items-baseline justify-between border-b border-cream/12 py-3 text-left",
+                !reduced() && "nav-item-in",
+              )}
+            >
+              <span className="font-display text-[2.35rem] leading-[1.05] transition-transform duration-500 group-active:translate-x-1">
+                {id === "top" ? ui["nav.home"] : t(NAV.find((n) => n.id === id)?.label)}
+              </span>
+              <span className="label opacity-40">0{i}</span>
+            </button>
+          ))}
+        </nav>
 
-            <nav className="relative mt-6 flex flex-1 flex-col justify-center gap-1 px-5">
-              {["top", ...NAV.map((n) => n.id)].map((id, i) => (
-                <motion.button
-                  key={id}
-                  onClick={() => (id === "top" ? scrollToTop() : go(id))}
-                  initial={reduced() ? false : { y: 40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.06 * i + 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="group flex items-baseline justify-between border-b border-cream/12 py-3 text-left"
-                >
-                  <span className="font-display text-[2.35rem] leading-[1.05] transition-transform duration-500 group-active:translate-x-1">
-                    {id === "top" ? ui["nav.home"] : t(NAV.find((n) => n.id === id)?.label)}
-                  </span>
-                  <span className="label opacity-40">0{i}</span>
-                </motion.button>
-              ))}
-            </nav>
-
-            <div className="relative mt-8 space-y-3 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-              <Btn
-                onClick={() => {
-                  setOpen(false);
-                  onReserve();
-                }}
-                tone="light"
-                className="w-full"
-              >
-                {ui["nav.reserve"]}
-              </Btn>
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <a
-                  href={`tel:${CONTACT.phone}`}
-                  className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
-                >
-                  <Phone size={13} /> {ui["nav.call"]}
-                </a>
-                <a
-                  href={CONTACT.instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
-                >
-                  <IgIcon size={14} /> {ui["nav.instagram"]}
-                </a>
-              </div>
-              <LanguageSwitch className="w-full justify-center pt-3 text-cream" tone="dark" />
-              <button
-                onClick={() => go("contacto")}
-                className="label w-full pt-2 opacity-60 underline decoration-1 underline-offset-4"
-              >
-                Como chegar →
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div className="relative mt-8 space-y-3 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <Btn
+            onClick={() => {
+              setOpen(false);
+              onReserve();
+            }}
+            tone="light"
+            className="w-full"
+          >
+            {ui["nav.reserve"]}
+          </Btn>
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <a
+              href={`tel:${CONTACT.phone}`}
+              className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
+            >
+              <Phone size={13} /> {ui["nav.call"]}
+            </a>
+            <a
+              href={CONTACT.instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
+            >
+              <IgIcon size={14} /> {ui["nav.instagram"]}
+            </a>
+          </div>
+          <LanguageSwitch className="w-full justify-center pt-3 text-cream" tone="dark" />
+          <button
+            onClick={() => go("contacto")}
+            className="label w-full pt-2 opacity-60 underline decoration-1 underline-offset-4"
+          >
+            Como chegar →
+          </button>
+        </div>
+      </Presence>
     </>
   );
 }

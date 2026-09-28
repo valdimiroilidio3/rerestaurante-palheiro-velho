@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+
 import { ArrowUpRight, Info } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
+import { cn } from "@/utils/cn";
 import { allergensIn, dishAllergens, formatPrice, menuWithoutAllergen, priceStats } from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 import { useLocale, useUi } from "@/i18n/context";
@@ -26,16 +27,17 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
   const { t, locale } = useLocale();
   const ui = useUi();
   return (
-    <motion.button
+    <button
       ref={ref as never}
       onPointerMove={onMove}
       onClick={onPick}
       type="button"
-      initial={reduced() ? false : { opacity: 0, y: 22 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.04 * i + 0.08, ease: [0.16, 1, 0.3, 1] }}
-      className="group/row relative grid w-full grid-cols-[76px_1fr] items-center gap-4 border-b border-cream/12 py-4 text-left transition-colors duration-500 hover:border-cream/30 sm:grid-cols-[110px_1fr] sm:gap-7 sm:py-5"
+      className={cn(
+        "group/row relative grid w-full grid-cols-[76px_1fr] items-center gap-4 border-b border-cream/12 py-4 text-left transition-colors duration-500 hover:border-cream/30 sm:grid-cols-[110px_1fr] sm:gap-7 sm:py-5",
+        !reduced() && "menu-swap",
+      )}
       style={{
+        animationDelay: `${0.04 * i + 0.08}s`,
         backgroundImage:
           "radial-gradient(360px circle at var(--mx,50%) var(--my,50%), rgba(232,220,200,0.09), transparent 62%)",
       }}
@@ -81,7 +83,7 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
           {ui["menu.confirm"]} <ArrowUpRight size={12} />
         </span>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
@@ -191,13 +193,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                     : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
                 }`}
               >
-                {i === index && (
-                  <motion.span
-                    layoutId="menu-tab"
-                    transition={{ type: "spring", stiffness: 380, damping: 34 }}
-                    className="absolute inset-0 -z-10 bg-cream/8"
-                  />
-                )}
+                {i === index && <span className="absolute inset-0 -z-10 bg-cream/8" />}
                 <span className="mr-2 tabular-nums opacity-45">0{i + 1}</span>
                 {t(c.label)}
               </button>
@@ -211,79 +207,75 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
             {fill(ui["menu.empty"], { item: avoid ?? "" })}
           </p>
         ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={active.id}
-              initial={reduced() ? false : { opacity: 0, y: 26 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduced() ? undefined : { opacity: 0, y: -14 }}
-              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14"
-            >
-              {/* feature */}
-              <div className="group relative lg:sticky lg:top-28 lg:self-start">
-                <div className="relative overflow-hidden">
-                  <Img
-                    {...feature.image}
-                    sizes="(min-width: 1024px) 45vw, 92vw"
-                    ratio="4 / 5"
-                    className="w-full"
-                    imgClassName="brightness-[0.92]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                    <p className="label text-sun">
-                      {t(active.label)} · {ui["menu.reference"]}
-                    </p>
-                    <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
-                      {t(feature.name)}
-                    </h3>
-                    <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
-                      {t(feature.desc)}
-                    </p>
-                    <div className="mt-5 flex items-center gap-4">
-                      <span className="label border border-cream/25 px-3 py-2 tabular-nums">
-                        {feature.price}
-                      </span>
-                      {feature.flag && <span className="label text-cream/50">{t(feature.flag)}</span>}
-                    </div>
+          /* a `key` reinicia a animação CSS: cada categoria entra por cima da anterior */
+          <div
+            key={active.id}
+            className={cn(
+              "mt-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14",
+              !reduced() && "menu-swap",
+            )}
+          >
+            {/* feature */}
+            <div className="group relative lg:sticky lg:top-28 lg:self-start">
+              <div className="relative overflow-hidden">
+                <Img
+                  {...feature.image}
+                  sizes="(min-width: 1024px) 45vw, 92vw"
+                  ratio="4 / 5"
+                  className="w-full"
+                  imgClassName="brightness-[0.92]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                  <p className="label text-sun">
+                    {t(active.label)} · {ui["menu.reference"]}
+                  </p>
+                  <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
+                    {t(feature.name)}
+                  </h3>
+                  <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
+                    {t(feature.desc)}
+                  </p>
+                  <div className="mt-5 flex items-center gap-4">
+                    <span className="label border border-cream/25 px-3 py-2 tabular-nums">
+                      {feature.price}
+                    </span>
+                    {feature.flag && <span className="label text-cream/50">{t(feature.flag)}</span>}
                   </div>
                 </div>
-                <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
-                  {t(active.blurb)}
+              </div>
+              <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
+                {t(active.blurb)}
+              </p>
+            </div>
+
+            {/* list */}
+            <div>
+              <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
+                <p className="label text-cream/50">{t(active.kicker)}</p>
+                <p className="label text-cream/35 tabular-nums">
+                  {String(active.items.length).padStart(2, "0")} {ui["menu.items"]}
+                  {/* o intervalo sai dos preços que a casa publicou — nada inventado */}
+                  {prices && ` · ${priceRange(prices)}`}
                 </p>
               </div>
+              {rest.map((d, i) => (
+                <DishRow
+                  key={`${d.id}-${i}`}
+                  dish={d}
+                  i={i}
+                  onPick={() => onReserve(`Carta: ${t(active.label)}`)}
+                />
+              ))}
 
-              {/* list */}
-              <div>
-                <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
-                  <p className="label text-cream/50">{t(active.kicker)}</p>
-                  <p className="label text-cream/35 tabular-nums">
-                    {String(active.items.length).padStart(2, "0")} {ui["menu.items"]}
-                    {/* o intervalo sai dos preços que a casa publicou — nada inventado */}
-                    {prices && ` · ${priceRange(prices)}`}
-                  </p>
-                </div>
-                {rest.map((d, i) => (
-                  <DishRow
-                    key={`${d.id}-${i}`}
-                    dish={d}
-                    i={i}
-                    onPick={() => onReserve(`Carta: ${t(active.label)}`)}
-                  />
-                ))}
-
-                <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
-                  <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">
-                    {ui["menu.demo"]}
-                  </p>
-                  <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
-                    <span className="label">{ui["menu.contact"]}</span>
-                  </Btn>
-                </div>
+              <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
+                <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">{ui["menu.demo"]}</p>
+                <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
+                  <span className="label">{ui["menu.contact"]}</span>
+                </Btn>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          </div>
         )}
       </div>
     </section>

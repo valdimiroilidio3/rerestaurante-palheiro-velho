@@ -16,15 +16,32 @@ export function Hero() {
   const [videoOn, setVideoOn] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  /* load the film only when it is cheap to do so */
+  /**
+   * O filme só entra quando já não atrapalha: a página está desenhada, o
+   * navegador está livre, o ecrã é grande e a ligação não está a contar
+   * os megabytes. Até lá fica a fotografia — que é o que se vê primeiro.
+   */
   useEffect(() => {
-    if (reduced()) return;
-    if (!window.matchMedia("(min-width: 900px)").matches) return;
+    if (reduced()) return undefined;
+    if (!window.matchMedia("(min-width: 900px)").matches) return undefined;
     const conn = (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } })
       .connection;
-    if (conn?.saveData || /(^|\b)2g/.test(conn?.effectiveType || "")) return;
-    const t = window.setTimeout(() => setVideoOn(true), 900);
-    return () => window.clearTimeout(t);
+    if (conn?.saveData || /(^|\b)2g/.test(conn?.effectiveType || "")) return undefined;
+
+    const quandoLivre = (fn: () => void) => {
+      const idle = (
+        window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }
+      ).requestIdleCallback;
+      if (idle) {
+        const id = idle(fn, { timeout: 2200 });
+        return () =>
+          (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(id);
+      }
+      const id = window.setTimeout(fn, 1200);
+      return () => window.clearTimeout(id);
+    };
+
+    return quandoLivre(() => setVideoOn(true));
   }, []);
 
   useAnim(({ gsap }) => {
@@ -83,7 +100,7 @@ export function Hero() {
             loop
             playsInline
             autoPlay
-            preload="metadata"
+            preload="none"
             poster={HERO.poster}
             onPlaying={() => setPlaying(true)}
             className={`absolute inset-0 h-full w-full scale-[1.06] object-cover transition-opacity duration-[2500ms] ${

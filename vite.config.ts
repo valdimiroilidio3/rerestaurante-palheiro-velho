@@ -47,7 +47,6 @@ function splitChunks(): Record<string, string[]> | ((id: string) => string | und
     const file = id.replace(/\\/g, "/");
     if (!file.includes("/node_modules/")) return;
     if (/node_modules\/(react|react-dom|scheduler)\//.test(file)) return "react";
-    if (/node_modules\/(framer-motion|motion-dom|motion-utils)\//.test(file)) return "motion";
     if (/node_modules\/(gsap|lenis)\//.test(file)) return "anim";
     if (/node_modules\/@supabase\//.test(file)) return "supabase";
     return "vendor";

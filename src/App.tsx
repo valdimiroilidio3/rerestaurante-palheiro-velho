@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Presence } from "@/lib/presence";
 import { Phone } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { SectionRail } from "@/components/SectionRail";
@@ -54,12 +54,9 @@ function Curtain() {
 
   if (done) return null;
   return (
-    <motion.div
+    <div
       aria-hidden
-      initial={{ clipPath: "inset(0% 0% 0% 0%)" }}
-      animate={{ clipPath: "inset(0% 0% 100% 0%)" }}
-      transition={{ delay: 0.88, duration: 1.05, ease: [0.76, 0, 0.24, 1] }}
-      className="pointer-events-none fixed inset-0 z-[120] flex flex-col items-center justify-center bg-char text-cream"
+      className="curtain pointer-events-none fixed inset-0 z-[120] flex flex-col items-center justify-center bg-char text-cream"
     >
       <div className="absolute inset-0 opacity-[0.5] mix-blend-overlay grain-layer" />
       <p className="label relative mb-6 text-cream/45">Esmoriz · Portugal</p>
@@ -72,7 +69,7 @@ function Curtain() {
         <span className="h-px w-16 bg-cream/25" />
         {String(count).padStart(3, "0")}% · a acender a luz do fim da tarde
       </p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -93,30 +90,25 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
   }, []);
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ y: 90, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 90, opacity: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-x-0 bottom-0 z-[88] flex gap-px border-t border-cream/15 bg-char/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg sm:hidden"
-        >
-          <a
-            href={`tel:${CONTACT.phone}`}
-            className="label flex flex-1 items-center justify-center gap-2 py-4 text-cream/80"
-          >
-            <Phone size={14} /> {ui["nav.call"]}
-          </a>
-          <button
-            onClick={onReserve}
-            className="label flex flex-[1.2] items-center justify-center gap-2 bg-cream py-4 text-char"
-          >
-            {ui["nav.reserve"]}
-          </button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <Presence
+      show={show}
+      duration={450}
+      from="translateY(90px)"
+      className="fixed inset-x-0 bottom-0 z-[88] flex gap-px border-t border-cream/15 bg-char/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg sm:hidden"
+    >
+      <a
+        href={`tel:${CONTACT.phone}`}
+        className="label flex flex-1 items-center justify-center gap-2 py-4 text-cream/80"
+      >
+        <Phone size={14} /> {ui["nav.call"]}
+      </a>
+      <button
+        onClick={onReserve}
+        className="label flex flex-[1.2] items-center justify-center gap-2 bg-cream py-4 text-char"
+      >
+        {ui["nav.reserve"]}
+      </button>
+    </Presence>
   );
 }
 

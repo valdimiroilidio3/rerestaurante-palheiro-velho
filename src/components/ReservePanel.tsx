@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Presence } from "@/lib/presence";
 import { CalendarCheck, ExternalLink, Mail, MapPin, Phone, Send, X } from "lucide-react";
 import { useSite } from "@/content/context";
 import { mapsUrls, type Reservation, type ReservationDraft } from "@/content/types";
@@ -59,66 +59,50 @@ export function ReservePanel({
   }, [open]);
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="fixed inset-0 z-[100] flex justify-end"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduced() ? 0 : 0.3 }}
-        >
-          <motion.button
-            aria-label={ui["common.close"]}
+    <Presence show={open} duration={reduced() ? 1 : 300} className="fixed inset-0 z-[100] flex justify-end">
+      <button
+        aria-label={ui["common.close"]}
+        onClick={onClose}
+        className="absolute inset-0 bg-char/65 backdrop-blur-[3px]"
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label={ui["reserve.title"]}
+        className={cn(
+          "relative flex h-full w-full flex-col overflow-y-auto bg-cream text-char sm:max-w-[520px]",
+          !reduced() && (isBottom() ? "panel-in-bottom" : "panel-in-right"),
+        )}
+        style={{ maxHeight: "100svh" }}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-espresso/15 bg-cream/95 px-6 py-5 backdrop-blur">
+          <div>
+            <p className="label text-espresso/55">{ui["reserve.eyebrow"]}</p>
+            <h3 className="mt-2 font-display text-[1.7rem] leading-none">Palheiro Velho</h3>
+          </div>
+          <button
             onClick={onClose}
-            className="absolute inset-0 bg-char/65 backdrop-blur-[3px]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-          <motion.aside
-            role="dialog"
-            aria-modal="true"
-            aria-label={ui["reserve.title"]}
-            initial={
-              reduced() ? { opacity: 0 } : { y: isBottom() ? "100%" : "0%", x: isBottom() ? 0 : "100%" }
-            }
-            animate={isBottom() ? { y: 0 } : { x: 0 }}
-            exit={isBottom() ? { y: "100%" } : { x: "100%" }}
-            transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="relative flex h-full w-full flex-col overflow-y-auto bg-cream text-char sm:max-w-[520px]"
-            style={{ maxHeight: "100svh" }}
+            aria-label={ui["common.close"]}
+            className="flex h-11 w-11 items-center justify-center border border-espresso/20 transition-colors hover:bg-char hover:text-cream"
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-espresso/15 bg-cream/95 px-6 py-5 backdrop-blur">
-              <div>
-                <p className="label text-espresso/55">{ui["reserve.eyebrow"]}</p>
-                <h3 className="mt-2 font-display text-[1.7rem] leading-none">Palheiro Velho</h3>
-              </div>
-              <button
-                onClick={onClose}
-                aria-label={ui["common.close"]}
-                className="flex h-11 w-11 items-center justify-center border border-espresso/20 transition-colors hover:bg-char hover:text-cream"
-              >
-                <X size={18} />
-              </button>
-            </div>
+            <X size={18} />
+          </button>
+        </div>
 
-            <div className="flex-1 px-6 py-7">
-              <RequestForm subject={subject} />
-            </div>
+        <div className="flex-1 px-6 py-7">
+          <RequestForm subject={subject} />
+        </div>
 
-            <div className="border-t border-espresso/15 bg-sand/60 px-6 py-5">
-              <p className="label flex flex-wrap items-center gap-x-4 gap-y-2 text-espresso/55">
-                <span className="flex items-center gap-2">
-                  <Mail size={12} /> {CONTACT.email}
-                </span>
-                <span>{CONTACT.locality}</span>
-              </p>
-            </div>
-          </motion.aside>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <div className="border-t border-espresso/15 bg-sand/60 px-6 py-5">
+          <p className="label flex flex-wrap items-center gap-x-4 gap-y-2 text-espresso/55">
+            <span className="flex items-center gap-2">
+              <Mail size={12} /> {CONTACT.email}
+            </span>
+            <span>{CONTACT.locality}</span>
+          </p>
+        </div>
+      </aside>
+    </Presence>
   );
 }
 

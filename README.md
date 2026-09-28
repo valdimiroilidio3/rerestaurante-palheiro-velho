@@ -451,17 +451,42 @@ O site abre primeiro e só depois afina os detalhes:
 
 | Bloco                                 | Quando carrega                                                          |
 | ------------------------------------- | ----------------------------------------------------------------------- |
-| `index.html` + CSS                    | primeiro — é o que pinta a página                                       |
-| `react`, `motion` e o código do site  | a seguir, em paralelo e com `modulepreload`                             |
+| `index.html`, CSS e as duas letras    | primeiro — é o que pinta a página                                       |
+| `react` e o código do site            | a seguir, em paralelo e com `modulepreload`                             |
 | `anim` (gsap + ScrollTrigger + Lenis) | **depois da primeira pintura**; no telemóvel o scroll suave nem carrega |
-| `supabase`                            | só se existir `VITE_SUPABASE_URL` — sem base de dados, nunca é pedido   |
+| `supabase`                            | quando alguém vai mesmo à base de dados — nunca no primeiro desenho     |
 
-Consequências práticas:
+Consequências práticas (medidas no `dist`, não estimadas):
 
-- **primeira pintura mais leve**: ~156 kB gzip em vez de ~262 kB de um ficheiro único;
+- **~129 kB gzip no caminho crítico**, contra ~268 kB antes desta afinação;
 - **cache a sério**: mudar um texto não invalida o React nem o gsap;
 - **telemóvel**: sem scroll suave a consumir processamento e o vídeo de abertura só entra em ecrãs com largura ≥ 900 px, sem `save-data` e fora de 2G;
 - **segurança**: se o gsap falhar (ou a rede cair), a classe `anim-ready` é posta na mesma e o conteúdo aparece — há um prazo de segurança de 2,5 s no `main.tsx`.
+
+### Por onde saíram ~140 kB
+
+Quatro decisões, todas reversíveis e todas com o mesmo critério: **o que é
+decoração não pode atrasar o que é conteúdo**.
+
+1. **Fora com o framer-motion (−43 kB gzip).** Só fazia aparecer e desaparecer
+   coisas; isso é trabalho de CSS. No lugar dele ficou `src/lib/presence.tsx`
+   (um `Presence` que guarda o elemento montado o tempo da saída) e seis
+   `@keyframes` em `index.css`. A cortina de entrada, o aviso de cookies, o
+   menu de telemóvel, o painel de reservas e a troca de categoria da carta
+   passaram todos por aqui.
+2. **Letras nossas em vez das do Google.** Vinham três famílias (Fraunces,
+   Archivo, JetBrains Mono) de outro domínio: um pedido a atravessar a rede
+   antes de se pintar seja o que for — e dados a sair para fora antes de haver
+   consentimento. Agora vivem em `public/fonts`, declaradas em `index.css`, com
+   `font-display: swap` e `preload` só das duas que se veem primeiro
+   (99 kB; o itálico e a mono entram quando aparecem). Para as atualizar:
+   `npm run fonts` (copia-as dos pacotes `@fontsource-variable/*`).
+3. **O Supabase fora do caminho crítico.** Saber se há base de dados não devia
+   custar 57 kB: isso agora lê-se em `src/lib/db-enabled.ts`, sem carregar a
+   biblioteca. O cliente entra quando alguém envia um pedido de mesa.
+4. **O vídeo espera pelo navegador livre.** A fotografia pinta; o filme só
+   começa quando o navegador está em `requestIdleCallback` (ou ao fim de
+   1,2 s, nos que não têm), e com `preload="none"`.
 
 Para enviar o site como **um só ficheiro** (útil para abrir em `file://` ou mandar por email):
 `npm run build:single` gera `dist-single/index.html`.

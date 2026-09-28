@@ -1,18 +1,15 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readSession } from "@/admin/lib/session";
-
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+import { supabaseAnonKey, supabaseEnabled, supabaseUrl } from "./db-enabled";
 
 /**
  * A base de dados é opcional: sem variáveis de ambiente o site continua a
  * funcionar com o conteúdo de origem (`src/content/defaults.ts`).
+ *
+ * Url e chave vivem em `db-enabled.ts` — assim quem só quer saber se há base
+ * de dados não arrasta esta biblioteca toda (ver `reservation-requests.ts`).
  */
-export const supabaseEnabled = Boolean(url && anonKey);
-
-/** URL e chave pública, para pedidos diretos ao Storage (ver admin/lib/uploads). */
-export const supabaseUrl = url ?? "";
-export const supabaseAnonKey = anonKey ?? "";
+export { supabaseAnonKey, supabaseEnabled, supabaseUrl };
 
 /** Cabeçalho com o token de acesso, validado pela função `public.is_admin()`. */
 export const ADMIN_HEADER = "x-admin-token";
@@ -25,7 +22,7 @@ export const ADMIN_HEADER = "x-admin-token";
 let adminToken: string | null = readSession()?.token ?? null;
 
 export const supabase: SupabaseClient | null = supabaseEnabled
-  ? createClient(url as string, anonKey as string, {
+  ? createClient(supabaseUrl, supabaseAnonKey, {
       // sem autenticação por utilizador: o acesso é único e controlado por token
       auth: { persistSession: false, autoRefreshToken: false },
       realtime: { params: { eventsPerSecond: 5 } },

@@ -7,7 +7,7 @@
  * precisar de ler o que acabou de escrever.
  */
 import type { Reservation, ReservationDraft } from "@/content/types";
-import { supabase, supabaseEnabled } from "@/lib/supabase";
+import { supabaseEnabled } from "@/lib/db-enabled";
 import { newReservationCode, normalizePhone } from "@/lib/reservations";
 
 export const RESERVATIONS_TABLE = "reservations";
@@ -39,7 +39,9 @@ const UNIQUE_VIOLATION = "23505";
  * Falha com uma mensagem legível — o site mostra os contactos nesse caso.
  */
 export async function submitReservation(draft: ReservationDraft): Promise<Reservation> {
-  const client = supabase;
+  // o cliente da base de dados só é descarregado aqui: quem só lê a página
+  // não paga por ele
+  const { supabase: client } = await import("@/lib/supabase");
   if (!client) throw new Error("Pedidos online temporariamente indisponíveis.");
 
   let code = newReservationCode();

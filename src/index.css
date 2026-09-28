@@ -104,6 +104,57 @@
   }
 }
 
+/* ——————————————————————————————————————————————————————————————
+   Letras da casa, alojadas aqui (scripts/vendor-fonts.mjs copiou-as
+   dos pacotes @fontsource-variable). Antes vinham do Google: era um
+   pedido a outro domínio a atrasar o primeiro desenho — e dados a
+   sair para fora sem consentimento. Agora são ficheiros nossos.
+   —————————————————————————————————————————————————————————————— */
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-opsz-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-opsz-italic.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("/fonts/archivo-latin-wght-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
@@ -228,6 +279,118 @@
   .link-swipe:focus-visible {
     background-size: 100% 1px;
   }
+}
+
+/* ——————————————————————————— entrar e sair ——————————————————————————— */
+
+/* `Presence` (src/lib/presence.tsx): aparece e desaparece sem biblioteca. */
+@keyframes presence-in {
+  from {
+    opacity: 0;
+    transform: var(--presence-from, none);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes presence-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: var(--presence-from, none);
+  }
+}
+
+.presence {
+  animation-duration: var(--presence-duration, 340ms);
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.presence[data-state="in"] {
+  animation-name: presence-in;
+}
+
+.presence[data-state="out"] {
+  animation-name: presence-out;
+}
+
+/* a cortina de entrada: o char a subir como uma persiana */
+@keyframes curtain-lift {
+  from {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 100% 0%);
+  }
+}
+
+.curtain {
+  animation: curtain-lift 1.05s cubic-bezier(0.76, 0, 0.24, 1) 0.88s both;
+}
+
+/* os botões do menu de telemóvel entram em cascata */
+@keyframes nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.nav-item-in {
+  animation: nav-item-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0s) both;
+}
+
+/* a carta a trocar de categoria */
+@keyframes menu-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.menu-swap {
+  animation: menu-swap-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* o painel de reservas: entra de lado ou de baixo, conforme o ecrã */
+@keyframes panel-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes panel-in-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.panel-in-right {
+  animation: panel-in-right 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.panel-in-bottom {
+  animation: panel-in-bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
