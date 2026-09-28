@@ -12,11 +12,12 @@ import {
   Input,
   SaveBar,
   SectionHeader,
-  Textarea,
 } from "@/admin/components/ui";
 import { useDraft, useSave } from "@/admin/lib/hooks";
 import { ImageField } from "@/admin/components/ImageField";
-import { splitAllergens } from "@/lib/menu";
+import { allergenLine, mergeAllergens } from "@/lib/menu";
+import { LocalizedInput, LocalizedTextarea } from "@/admin/components/LocalizedField";
+import { resolve } from "@/i18n";
 
 const slugify = (value: string, fallback: string) =>
   value
@@ -98,26 +99,27 @@ export function MenuTab() {
           <Card key={category.id || ci}>
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-cream/10 pb-4">
               <div className="grid flex-1 gap-3 sm:grid-cols-3">
-                <Field label="Categoria">
-                  <Input
-                    value={category.label}
-                    onChange={(v) =>
-                      setCategory(ci, {
-                        label: v,
-                        id: ci === 0 && !category.id ? slugify(v, category.id) : category.id,
-                      })
-                    }
-                  />
-                </Field>
+                <LocalizedInput
+                  label="Categoria"
+                  value={category.label}
+                  onChange={(v) =>
+                    setCategory(ci, {
+                      label: v,
+                      id: ci === 0 && !category.id ? slugify(resolve(v, "pt"), category.id) : category.id,
+                    })
+                  }
+                />
                 <Field label="Identificador" hint="Usado nos endereços internos.">
                   <Input
                     value={category.id}
                     onChange={(v) => setCategory(ci, { id: slugify(v, category.id) })}
                   />
                 </Field>
-                <Field label="Etiqueta">
-                  <Input value={category.kicker} onChange={(v) => setCategory(ci, { kicker: v })} />
-                </Field>
+                <LocalizedInput
+                  label="Etiqueta"
+                  value={category.kicker}
+                  onChange={(v) => setCategory(ci, { kicker: v })}
+                />
               </div>
               <span className="flex items-center gap-1.5">
                 <IconButton label="Subir categoria" onClick={() => move(ci, ci - 1)} disabled={ci === 0}>
@@ -139,9 +141,13 @@ export function MenuTab() {
               </span>
             </div>
 
-            <Field label="Descrição da categoria" className="mt-4">
-              <Textarea value={category.blurb} onChange={(v) => setCategory(ci, { blurb: v })} rows={2} />
-            </Field>
+            <LocalizedTextarea
+              label="Descrição da categoria"
+              className="mt-4"
+              value={category.blurb}
+              onChange={(v) => setCategory(ci, { blurb: v })}
+              rows={2}
+            />
 
             <div className="mt-5 space-y-4">
               {category.items.map((dish, di) => (
@@ -149,7 +155,7 @@ export function MenuTab() {
                   <div className="flex items-center justify-between gap-3 pb-3">
                     <span className="label text-cream/35">
                       {String(ci + 1).padStart(2, "0")}.{String(di + 1).padStart(2, "0")} ·{" "}
-                      {dish.name || "sem nome"}
+                      {resolve(dish.name, "pt") || "sem nome"}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <IconButton
@@ -179,37 +185,65 @@ export function MenuTab() {
                     <ImageField
                       label="Fotografia"
                       value={dish.image}
-                      onChange={(img) => setDish(ci, di, { image: { ...img, alt: img.alt || dish.name } })}
+                      onChange={(img) =>
+                        setDish(ci, di, {
+                          image: { ...img, alt: img.alt || resolve(dish.name, "pt") },
+                        })
+                      }
                       aspect="1 / 1"
                     />
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <Field label="Nome">
-                        <Input value={dish.name} onChange={(v) => setDish(ci, di, { name: v })} />
-                      </Field>
+                      <LocalizedInput
+                        label="Nome"
+                        value={dish.name}
+                        onChange={(v) => setDish(ci, di, { name: v })}
+                      />
                       <div className="grid grid-cols-2 gap-3">
                         <Field label="Preço">
                           <Input value={dish.price} onChange={(v) => setDish(ci, di, { price: v })} />
                         </Field>
-                        <Field label="Etiqueta" hint="Opcional: “novo”, “vegetariano”…">
+                        <LocalizedInput
+                          label="Etiqueta"
+                          hint="Opcional: “novo”, “vegetariano”…"
+                          value={dish.flag ?? ""}
+                          onChange={(v) => setDish(ci, di, { flag: v || undefined })}
+                        />
+                      </div>
+                      <LocalizedTextarea
+                        label="Descrição"
+                        className="sm:col-span-2"
+                        value={dish.desc}
+                        onChange={(v) => setDish(ci, di, { desc: v })}
+                        rows={3}
+                      />
+                      <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
+                        <Field
+                          label="Alergénios · PT"
+                          hint="Separados por vírgula, por exemplo: glúten, ovo, leite. Vazio = informação por publicar."
+                        >
                           <Input
-                            value={dish.flag ?? ""}
-                            onChange={(v) => setDish(ci, di, { flag: v || undefined })}
+                            value={allergenLine(dish.allergens, "pt")}
+                            onChange={(v) =>
+                              setDish(ci, di, {
+                                allergens: mergeAllergens(v, allergenLine(dish.allergens, "en")),
+                              })
+                            }
+                          />
+                        </Field>
+                        <Field
+                          label="Alergénios · EN"
+                          hint="Mesma ordem: gluten, egg, milk. Em branco, mostra-se o português."
+                        >
+                          <Input
+                            value={allergenLine(dish.allergens, "en")}
+                            onChange={(v) =>
+                              setDish(ci, di, {
+                                allergens: mergeAllergens(allergenLine(dish.allergens, "pt"), v),
+                              })
+                            }
                           />
                         </Field>
                       </div>
-                      <Field label="Descrição" className="sm:col-span-2">
-                        <Textarea value={dish.desc} onChange={(v) => setDish(ci, di, { desc: v })} rows={3} />
-                      </Field>
-                      <Field
-                        label="Alergénios"
-                        hint="Separados por vírgula, por exemplo: glúten, ovo, leite. Vazio = informação por publicar."
-                        className="sm:col-span-2"
-                      >
-                        <Input
-                          value={(dish.allergens ?? []).join(", ")}
-                          onChange={(v) => setDish(ci, di, { allergens: splitAllergens(v) })}
-                        />
-                      </Field>
                     </div>
                   </div>
                 </div>

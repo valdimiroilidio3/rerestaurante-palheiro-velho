@@ -18,6 +18,7 @@ import type {
   Ocean,
   ReservationSettings,
   SiteContent,
+  Text,
 } from "@/content/types";
 import { WEEK_DAYS, type DayId } from "@/content/types";
 
@@ -27,6 +28,18 @@ type Row = Record<string, unknown>;
 const str = (r: Row, k: string, fallback = "") => (typeof r[k] === "string" ? (r[k] as string) : fallback);
 const num = (r: Row, k: string) => (typeof r[k] === "number" ? (r[k] as number) : undefined);
 const list = (r: Row, k: string) => (Array.isArray(r[k]) ? (r[k] as string[]) : undefined);
+
+/**
+ * Uma lista de textos. Cada entrada tanto pode ser uma string como um par por
+ * língua — é essa a graça do `Text`: a casa traduz o que quiser, quando quiser.
+ */
+const textList = (r: Row, k: string, fallback: Text[]): Text[] => {
+  const raw = r[k];
+  if (!Array.isArray(raw) || raw.length === 0) return fallback;
+  return (raw as unknown[]).filter(
+    (item): item is Text => typeof item === "string" || (typeof item === "object" && item !== null),
+  );
+};
 const json = <T>(r: Row, k: string) => (r[k] && typeof r[k] === "object" ? (r[k] as Partial<T>) : undefined);
 
 const merge = <T>(base: T, patch?: Partial<T>): T => (patch ? { ...base, ...patch } : base);
@@ -228,17 +241,15 @@ export async function fetchSiteContent(): Promise<SiteContent> {
       images: introImgs.length ? introImgs : defaultContent.intro.images,
       facts: introFactItems.length ? introFactItems : defaultContent.intro.facts,
     },
-    ticker: list(s, "ticker")?.length ? (list(s, "ticker") as string[]) : defaultContent.ticker,
-    hashtags: list(s, "hashtags")?.length ? (list(s, "hashtags") as string[]) : defaultContent.hashtags,
+    ticker: textList(s, "ticker", defaultContent.ticker),
+    hashtags: textList(s, "hashtags", defaultContent.hashtags),
     menu: menu.length ? menu : defaultContent.menu,
     ocean,
     experience: experienceItems.length ? experienceItems : defaultContent.experience,
     gallery: galleryItems.length ? galleryItems : defaultContent.gallery,
     instagram: instagramItems.length ? instagramItems : defaultContent.instagram,
     events: eventItems.length ? eventItems : defaultContent.events,
-    eventPerks: list(s, "event_perks")?.length
-      ? (list(s, "event_perks") as string[])
-      : defaultContent.eventPerks,
+    eventPerks: textList(s, "event_perks", defaultContent.eventPerks),
     reservations,
     legal,
   };

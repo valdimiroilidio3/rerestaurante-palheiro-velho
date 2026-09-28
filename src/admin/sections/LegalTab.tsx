@@ -1,7 +1,8 @@
 import type { LegalContent } from "@/content/types";
 import { useAdminContent, useDraft, useSave } from "@/admin/lib/hooks";
 import { saveSettings } from "@/admin/lib/api";
-import { Card, Field, Input, SaveBar, SectionHeader, Textarea } from "@/admin/components/ui";
+import { Card, Field, Input, SaveBar, SectionHeader } from "@/admin/components/ui";
+import { LocalizedInput, LocalizedTextarea } from "@/admin/components/LocalizedField";
 
 const EMPTY: LegalContent = {
   updatedAt: "",
@@ -56,12 +57,17 @@ export function LegalTab() {
       <Card className="mt-6">
         <h3 className="font-display text-[1.5rem] leading-none text-cream">Responsável</h3>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          <Field label="Entidade responsável" hint="Nome, NIF e sede, como devem constar no site.">
-            <Input value={draft.entity} onChange={(next) => set("entity", next)} />
-          </Field>
-          <Field label="Morada para exercício de direitos">
-            <Input value={draft.address} onChange={(next) => set("address", next)} />
-          </Field>
+          <LocalizedInput
+            label="Entidade responsável"
+            hint="Nome, NIF e sede, como devem constar no site."
+            value={draft.entity}
+            onChange={(next) => set("entity", next)}
+          />
+          <LocalizedInput
+            label="Morada para exercício de direitos"
+            value={draft.address}
+            onChange={(next) => set("address", next)}
+          />
           <Field label="Email de privacidade">
             <Input value={draft.email} onChange={(next) => set("email", next)} />
           </Field>
@@ -80,21 +86,27 @@ export function LegalTab() {
           Parágrafos separados por uma linha em branco.
         </p>
         <div className="mt-6 space-y-6">
-          <Field
+          <LocalizedTextarea
             label="Privacidade"
             hint="Que dados se recolhem, para quê, durante quanto tempo e como exercer direitos."
-          >
-            <Textarea rows={10} value={draft.privacy} onChange={(next) => set("privacy", next)} />
-          </Field>
-          <Field label="Cookies" hint="Que cookies existem, para que servem e como se desligam.">
-            <Textarea rows={8} value={draft.cookies} onChange={(next) => set("cookies", next)} />
-          </Field>
-          <Field
+            rows={10}
+            value={draft.privacy}
+            onChange={(next) => set("privacy", next)}
+          />
+          <LocalizedTextarea
+            label="Cookies"
+            hint="Que cookies existem, para que servem e como se desligam."
+            rows={8}
+            value={draft.cookies}
+            onChange={(next) => set("cookies", next)}
+          />
+          <LocalizedTextarea
             label="Termos de utilização"
             hint="O que o site é — e que um pedido de mesa não é uma reserva confirmada."
-          >
-            <Textarea rows={8} value={draft.terms} onChange={(next) => set("terms", next)} />
-          </Field>
+            rows={8}
+            value={draft.terms}
+            onChange={(next) => set("terms", next)}
+          />
         </div>
       </Card>
 

@@ -4,9 +4,12 @@ import { useSite } from "@/content/context";
 import { isDesktop, reduced, useReveals } from "@/lib/anim";
 import { Eyebrow, IgIcon, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
+import { useLocale, useUi } from "@/i18n/context";
 
 export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
   const { contact: CONTACT, events: EVENTS, eventPerks: EVENT_PERKS } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
   const [hover, setHover] = useState<number | null>(null);
   const ghost = useRef<HTMLDivElement>(null);
   const zone = useRef<HTMLDivElement>(null);
@@ -33,7 +36,7 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div>
             <Eyebrow index="07" tone="light">
-              Momentos
+              {ui["events.eyebrow"]}
             </Eyebrow>
             <h2 className="mt-6 font-display text-[clamp(2.4rem,8.4vw,5.8rem)] leading-[0.88]">
               <MaskWords text="Atividade" tone="light" />
@@ -44,16 +47,12 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
             </h2>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:pb-4">
-            <p className="text-[0.98rem] leading-relaxed text-cream/65">
-              O site público associado à marca refere música ao vivo. O registo empresarial público indica a
-              organização de eventos culturais e desportivos. Não são apresentadas datas, capacidades ou
-              condições sem confirmação direta da casa.
-            </p>
+            <p className="text-[0.98rem] leading-relaxed text-cream/65">{ui["events.note"]}</p>
             <ul className="space-y-2">
-              {EVENT_PERKS.map((p) => (
-                <li key={p} className="label flex items-center gap-3 text-cream/55">
+              {EVENT_PERKS.map((p, i) => (
+                <li key={i} className="label flex items-center gap-3 text-cream/55">
                   <span className="h-1 w-1 shrink-0 rounded-full bg-sun" />
-                  {p}
+                  {t(p)}
                 </li>
               ))}
             </ul>
@@ -106,16 +105,16 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
                 <span className="min-w-0">
                   <span className="flex flex-wrap items-baseline gap-x-4">
                     <span className="font-display text-[1.75rem] leading-tight transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:text-[2.5rem]">
-                      {ev.title}
+                      {t(ev.title)}
                     </span>
-                    <span className="label border border-cream/20 px-2 py-1 text-cream/50">{ev.tag}</span>
+                    <span className="label border border-cream/20 px-2 py-1 text-cream/50">{t(ev.tag)}</span>
                   </span>
                   <span className="mt-2 block max-w-[58ch] text-[0.92rem] leading-relaxed text-cream/55">
-                    {ev.desc}
+                    {t(ev.desc)}
                   </span>
                 </span>
                 <span className="col-span-2 label flex items-center gap-2 text-sun opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100 sm:col-span-1 sm:col-start-3">
-                  planear <PartyPopper size={13} />
+                  {ui["events.plan"]} <PartyPopper size={13} />
                 </span>
               </button>
             ))}
@@ -135,7 +134,7 @@ export function Events({ onReserve }: { onReserve: (s?: string) => void }) {
             Fale com a casa
           </span>
           <span className="relative z-10 flex flex-col items-start gap-3 transition-colors duration-500 group-hover:text-char sm:items-end">
-            <span className="label text-cream/60 group-hover:text-char/60">contacto direto</span>
+            <span className="label text-cream/60 group-hover:text-char/60">{ui["events.direct"]}</span>
             <span className="label flex items-center gap-2 border-b border-current/40 pb-1">
               enviar mensagem <IgIcon size={13} />
             </span>

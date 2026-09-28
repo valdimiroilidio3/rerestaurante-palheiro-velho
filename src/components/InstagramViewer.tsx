@@ -5,6 +5,7 @@ import { getLenis } from "@/lib/anim";
 import { IgIcon, Img } from "./primitives";
 import type { InstagramItem } from "@/content/types";
 import { cn } from "@/utils/cn";
+import { useLocale } from "@/i18n/context";
 
 /**
  * Visualizador de uma publicação do mosaico.
@@ -26,6 +27,7 @@ export function InstagramViewer({
   const dialog = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
   const item = items[index];
+  const { t } = useLocale();
 
   // bloqueia o scroll e devolve o foco a quem abriu
   useEffect(() => {
@@ -115,7 +117,7 @@ export function InstagramViewer({
               {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
             </p>
             <p className="mt-2 font-display text-[1.35rem] leading-tight text-char sm:text-[1.6rem]">
-              {item.cap}
+              {t(item.cap)}
             </p>
           </div>
 

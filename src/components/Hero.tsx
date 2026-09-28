@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useSite } from "@/content/context";
+import { useLocale, useUi } from "@/i18n/context";
 import { reduced, scrollToId, useAnim } from "@/lib/anim";
 import { Btn, LightLeaks } from "./primitives";
 
 export function Hero() {
   const { contact: CONTACT, hero: HERO } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
   const root = useRef<HTMLElement>(null);
   const media = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
@@ -107,11 +110,11 @@ export function Hero() {
         {/* top meta row */}
         <div className="flex items-start justify-between gap-4">
           <div data-hero-fade className="label flex flex-col gap-2 text-cream/70">
-            <span>{CONTACT.kind}</span>
-            <span className="hidden sm:block">{CONTACT.locality} · conceito privado</span>
+            <span>{t(CONTACT.kind)}</span>
+            <span className="hidden sm:block">{CONTACT.locality}</span>
           </div>
           <div data-hero-fade className="border border-cream/25 bg-char/25 px-3 py-2 backdrop-blur-md">
-            <span className="label text-cream/75">imagem de ambiente</span>
+            <span className="label text-cream/75">{ui["hero.ambient"]}</span>
           </div>
         </div>
 
@@ -119,7 +122,7 @@ export function Hero() {
         <div className="mt-auto">
           <p data-hero-fade className="label mb-5 flex items-center gap-3 text-sun/90">
             <span className="inline-block h-1.5 w-1.5 animate-bob rounded-full bg-sun" />
-            Esmoriz · Aveiro · Portugal
+            {ui["hero.place"]}
           </p>
 
           <h1 className="relative -ml-[0.04em] leading-[0.8]">
@@ -139,21 +142,20 @@ export function Hero() {
             <div>
               <p data-hero-mask className="mask-line">
                 <span className="word label block text-[0.72rem] text-cream/80 sm:text-[0.86rem] sm:tracking-[0.3em]">
-                  Onde o mar encontra a mesa.
+                  {t(HERO.tagline)}
                 </span>
               </p>
               <p
                 data-hero-fade
                 className="mt-3 max-w-[34ch] text-[0.95rem] leading-relaxed text-cream/60 sm:text-base"
               >
-                Um conceito editorial para uma presença digital de um bar de praia com vista para o mar e
-                espaço exterior.
+                {ui["hero.intro"]}
               </p>
             </div>
 
             <div data-hero-fade className="flex flex-wrap items-center gap-3">
               <Btn onClick={() => scrollToId("menu")} tone="light" className="px-8 py-4">
-                <span className="label">Ver estrutura de carta</span>
+                <span className="label">{ui["hero.structure"]}</span>
               </Btn>
               <Btn
                 onClick={() => scrollToId("contacto")}
@@ -161,7 +163,7 @@ export function Hero() {
                 variant="outline"
                 className="px-6 py-4"
               >
-                <span className="label">Como chegar</span>
+                <span className="label">{ui["hero.directions"]}</span>
               </Btn>
             </div>
           </div>
@@ -170,12 +172,12 @@ export function Hero() {
         {/* bottom rail */}
         <div className="mt-7 flex items-end justify-between gap-4 sm:mt-9">
           <div data-hero-side className="label space-y-1 text-cream/55">
-            <p className="text-cream">Esmoriz · Portugal</p>
-            <p>Travessa da Barrinha</p>
+            <p className="text-cream">{CONTACT.locality}</p>
+            <p>{CONTACT.address}</p>
           </div>
 
           <div data-hero-side className="hidden flex-1 items-center justify-center gap-3 lg:flex">
-            <span className="label text-cream/40">perfís públicos identificados</span>
+            <span className="label text-cream/40">{ui["hero.sources"]}</span>
             <span className="h-px w-16 bg-cream/25" />
             <a
               href={CONTACT.instagramUrl}
@@ -183,7 +185,7 @@ export function Hero() {
               rel="noreferrer"
               className="label text-cream/70 hover:text-sun"
             >
-              Instagram oficial →
+              {ui["hero.instagram"]}
             </a>
           </div>
 
@@ -191,9 +193,9 @@ export function Hero() {
             onClick={() => scrollToId("intro")}
             data-hero-side
             className="group flex flex-col items-center gap-2 text-cream/60 transition-colors hover:text-cream"
-            aria-label="Descer"
+            aria-label={ui["hero.scroll"]}
           >
-            <span className="label [writing-mode:vertical-rl]">Scroll</span>
+            <span className="label [writing-mode:vertical-rl]">{ui["hero.scroll"]}</span>
             <span className="relative block h-12 w-px overflow-hidden bg-cream/25">
               <span className="absolute inset-x-0 top-0 h-4 animate-bob bg-cream" />
             </span>

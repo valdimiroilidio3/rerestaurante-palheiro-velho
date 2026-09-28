@@ -5,6 +5,7 @@ import { mapsUrls } from "@/content/types";
 import { SOURCES } from "@/content/defaults";
 import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, MaskWords } from "./primitives";
+import { useLocale, useUi } from "@/i18n/context";
 
 function StylisedMap() {
   return (
@@ -134,17 +135,19 @@ function StylisedMap() {
 
 export function LocationSection({ onReserve }: { onReserve: (s?: string) => void }) {
   const { brand: BRAND, contact: CONTACT, hours: HOURS } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
   const maps = mapsUrls(CONTACT.mapsQuery);
   const [live, setLive] = useState(false);
   useReveals([]);
   const sources: [string, string][] = [
-    ["Instagram", SOURCES.instagram],
-    ["Facebook", SOURCES.facebook],
+    [ui["footer.instagram"], SOURCES.instagram],
+    [ui["footer.facebook"], SOURCES.facebook],
     ["Google Maps", SOURCES.googleMaps],
-    ["Site público", SOURCES.publicSite],
+    [ui["location.srcSite"], SOURCES.publicSite],
     ["CM Ovar", SOURCES.municipal],
-    ["Junta de Freguesia", SOURCES.parish],
-    ["Registo público", SOURCES.directory],
+    [ui["location.srcParish"], SOURCES.parish],
+    [ui["location.srcRegistry"], SOURCES.directory],
   ];
 
   return (
@@ -156,17 +159,17 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
       <div className="relative mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:gap-16">
           <div>
-            <Eyebrow index="08">Contacto & localização</Eyebrow>
+            <Eyebrow index="08">{ui["location.eyebrow"]}</Eyebrow>
             <h2 className="mt-6 font-display text-[clamp(2.3rem,8vw,5.2rem)] leading-[0.9]">
-              <MaskWords text="Estamos em" />
+              <MaskWords text={ui["location.title1"]} />
               <br />
               <span className="italic text-espresso/70">
-                <MaskWords text="Esmoriz." />
+                <MaskWords text={ui["location.title2"]} />
               </span>
             </h2>
             <div className="mt-10 grid gap-x-10 gap-y-7 sm:grid-cols-2">
               <div>
-                <p className="label text-espresso/50">Morada publicada</p>
+                <p className="label text-espresso/50">{ui["location.address"]}</p>
                 <p className="mt-3 font-display text-[1.45rem] leading-snug">{CONTACT.name}</p>
                 <p className="mt-1 text-[0.98rem] leading-relaxed text-char/70">
                   {CONTACT.address}
@@ -177,7 +180,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 </p>
               </div>
               <div>
-                <p className="label text-espresso/50">Canais publicados</p>
+                <p className="label text-espresso/50">{ui["location.channels"]}</p>
                 <a
                   href={`tel:${CONTACT.phone}`}
                   className="mt-3 block font-mono text-[1.15rem] tracking-[0.04em] transition-colors hover:text-ember"
@@ -192,7 +195,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 </a>
               </div>
               <div className="border-y border-espresso/20 py-5 sm:col-span-2">
-                <p className="label text-espresso/50">Horário</p>
+                <p className="label text-espresso/50">{ui["location.hours"]}</p>
                 {HOURS.length > 0 ? (
                   <ul className="mt-4">
                     {HOURS.map((h) => (
@@ -201,28 +204,29 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                         className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 py-2 first:pt-0 last:pb-0"
                       >
                         <span className="text-[0.98rem] text-char/80">
-                          {h.label}
+                          {t(h.label)}
                           {h.note ? (
-                            <span className="block text-[0.82rem] leading-snug text-char/50">{h.note}</span>
+                            <span className="block text-[0.82rem] leading-snug text-char/50">
+                              {t(h.note)}
+                            </span>
                           ) : null}
                         </span>
                         <span className="label shrink-0 font-mono tabular-nums text-char/65">
-                          {h.open && h.close ? `${h.open} — ${h.close}` : "encerrado"}
+                          {h.open && h.close ? `${h.open} — ${h.close}` : ui["hours.closed"]}
                         </span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <p className="mt-3 max-w-[58ch] text-[0.98rem] leading-relaxed text-char/75">
-                    Horário ainda por publicar. Confirme sempre por telefone ou nos perfis oficiais antes da
-                    visita.
+                    {ui["location.hoursEmpty"]}
                   </p>
                 )}
               </div>
             </div>
             <div className="mt-9 flex flex-wrap gap-3">
               <Btn href={`tel:${CONTACT.phone}`} tone="dark" icon={<Phone size={14} strokeWidth={1.7} />}>
-                <span className="label">Ligar</span>
+                <span className="label">{ui["location.call"]}</span>
               </Btn>
               <Btn
                 href={maps.directions}
@@ -230,17 +234,17 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 variant="outline"
                 icon={<Navigation size={14} strokeWidth={1.7} />}
               >
-                <span className="label">Como chegar</span>
+                <span className="label">{ui["location.directions"]}</span>
               </Btn>
               <Btn href={CONTACT.instagramUrl} tone="dark" variant="outline" icon={<IgIcon size={14} />}>
-                <span className="label">Instagram</span>
+                <span className="label">{ui["location.instagram"]}</span>
               </Btn>
               <Btn onClick={() => onReserve("Contacto direto")} tone="dark" variant="quiet">
-                <span className="label">Enviar email</span>
+                <span className="label">{ui["location.email"]}</span>
               </Btn>
             </div>
             <div className="mt-10 border-t border-espresso/20 pt-6">
-              <p className="label text-espresso/50">Fontes consultadas</p>
+              <p className="label text-espresso/50">{ui["location.sources"]}</p>
               <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3">
                 {sources.map(([label, href]) => (
                   <a
@@ -264,7 +268,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
             >
               {live ? (
                 <iframe
-                  title="Mapa do Palheiro Velho"
+                  title={ui["location.mapTitle"]}
                   src={maps.embed}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -278,18 +282,18 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 onClick={() => setLive((v) => !v)}
                 className="label absolute top-4 right-4 border border-espresso/25 bg-cream/90 px-3 py-2 backdrop-blur-sm transition-colors hover:bg-char hover:text-cream"
               >
-                {live ? "mapa ilustrativo" : "mapa interativo"}
+                {live ? ui["location.mapStatic"] : ui["location.mapLive"]}
               </button>
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="label text-espresso/55">Esquema ilustrativo · localização via Google Maps</p>
+              <p className="label text-espresso/55">{ui["location.mapNote"]}</p>
               <a
                 href={maps.directions}
                 target="_blank"
                 rel="noreferrer"
                 className="label link-swipe text-espresso/75 transition-colors hover:text-ember"
               >
-                abrir no Google Maps →
+                {ui["location.openMaps"]}
               </a>
             </div>
             <a
@@ -300,7 +304,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
             >
               <img
                 src={BRAND.publicLogo}
-                alt="Logótipo público do Palheiro Velho"
+                alt={ui["location.logoAlt"]}
                 loading="lazy"
                 decoding="async"
                 className="h-10 w-24 object-contain"
@@ -308,7 +312,7 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
               <span className="label text-espresso/50">
                 {BRAND.assetStatus}
                 <br />
-                fonte: Junta de Freguesia de Esmoriz
+                {ui["location.logoSource"]}
               </span>
             </a>
           </div>

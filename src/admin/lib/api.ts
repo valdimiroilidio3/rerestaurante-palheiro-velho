@@ -15,6 +15,7 @@ import type {
   NavItem,
   Ocean,
   ReservationSettings,
+  Text,
 } from "@/content/types";
 
 type Row = Record<string, unknown>;
@@ -34,9 +35,9 @@ export type SettingsPatch = {
   hero?: Hero;
   ocean?: Ocean;
   nav?: NavItem[];
-  ticker?: string[];
-  hashtags?: string[];
-  eventPerks?: string[];
+  ticker?: Text[];
+  hashtags?: Text[];
+  eventPerks?: Text[];
   hours?: HoursEntry[];
   reservations?: ReservationSettings;
   legal?: LegalContent;

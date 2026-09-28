@@ -5,16 +5,8 @@ import { useAdminContent, useDraft, useSave, useToast } from "@/admin/lib/hooks"
 import { saveSettings } from "@/admin/lib/api";
 import { removeReservation, setReservationStatus, useReservations } from "@/admin/lib/reservations";
 import { formatDay, telHref, whatsappHref } from "@/lib/reservations";
-import {
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  SaveBar,
-  SectionHeader,
-  Textarea,
-} from "@/admin/components/ui";
+import { Button, Card, EmptyState, Field, Input, SaveBar, SectionHeader } from "@/admin/components/ui";
+import { LocalizedTextarea } from "@/admin/components/LocalizedField";
 
 /** Como cada estado aparece na lista. */
 const STATUS_STYLE: Record<ReservationStatus, { label: string; className: string }> = {
@@ -371,13 +363,13 @@ function ReservationRules() {
             </Field>
           </div>
 
-          <Field label="Frase depois de enviar" hint="Aparece ao cliente com a referência do pedido.">
-            <Textarea
-              rows={3}
-              value={value.confirmation}
-              onChange={(next) => update({ ...value, confirmation: next })}
-            />
-          </Field>
+          <LocalizedTextarea
+            label="Frase depois de enviar"
+            hint="Aparece ao cliente com a referência do pedido."
+            rows={3}
+            value={value.confirmation}
+            onChange={(next) => update({ ...value, confirmation: next })}
+          />
         </div>
       )}
 

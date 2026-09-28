@@ -11,9 +11,10 @@ import {
   ListRow,
   SaveBar,
   SectionHeader,
-  Textarea,
 } from "@/admin/components/ui";
 import { useDraft, useSave } from "@/admin/lib/hooks";
+import { LocalizedInput, LocalizedTextarea } from "@/admin/components/LocalizedField";
+import { resolve } from "@/i18n";
 import { ImageField } from "@/admin/components/ImageField";
 
 const Loading = ({ what }: { what: string }) => (
@@ -72,7 +73,7 @@ export function ExperienceTab() {
                 onChange={(img) =>
                   update(
                     draft.map((p, j) =>
-                      j === i ? { ...p, image: { ...img, alt: img.alt || panel.label } } : p,
+                      j === i ? { ...p, image: { ...img, alt: img.alt || resolve(panel.label, "pt") } } : p,
                     ),
                   )
                 }
@@ -85,25 +86,24 @@ export function ExperienceTab() {
                     onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, idx: v } : p)))}
                   />
                 </Field>
-                <Field label="Nome">
-                  <Input
-                    value={panel.label}
-                    onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, label: v } : p)))}
-                  />
-                </Field>
-                <Field label="Etiqueta" className="sm:col-span-2">
-                  <Input
-                    value={panel.meta}
-                    onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, meta: v } : p)))}
-                  />
-                </Field>
-                <Field label="Texto" className="sm:col-span-2">
-                  <Textarea
-                    value={panel.text}
-                    rows={3}
-                    onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, text: v } : p)))}
-                  />
-                </Field>
+                <LocalizedInput
+                  label="Nome"
+                  value={panel.label}
+                  onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, label: v } : p)))}
+                />
+                <LocalizedInput
+                  label="Etiqueta"
+                  className="sm:col-span-2"
+                  value={panel.meta}
+                  onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, meta: v } : p)))}
+                />
+                <LocalizedTextarea
+                  label="Texto"
+                  className="sm:col-span-2"
+                  rows={3}
+                  value={panel.text}
+                  onChange={(v) => update(draft.map((p, j) => (j === i ? { ...p, text: v } : p)))}
+                />
               </div>
             </div>
           </ListRow>
@@ -205,7 +205,7 @@ export function EventsTab() {
                 onChange={(img) =>
                   update(
                     draft.map((it, j) =>
-                      j === i ? { ...it, image: { ...img, alt: img.alt || item.title } } : it,
+                      j === i ? { ...it, image: { ...img, alt: img.alt || resolve(item.title, "pt") } } : it,
                     ),
                   )
                 }
@@ -219,26 +219,24 @@ export function EventsTab() {
                       onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, n: v } : it)))}
                     />
                   </Field>
-                  <Field label="Tipo" hint="Ex.: “publicado”, “a confirmar”.">
-                    <Input
-                      value={item.tag}
-                      onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, tag: v } : it)))}
-                    />
-                  </Field>
+                  <LocalizedInput
+                    label="Tipo"
+                    hint="Ex.: “publicado”, “a confirmar”."
+                    value={item.tag}
+                    onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, tag: v } : it)))}
+                  />
                 </div>
-                <Field label="Título">
-                  <Input
-                    value={item.title}
-                    onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, title: v } : it)))}
-                  />
-                </Field>
-                <Field label="Descrição">
-                  <Textarea
-                    value={item.desc}
-                    rows={4}
-                    onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, desc: v } : it)))}
-                  />
-                </Field>
+                <LocalizedInput
+                  label="Título"
+                  value={item.title}
+                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, title: v } : it)))}
+                />
+                <LocalizedTextarea
+                  label="Descrição"
+                  rows={4}
+                  value={item.desc}
+                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, desc: v } : it)))}
+                />
               </div>
             </div>
           </Card>

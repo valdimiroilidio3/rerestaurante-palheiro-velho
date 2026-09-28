@@ -15,6 +15,8 @@ import {
 } from "@/lib/reservations";
 import { reservationRequestsEnabled, submitReservation } from "@/lib/reservation-requests";
 import { Btn, IgIcon } from "./primitives";
+import { useLocale, useUi } from "@/i18n/context";
+import { fill } from "@/i18n/ui";
 
 /**
  * Painel de contacto e pedidos de mesa.
@@ -33,6 +35,7 @@ export function ReservePanel({
   onClose: () => void;
 }) {
   const { contact: CONTACT } = useSite().content;
+  const ui = useUi();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -63,7 +66,7 @@ export function ReservePanel({
           transition={{ duration: reduced() ? 0 : 0.3 }}
         >
           <motion.button
-            aria-label="Fechar"
+            aria-label={ui["common.close"]}
             onClick={onClose}
             className="absolute inset-0 bg-char/65 backdrop-blur-[3px]"
             initial={{ opacity: 0 }}
@@ -73,7 +76,7 @@ export function ReservePanel({
           <motion.aside
             role="dialog"
             aria-modal="true"
-            aria-label="Pedir mesa no Palheiro Velho"
+            aria-label={ui["reserve.title"]}
             initial={
               reduced() ? { opacity: 0 } : { y: isBottom() ? "100%" : "0%", x: isBottom() ? 0 : "100%" }
             }
@@ -85,12 +88,12 @@ export function ReservePanel({
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-espresso/15 bg-cream/95 px-6 py-5 backdrop-blur">
               <div>
-                <p className="label text-espresso/55">Pedido de mesa</p>
+                <p className="label text-espresso/55">{ui["reserve.eyebrow"]}</p>
                 <h3 className="mt-2 font-display text-[1.7rem] leading-none">Palheiro Velho</h3>
               </div>
               <button
                 onClick={onClose}
-                aria-label="Fechar painel"
+                aria-label={ui["common.close"]}
                 className="flex h-11 w-11 items-center justify-center border border-espresso/20 transition-colors hover:bg-char hover:text-cream"
               >
                 <X size={18} />
@@ -128,6 +131,8 @@ type Step = "form" | "a enviar" | "enviado" | "erro";
  */
 function RequestForm({ subject }: { subject?: string }) {
   const { contact: CONTACT, hours, reservations } = useSite().content;
+  const { locale } = useLocale();
+  const ui = useUi();
   const online = reservationRequestsEnabled();
   const accepts = reservations.enabled && online;
 
@@ -188,7 +193,7 @@ function RequestForm({ subject }: { subject?: string }) {
         event.preventDefault();
         // o campo "empresa" está escondido das pessoas: quem o preencher é robô
         if (honeypot) return;
-        const found = validateReservation(draft, hours, reservations, now);
+        const found = validateReservation(draft, hours, reservations, now, locale);
         setErrors(found);
         if (Object.keys(found).length) return;
 
@@ -197,29 +202,26 @@ function RequestForm({ subject }: { subject?: string }) {
         try {
           const saved = await submitReservation({
             ...draft,
-            notes: subject ? `Motivo: ${subject}\n${draft.notes}`.trim() : draft.notes,
+            notes: subject ? `${ui["reserve.subject"]}: ${subject}\n${draft.notes}`.trim() : draft.notes,
           });
           setSent(saved);
           setStep("enviado");
         } catch (err) {
           setStep("erro");
-          setFailure(err instanceof Error ? err.message : "Não foi possível enviar o pedido.");
+          setFailure(err instanceof Error ? err.message : ui["error.send"]);
         }
       }}
       className="space-y-6"
     >
-      <p className="max-w-[45ch] text-[0.98rem] leading-relaxed text-char/70">
-        Deixe o pedido e a casa confirma por telefone em horário de funcionamento. Para grupos grandes ou no
-        próprio dia, é mais rápido ligar.
-      </p>
+      <p className="max-w-[45ch] text-[0.98rem] leading-relaxed text-char/70">{ui["reserve.intro"]}</p>
 
       {subject && (
         <p className="border-l-2 border-sun bg-sand/60 px-4 py-3 text-[0.9rem] text-espresso/80">
-          Motivo de contacto: <strong className="font-semibold">{subject}</strong>
+          {ui["reserve.subject"]}: <strong className="font-semibold">{subject}</strong>
         </p>
       )}
 
-      <Field label="Nome" error={errors.name} htmlFor="rs-name">
+      <Field label={ui["reserve.name"]} error={errors.name} htmlFor="rs-name">
         <input
           id="rs-name"
           ref={first}
@@ -228,12 +230,12 @@ function RequestForm({ subject }: { subject?: string }) {
           autoComplete="name"
           aria-invalid={Boolean(errors.name)}
           className={inputClass(Boolean(errors.name))}
-          placeholder="Nome para a reserva"
+          placeholder={ui["reserve.namePlaceholder"]}
         />
       </Field>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <Field label="Telefone" error={errors.phone} htmlFor="rs-phone">
+        <Field label={ui["reserve.phone"]} error={errors.phone} htmlFor="rs-phone">
           <input
             id="rs-phone"
             type="tel"
@@ -243,11 +245,11 @@ function RequestForm({ subject }: { subject?: string }) {
             autoComplete="tel"
             aria-invalid={Boolean(errors.phone)}
             className={inputClass(Boolean(errors.phone))}
-            placeholder="912 345 678"
+            placeholder={ui["reserve.phonePlaceholder"]}
           />
         </Field>
 
-        <Field label="Email (opcional)" error={errors.email} htmlFor="rs-email">
+        <Field label={ui["reserve.email"]} error={errors.email} htmlFor="rs-email">
           <input
             id="rs-email"
             type="email"
@@ -256,13 +258,13 @@ function RequestForm({ subject }: { subject?: string }) {
             autoComplete="email"
             aria-invalid={Boolean(errors.email)}
             className={inputClass(Boolean(errors.email))}
-            placeholder="para receber a confirmação"
+            placeholder={ui["reserve.emailPlaceholder"]}
           />
         </Field>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-3">
-        <Field label="Dia" error={errors.day} htmlFor="rs-day">
+        <Field label={ui["reserve.day"]} error={errors.day} htmlFor="rs-day">
           <input
             id="rs-day"
             type="date"
@@ -275,7 +277,7 @@ function RequestForm({ subject }: { subject?: string }) {
           />
         </Field>
 
-        <Field label="Hora" error={errors.time} htmlFor="rs-time">
+        <Field label={ui["reserve.time"]} error={errors.time} htmlFor="rs-time">
           <select
             id="rs-time"
             value={draft.time}
@@ -283,7 +285,7 @@ function RequestForm({ subject }: { subject?: string }) {
             aria-invalid={Boolean(errors.time)}
             className={inputClass(Boolean(errors.time))}
           >
-            <option value="">{slots.length ? "escolher" : "sem horas"}</option>
+            <option value="">{slots.length ? ui["reserve.chooseTime"] : ui["reserve.noTime"]}</option>
             {slots.map((slot) => (
               <option key={slot} value={slot}>
                 {slot}
@@ -292,7 +294,7 @@ function RequestForm({ subject }: { subject?: string }) {
           </select>
         </Field>
 
-        <Field label="Pessoas" error={errors.people} htmlFor="rs-people">
+        <Field label={ui["reserve.people"]} error={errors.people} htmlFor="rs-people">
           <select
             id="rs-people"
             value={draft.people}
@@ -311,20 +313,20 @@ function RequestForm({ subject }: { subject?: string }) {
         </Field>
       </div>
 
-      <Field label="Nota (opcional)" error={errors.notes} htmlFor="rs-notes">
+      <Field label={ui["reserve.notes"]} error={errors.notes} htmlFor="rs-notes">
         <textarea
           id="rs-notes"
           rows={3}
           value={draft.notes}
           onChange={(event) => set("notes", event.target.value)}
           className={`${inputClass(Boolean(errors.notes))} resize-none`}
-          placeholder="Alergias, cadeira de bebé, aniversário…"
+          placeholder={ui["reserve.notesPlaceholder"]}
         />
       </Field>
 
       {/* armadilha para robots: escondida das pessoas, irrelevante se preenchida */}
       <div aria-hidden="true" className="hidden">
-        <label htmlFor="rs-company">Empresa</label>
+        <label htmlFor="rs-company">{ui["reserve.company"]}</label>
         <input
           id="rs-company"
           tabIndex={-1}
@@ -358,7 +360,7 @@ function RequestForm({ subject }: { subject?: string }) {
         >
           <p>{failure}</p>
           <p className="mt-2">
-            Pode sempre ligar para{" "}
+            {ui["error.callInstead"]}{" "}
             <a className="underline underline-offset-4" href={`tel:${CONTACT.phone}`}>
               {CONTACT.phoneLabel}
             </a>
@@ -367,10 +369,7 @@ function RequestForm({ subject }: { subject?: string }) {
         </div>
       )}
 
-      <p className="text-center text-[0.76rem] leading-relaxed text-char/45">
-        O pedido é enviado para a casa e a confirmação chega por telefone — não se paga nada aqui nem ficam
-        dados de pagamento.
-      </p>
+      <p className="text-center text-[0.76rem] leading-relaxed text-char/45">{ui["reserve.disclaimer"]}</p>
     </form>
   );
 }
@@ -379,34 +378,38 @@ function RequestForm({ subject }: { subject?: string }) {
 
 function Confirmation({ reservation }: { reservation: Reservation }) {
   const { contact: CONTACT, reservations } = useSite().content;
+  const { t, locale } = useLocale();
+  const ui = useUi();
 
   return (
     <div role="status" className="space-y-7">
       <div className="border-l-2 border-sun bg-sand/60 px-5 py-4">
-        <p className="label text-espresso/55">Pedido registado</p>
+        <p className="label text-espresso/55">{ui["reserve.registered"]}</p>
         <p className="mt-2 font-display text-[2.1rem] leading-none">{reservation.code}</p>
       </div>
 
       <dl className="space-y-3 text-[0.95rem]">
-        <Row label="Dia" value={formatDay(reservation.day)} />
-        <Row label="Hora" value={reservation.time} />
+        <Row label={ui["reserve.dayLabel"]} value={formatDay(reservation.day, locale)} />
+        <Row label={ui["reserve.timeLabel"]} value={reservation.time} />
         <Row
-          label="Pessoas"
-          value={`${reservation.people} ${reservation.people === 1 ? "pessoa" : "pessoas"}`}
+          label={ui["reserve.peopleLabel"]}
+          value={`${reservation.people} ${
+            reservation.people === 1 ? ui["common.person"] : ui["common.people"]
+          }`}
         />
-        <Row label="Em nome de" value={reservation.name} />
+        <Row label={ui["reserve.nameLabel"]} value={reservation.name} />
       </dl>
 
-      <p className="text-[0.95rem] leading-relaxed text-char/70">{reservations.confirmation}</p>
+      <p className="text-[0.95rem] leading-relaxed text-char/70">{t(reservations.confirmation)}</p>
 
       <div className="grid gap-3">
         <Btn href={`tel:${CONTACT.phone}`} tone="dark" icon={<Phone size={15} />} className="w-full">
-          <span className="label">Ligar · {CONTACT.phoneLabel}</span>
+          <span className="label">{fill(ui["reserve.callLabel"], { phone: CONTACT.phoneLabel })}</span>
         </Btn>
       </div>
 
       <p className="text-center text-[0.76rem] leading-relaxed text-char/45">
-        Guarde a referência {reservation.code} — é o que identifica o pedido na casa.
+        {fill(ui["reserve.keepCode"], { code: reservation.code })}
       </p>
     </div>
   );
@@ -429,24 +432,25 @@ function Row({ label, value }: { label: string; value: string }) {
  */
 function ContactOnly({ subject, online }: { subject?: string; online: boolean }) {
   const { contact: CONTACT } = useSite().content;
+  const ui = useUi();
   const maps = mapsUrls(CONTACT.mapsQuery);
 
   return (
     <div className="space-y-6">
       <p className="max-w-[45ch] text-[0.98rem] leading-relaxed text-char/70">
-        Para carta, horário, eventos ou disponibilidade, use um dos canais publicados abaixo.
-        {!online && " Os pedidos de mesa por este site ainda não estão ligados à casa."}
+        {ui["reserve.onlyContacts"]}
+        {!online && ui["reserve.notLinked"]}
       </p>
 
       {subject && (
         <p className="border-l-2 border-sun bg-sand/60 px-4 py-3 text-[0.9rem] text-espresso/80">
-          Motivo de contacto: <strong className="font-semibold">{subject}</strong>
+          {ui["reserve.subject"]}: <strong className="font-semibold">{subject}</strong>
         </p>
       )}
 
       <div className="grid gap-3">
         <Btn href={`tel:${CONTACT.phone}`} tone="dark" icon={<Phone size={15} />} className="w-full">
-          <span className="label">Ligar · {CONTACT.phoneLabel}</span>
+          <span className="label">{fill(ui["reserve.callLabel"], { phone: CONTACT.phoneLabel })}</span>
         </Btn>
         <Btn
           href={CONTACT.instagramUrl}
@@ -455,7 +459,7 @@ function ContactOnly({ subject, online }: { subject?: string; online: boolean })
           icon={<IgIcon size={15} />}
           className="w-full"
         >
-          <span className="label">Abrir Instagram oficial</span>
+          <span className="label">{ui["reserve.instagramCta"]}</span>
         </Btn>
         <Btn
           href={CONTACT.facebookUrl}
@@ -464,7 +468,7 @@ function ContactOnly({ subject, online }: { subject?: string; online: boolean })
           icon={<ExternalLink size={15} />}
           className="w-full"
         >
-          <span className="label">Abrir Facebook oficial</span>
+          <span className="label">{ui["reserve.facebookCta"]}</span>
         </Btn>
         <Btn
           href={maps.directions}
@@ -473,17 +477,17 @@ function ContactOnly({ subject, online }: { subject?: string; online: boolean })
           icon={<MapPin size={15} />}
           className="w-full"
         >
-          <span className="label">Abrir direções</span>
+          <span className="label">{ui["reserve.directionsCta"]}</span>
         </Btn>
       </div>
 
       <p className="flex items-start gap-2 text-[0.85rem] leading-relaxed text-char/60">
         <CalendarCheck size={16} className="mt-0.5 shrink-0" />
-        Prefere escrever? Envie um email para{" "}
+        {ui["reserve.emailFallback"]}{" "}
         <a className="underline underline-offset-4" href={`mailto:${CONTACT.email}`}>
           {CONTACT.email}
         </a>{" "}
-        com o dia, a hora e o número de pessoas.
+        {ui["reserve.emailDetails"]}
       </p>
     </div>
   );

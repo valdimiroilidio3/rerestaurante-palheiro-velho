@@ -20,6 +20,7 @@ import { reduced, useSmoothScroll } from "@/lib/anim";
 import { applySeo } from "@/lib/seo-dom";
 import { useConsent } from "@/lib/consent";
 import { mountAnalytics, unmountAnalytics } from "@/lib/analytics";
+import { useLocale, useUi } from "@/i18n/context";
 
 /* ————— cinematic curtain: no asset waiting, just a beat of anticipation ————— */
 function Curtain() {
@@ -77,6 +78,7 @@ function Curtain() {
 /* ————— mobile conversion bar ————— */
 function MobileBar({ onReserve }: { onReserve: () => void }) {
   const { contact: CONTACT } = useSite().content;
+  const ui = useUi();
   const [show, setShow] = useState(false);
   useEffect(() => {
     const onScroll = () => {
@@ -103,13 +105,13 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
             href={`tel:${CONTACT.phone}`}
             className="label flex flex-1 items-center justify-center gap-2 py-4 text-cream/80"
           >
-            <Phone size={14} /> Ligar
+            <Phone size={14} /> {ui["nav.call"]}
           </a>
           <button
             onClick={onReserve}
             className="label flex flex-[1.2] items-center justify-center gap-2 bg-cream py-4 text-char"
           >
-            Contactar
+            {ui["nav.reserve"]}
           </button>
         </motion.div>
       )}
@@ -120,6 +122,7 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
 export default function App() {
   useSmoothScroll();
   const { content } = useSite();
+  const { locale } = useLocale();
   const { consent } = useConsent();
   const [reserve, setReserve] = useState<{ open: boolean; subject?: string }>({ open: false });
   const root = useRef<HTMLDivElement>(null);
@@ -128,8 +131,8 @@ export default function App() {
 
   // título, descrição, partilhas e dados estruturados seguem o conteúdo real
   useEffect(() => {
-    applySeo(content);
-  }, [content]);
+    applySeo(content, locale);
+  }, [content, locale]);
 
   // a medição só entra com consentimento e sai quando ele é retirado
   useEffect(() => {

@@ -3,6 +3,8 @@ import { useSite } from "@/content/context";
 import { useIsDesktop, useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
+import { useLocale, useUi } from "@/i18n/context";
+import { fill } from "@/i18n/ui";
 
 const ACCENT: Record<string, string> = {
   view: "#d1854a",
@@ -14,6 +16,8 @@ const ACCENT: Record<string, string> = {
 
 export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
   const { experience: EXPERIENCE } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
   const [open, setOpen] = useState(0);
   const desktop = useIsDesktop();
   useReveals([]);
@@ -23,18 +27,17 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
       <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12">
         <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <Eyebrow index="04">A experiência</Eyebrow>
+            <Eyebrow index="04">{ui["experience.eyebrow"]}</Eyebrow>
             <h2 className="mt-6 font-display text-[clamp(2.3rem,7.6vw,5.4rem)] leading-[0.9]">
-              <MaskWords text="Elementos" />
+              <MaskWords text={ui["experience.word1"]} />
               <br />
               <span className="italic text-espresso/65">
-                <MaskWords text="publicados." />
+                <MaskWords text={ui["experience.word2"]} />
               </span>
             </h2>
           </div>
           <p data-reveal className="max-w-[38ch] text-[0.98rem] leading-relaxed text-char/65 lg:pb-3">
-            Informação recolhida em canais públicos associados à marca. As fotografias desta secção são
-            referências temporárias e não representam o Palheiro Velho.
+            {ui["experience.note"]}
           </p>
         </div>
       </div>
@@ -49,8 +52,8 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                 key={x.id}
                 onMouseEnter={() => setOpen(i)}
                 onFocus={() => setOpen(i)}
-                onClick={() => onReserve(`Contacto sobre: ${x.label}`)}
-                aria-label={`${x.label}: ${x.text}`}
+                onClick={() => onReserve(fill(ui["experience.subject"], { label: t(x.label) }))}
+                aria-label={`${t(x.label)}: ${t(x.text)}`}
                 className="group relative overflow-hidden text-left transition-[flex] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
                 style={{ flex: isOpen ? "3.4 1 0%" : "0.75 1 0%" }}
               >
@@ -78,7 +81,7 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                     isOpen ? "opacity-0" : "opacity-100",
                   )}
                 >
-                  {x.idx} {x.label}
+                  {x.idx} {t(x.label)}
                 </span>
                 <span
                   aria-hidden
@@ -99,14 +102,16 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                   <p className="label flex items-center gap-3 text-cream/60">
                     <span className="tabular-nums">{x.idx}</span>
                     <span className="h-px w-6 bg-cream/35" />
-                    {x.meta}
+                    {t(x.meta)}
                   </p>
                   <h3 className="mt-4 font-display text-[clamp(2rem,4.2vw,3.6rem)] leading-none text-cream">
-                    {x.label}
+                    {t(x.label)}
                   </h3>
-                  <p className="mt-4 max-w-[42ch] text-[0.98rem] leading-relaxed text-cream/75">{x.text}</p>
+                  <p className="mt-4 max-w-[42ch] text-[0.98rem] leading-relaxed text-cream/75">
+                    {t(x.text)}
+                  </p>
                   <span className="label mt-6 inline-flex items-center gap-2 border-b border-cream/35 pb-1 text-cream">
-                    confirmar com a casa →
+                    {ui["experience.confirm"]}
                   </span>
                 </div>
               </button>
@@ -127,10 +132,10 @@ export function Experience({ onReserve }: { onReserve: (s?: string) => void }) {
                 <p className="label flex items-center gap-3 text-cream/60">
                   <span className="tabular-nums">{x.idx}</span>
                   <span className="h-px w-6 bg-cream/35" />
-                  {x.meta}
+                  {t(x.meta)}
                 </p>
-                <h3 className="mt-3 font-display text-[2.4rem] leading-none">{x.label}</h3>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-cream/75">{x.text}</p>
+                <h3 className="mt-3 font-display text-[2.4rem] leading-none">{t(x.label)}</h3>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-cream/75">{t(x.text)}</p>
                 <span
                   className="mt-5 block h-[3px] w-full origin-left"
                   style={{ background: ACCENT[x.id], opacity: i === 0 ? 1 : 0.65 }}

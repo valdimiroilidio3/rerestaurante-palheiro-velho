@@ -1,10 +1,14 @@
 import { useRef, useState } from "react";
 import { useSite } from "@/content/context";
+import { useLocale, useUi } from "@/i18n/context";
+import { resolveList } from "@/i18n";
 import { isDesktop, useAnim, useReveals } from "@/lib/anim";
 import { Eyebrow, Img, Marquee, MaskWords } from "./primitives";
 
 export function Intro() {
   const { brand: BRAND, intro, ticker: TICKER } = useSite().content;
+  const { t, locale } = useLocale();
+  const ui = useUi();
   const INTRO_IMAGES = intro.images;
   const INTRO_FACTS = intro.facts;
   const root = useRef<HTMLElement>(null);
@@ -48,7 +52,7 @@ export function Intro() {
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* ——— text ——— */}
           <div>
-            <Eyebrow index="01">Informação confirmada</Eyebrow>
+            <Eyebrow index="01">{ui["intro.confirmed"]}</Eyebrow>
             <h2 className="mt-7 font-display text-[clamp(2.5rem,8.6vw,5.6rem)] leading-[0.9]">
               <MaskWords text="Mais do que" />
               <br />
@@ -59,14 +63,10 @@ export function Intro() {
 
             <div className="mt-9 grid gap-6 sm:grid-cols-2">
               <p data-reveal className="text-[1.05rem] leading-[1.75] text-char/80">
-                O <strong className="font-semibold">Palheiro Velho</strong> é identificado publicamente como
-                um bar de praia em Esmoriz, na Travessa da Barrinha. As páginas públicas associadas ao espaço
-                referem vista para o mar e mesas exteriores.
+                {ui["intro.body"]}
               </p>
               <p data-reveal data-delay="0.1" className="text-[1.05rem] leading-[1.75] text-char/70">
-                Este website é um conceito privado de design, criado a partir dos canais públicos encontrados.
-                A carta, o horário, as imagens e qualquer campanha comercial devem ser confirmados com a marca
-                antes de serem publicados.
+                {ui["intro.note"]}
               </p>
             </div>
           </div>
@@ -84,8 +84,8 @@ export function Intro() {
                 />
               </div>
               <figcaption className="label mt-3 flex items-center justify-between text-espresso/55">
-                <span>imagem de referência</span>
-                <span>não representa a casa</span>
+                <span>{ui["intro.image"]}</span>
+                <span>{ui["intro.notHouse"]}</span>
               </figcaption>
             </div>
 
@@ -138,9 +138,11 @@ export function Intro() {
                 {f.k}
               </span>
               <h3 className="font-display text-[1.6rem] leading-tight transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1 sm:text-[2.1rem]">
-                {f.t}
+                {t(f.t)}
               </h3>
-              <p className="col-start-2 text-[0.95rem] leading-relaxed text-char/65 sm:col-start-3">{f.d}</p>
+              <p className="col-start-2 text-[0.95rem] leading-relaxed text-char/65 sm:col-start-3">
+                {t(f.d)}
+              </p>
               <span
                 aria-hidden
                 className="absolute top-0 -left-2 hidden h-full w-[calc(100%+1rem)] origin-left bg-gradient-to-r from-sun/12 to-transparent transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:block"
@@ -153,7 +155,12 @@ export function Intro() {
 
       {/* ——— ticker ——— */}
       <div className="relative mt-16 border-y border-ocean/20 bg-ocean py-4 text-cream sm:mt-24">
-        <Marquee items={TICKER} speed={46} className="label text-[0.72rem] sm:text-[0.8rem]" separator="✳" />
+        <Marquee
+          items={resolveList(TICKER, locale)}
+          speed={46}
+          className="label text-[0.72rem] sm:text-[0.8rem]"
+          separator="✳"
+        />
       </div>
     </section>
   );

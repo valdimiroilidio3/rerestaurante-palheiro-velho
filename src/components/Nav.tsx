@@ -5,9 +5,13 @@ import { cn } from "@/utils/cn";
 import { useSite } from "@/content/context";
 import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
+import { LanguageSwitch } from "./LanguageSwitch";
+import { useLocale, useUi } from "@/i18n/context";
 
 export function Nav({ onReserve }: { onReserve: () => void }) {
   const { contact: CONTACT, hero: HERO, nav: NAV } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
 
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -88,7 +92,7 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                   active === item.id ? "text-current" : "opacity-60 hover:opacity-100",
                 )}
               >
-                {item.label}
+                {t(item.label)}
                 <span
                   className={cn(
                     "absolute inset-x-3 bottom-2 h-px origin-left bg-current transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
@@ -114,8 +118,12 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
               className="hidden text-[0.6rem] sm:inline-flex"
               icon={null}
             >
-              Contactar
+              {ui["nav.contact"]}
             </Btn>
+            <LanguageSwitch
+              className={cn("hidden lg:flex", scrolled ? "text-char" : "text-cream")}
+              tone={scrolled ? "light" : "dark"}
+            />
             <button
               onClick={() => setOpen(true)}
               className={cn(
@@ -161,10 +169,10 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
             </div>
 
             <div className="relative flex items-center justify-between px-5 py-5">
-              <span className="label opacity-60">Esmoriz · Portugal</span>
+              <span className="label opacity-60">{ui["nav.place"]}</span>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Fechar menu"
+                aria-label={ui["nav.close"]}
                 className="flex h-11 w-11 items-center justify-center border border-cream/25"
               >
                 <X size={19} strokeWidth={1.5} />
@@ -182,7 +190,7 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                   className="group flex items-baseline justify-between border-b border-cream/12 py-3 text-left"
                 >
                   <span className="font-display text-[2.35rem] leading-[1.05] transition-transform duration-500 group-active:translate-x-1">
-                    {id === "top" ? "Início" : NAV.find((n) => n.id === id)?.label}
+                    {id === "top" ? ui["nav.home"] : t(NAV.find((n) => n.id === id)?.label)}
                   </span>
                   <span className="label opacity-40">0{i}</span>
                 </motion.button>
@@ -198,14 +206,14 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                 tone="light"
                 className="w-full"
               >
-                Contactar a casa
+                {ui["nav.reserve"]}
               </Btn>
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <a
                   href={`tel:${CONTACT.phone}`}
                   className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
                 >
-                  <Phone size={13} /> Ligar
+                  <Phone size={13} /> {ui["nav.call"]}
                 </a>
                 <a
                   href={CONTACT.instagramUrl}
@@ -213,9 +221,10 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
                   rel="noreferrer"
                   className="label flex items-center justify-center gap-2 border border-cream/25 py-4"
                 >
-                  <IgIcon size={14} /> Instagram
+                  <IgIcon size={14} /> {ui["nav.instagram"]}
                 </a>
               </div>
+              <LanguageSwitch className="w-full justify-center pt-3 text-cream" tone="dark" />
               <button
                 onClick={() => go("contacto")}
                 className="label w-full pt-2 opacity-60 underline decoration-1 underline-offset-4"

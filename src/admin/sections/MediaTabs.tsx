@@ -11,10 +11,10 @@ import {
   ListRow,
   SaveBar,
   SectionHeader,
-  Textarea,
 } from "@/admin/components/ui";
 import { useDraft, useSave } from "@/admin/lib/hooks";
 import { ImageField } from "@/admin/components/ImageField";
+import { LocalizedInput, LocalizedTextarea } from "@/admin/components/LocalizedField";
 
 const Loading = ({ what }: { what: string }) => (
   <p className="flex items-center gap-2 text-cream/40">
@@ -85,19 +85,18 @@ export function GalleryTab() {
                 }
                 aspect="4 / 3"
               />
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Legenda">
-                  <Input
-                    value={item.cap}
-                    onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, cap: v } : it)))}
-                  />
-                </Field>
-                <Field label="Nota" hint="Ex.: “substituir por fotografia autorizada”.">
-                  <Input
-                    value={item.loc}
-                    onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, loc: v } : it)))}
-                  />
-                </Field>
+              <div className="grid gap-3">
+                <LocalizedInput
+                  label="Legenda"
+                  value={item.cap}
+                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, cap: v } : it)))}
+                />
+                <LocalizedInput
+                  label="Nota"
+                  hint="Ex.: “substituir por fotografia autorizada”."
+                  value={item.loc}
+                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, loc: v } : it)))}
+                />
               </div>
             </div>
           </ListRow>
@@ -193,12 +192,11 @@ export function InstagramTab() {
             />
 
             <div className="mt-4 grid gap-3">
-              <Field label="Legenda">
-                <Input
-                  value={item.cap}
-                  onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, cap: v } : it)))}
-                />
-              </Field>
+              <LocalizedInput
+                label="Legenda"
+                value={item.cap}
+                onChange={(v) => update(draft.map((it, j) => (j === i ? { ...it, cap: v } : it)))}
+              />
               <Field label="Gostos" hint="Texto livre: número ou nota.">
                 <Input
                   value={item.likes}
@@ -347,20 +345,18 @@ export function IntroTab() {
                   onChange={(v) => setFacts(draft.facts.map((f, j) => (j === i ? { ...f, k: v } : f)))}
                 />
               </Field>
-              <Field label="Serviço">
-                <Input
-                  value={fact.t}
-                  onChange={(v) => setFacts(draft.facts.map((f, j) => (j === i ? { ...f, t: v } : f)))}
-                />
-              </Field>
-            </div>
-            <Field label="Descrição">
-              <Textarea
-                value={fact.d}
-                rows={2}
-                onChange={(v) => setFacts(draft.facts.map((f, j) => (j === i ? { ...f, d: v } : f)))}
+              <LocalizedInput
+                label="Serviço"
+                value={fact.t}
+                onChange={(v) => setFacts(draft.facts.map((f, j) => (j === i ? { ...f, t: v } : f)))}
               />
-            </Field>
+            </div>
+            <LocalizedTextarea
+              label="Descrição"
+              rows={2}
+              value={fact.d}
+              onChange={(v) => setFacts(draft.facts.map((f, j) => (j === i ? { ...f, d: v } : f)))}
+            />
           </ListRow>
         ))}
       </div>

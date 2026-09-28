@@ -25,6 +25,9 @@
     "vitest.config.ts",
     "src/content/defaults.ts",
     "src/content/types.ts",
+    "src/i18n/types.ts",
+    "src/i18n/locales.ts",
+    "src/i18n/resolve.ts",
     "src/lib/seo.ts"
   ]
 }

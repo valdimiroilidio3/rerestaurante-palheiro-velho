@@ -6,6 +6,7 @@ import { defineConfig, loadEnv, type Plugin } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import { defaultContent } from "./src/content/defaults";
 import { pageDescription, pageTitle, restaurantSchema } from "./src/lib/seo";
+import { HTML_LANG, LOCALES } from "./src/i18n/locales";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +55,16 @@ function splitChunks(): Record<string, string[]> | ((id: string) => string | und
 }
 
 /**
+ * O endereço de cada página em cada língua.
+ * O português é o endereço limpo; o inglês leva `?lang=en`. É essa a parelha
+ * que os `<link rel="alternate" hreflang=…>` anunciam aos motores de busca.
+ */
+const pageUrl = (siteUrl: string, file: string, locale: (typeof LOCALES)[number]): string => {
+  const base = `${siteUrl}/${file === "index.html" ? "" : file}`;
+  return locale === "pt" ? base : `${base}?lang=${locale}`;
+};
+
+/**
  * Partilhas e dados estruturados já no HTML.
  * Quem não corre JavaScript (a maioria dos robots de partilhas e alguns
  * motores de busca) lê isto. Depois, no browser, o applySeo() atualiza tudo
@@ -63,18 +74,20 @@ function seoTags(siteUrl: string): Plugin {
   return {
     name: "seo-tags",
     transformIndexHtml(html, ctx) {
+      const file = ctx.filename?.split("/").pop() ?? "index.html";
       // só o site público leva os marcadores de partilha e o schema
-      if (ctx.filename && !ctx.filename.endsWith("index.html")) return html;
+      const home = file === "index.html";
 
       const content = defaultContent;
-      const title = pageTitle(content);
-      const description = pageDescription(content);
+      const title = home ? pageTitle(content) : `Privacidade, cookies e termos · ${content.contact.name}`;
+      const description = home ? pageDescription(content) : defaultLegalDescription;
       const image = content.hero.poster;
 
       const meta: Record<string, string> = {
         "og:type": "website",
         "og:site_name": content.contact.name,
         "og:locale": "pt_PT",
+        "og:locale:alternate": "en_GB",
         "og:title": title,
         "og:description": description,
         "og:image": image,
@@ -94,6 +107,25 @@ function seoTags(siteUrl: string): Plugin {
       type Tag = { tag: string; injectTo: "head"; attrs: Record<string, string>; children?: string };
 
       const tags: Tag[] = [
+        // as duas versões do mesmo endereço, uma por língua (e a de origem)
+        ...(siteUrl
+          ? [
+              ...LOCALES.map((locale) => ({
+                tag: "link",
+                injectTo: "head" as const,
+                attrs: {
+                  rel: "alternate",
+                  hreflang: HTML_LANG[locale],
+                  href: pageUrl(siteUrl, file, locale),
+                },
+              })),
+              {
+                tag: "link",
+                injectTo: "head" as const,
+                attrs: { rel: "alternate", hreflang: "x-default", href: pageUrl(siteUrl, file, "pt") },
+              },
+            ]
+          : []),
         ...Object.entries(meta).map(([property, value]) => ({
           tag: "meta",
           injectTo: "head" as const,
@@ -104,16 +136,24 @@ function seoTags(siteUrl: string): Plugin {
           injectTo: "head" as const,
           attrs: { name, content: value },
         })),
-        {
-          tag: "script",
-          injectTo: "head" as const,
-          attrs: { type: "application/ld+json", id: "site-schema" },
-          children: JSON.stringify(restaurantSchema(content, siteUrl)),
-        },
+        ...(home
+          ? [
+              {
+                tag: "script",
+                injectTo: "head" as const,
+                attrs: { type: "application/ld+json", id: "site-schema" },
+                children: JSON.stringify(restaurantSchema(content, siteUrl)),
+              },
+            ]
+          : []),
       ];
 
       if (siteUrl) {
-        tags.unshift({ tag: "link", injectTo: "head" as const, attrs: { rel: "canonical", href: siteUrl } });
+        tags.unshift({
+          tag: "link",
+          injectTo: "head" as const,
+          attrs: { rel: "canonical", href: pageUrl(siteUrl, file, "pt") },
+        });
       }
 
       // o título e a descrição estáticos passam a seguir o conteúdo
@@ -137,23 +177,36 @@ Allow: /
 Sitemap: ${siteUrl}/sitemap.xml
 `;
 
+const defaultLegalDescription =
+  "Como o Palheiro Velho trata os dados dos pedidos de mesa, que cookies usa e os termos de utilização do site.";
+
+/** Uma página do sitemap, com uma entrada por língua e as ligações entre elas. */
+const sitemapEntry = (
+  siteUrl: string,
+  file: string,
+  today: string,
+  changefreq: string,
+  priority: string,
+) => `  <url>
+    <loc>${pageUrl(siteUrl, file, "pt")}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+${LOCALES.map(
+  (locale) =>
+    `    <xhtml:link rel="alternate" hreflang="${HTML_LANG[locale]}" href="${pageUrl(siteUrl, file, locale)}" />`,
+).join("\n")}
+    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(siteUrl, file, "pt")}" />
+  </url>`;
+
 const sitemapXml = (
   siteUrl: string,
   today = new Date().toISOString().slice(0, 10),
 ) => `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${siteUrl}/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${siteUrl}/legal.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${sitemapEntry(siteUrl, "index.html", today, "weekly", "1.0")}
+${sitemapEntry(siteUrl, "legal.html", today, "yearly", "0.3")}
 </urlset>
 `;
 

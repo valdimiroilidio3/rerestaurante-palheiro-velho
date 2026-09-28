@@ -9,7 +9,9 @@ import {
   type HoursEntry,
   type NavItem,
   type Ocean,
+  type Text,
 } from "@/content/types";
+import { resolve } from "@/i18n";
 import {
   AddButton,
   Button,
@@ -19,10 +21,10 @@ import {
   Input,
   SaveBar,
   SectionHeader,
-  Textarea,
 } from "@/admin/components/ui";
 import { cn } from "@/utils/cn";
 import { useDraft, useSave } from "@/admin/lib/hooks";
+import { LocalizedInput, LocalizedLines, LocalizedTextarea } from "@/admin/components/LocalizedField";
 import { ImageField } from "@/admin/components/ImageField";
 
 const Loading = () => (
@@ -59,9 +61,7 @@ export function ContactTab() {
         <Field label="Nome">
           <Input value={draft.name} onChange={(v) => set({ name: v })} />
         </Field>
-        <Field label="Tipo de espaço">
-          <Input value={draft.kind} onChange={(v) => set({ kind: v })} />
-        </Field>
+        <LocalizedInput label="Tipo de espaço" value={draft.kind} onChange={(v) => set({ kind: v })} />
         <Field label="Morada">
           <Input value={draft.address} onChange={(v) => set({ address: v })} />
         </Field>
@@ -107,9 +107,12 @@ export function ContactTab() {
       </div>
 
       <Card className="mt-5">
-        <Field label="Nota curta sobre a casa">
-          <Textarea value={draft.note} onChange={(v) => set({ note: v })} rows={2} />
-        </Field>
+        <LocalizedTextarea
+          label="Nota curta sobre a casa"
+          value={draft.note}
+          onChange={(v) => set({ note: v })}
+          rows={2}
+        />
       </Card>
 
       <SaveBar dirty={dirty} saving={saving} onSave={() => void save()} onReset={reset} />
@@ -170,9 +173,11 @@ export function HeroTab() {
           aspect="16 / 9"
         />
         <div className="space-y-4">
-          <Field label="Frase de abertura">
-            <Input value={hero.draft.tagline} onChange={(v) => setHero({ tagline: v })} />
-          </Field>
+          <LocalizedInput
+            label="Frase de abertura"
+            value={hero.draft.tagline}
+            onChange={(v) => setHero({ tagline: v })}
+          />
           <Field label="Vídeo (ecrãs grandes)" hint="MP4 alojado em HTTPS.">
             <Input
               value={hero.draft.videoSources[0] ?? ""}
@@ -208,24 +213,26 @@ export function HeroTab() {
           />
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field label="Frase (uma palavra por campo)">
-            <div className="grid grid-cols-3 gap-2">
-              {[0, 1, 2].map((i) => (
-                <Input
-                  key={i}
-                  value={ocean.draft!.line[i] ?? ""}
-                  onChange={(v) => {
-                    const line = [...ocean.draft!.line];
-                    line[i] = v;
-                    setOcean({ line });
-                  }}
-                />
-              ))}
-            </div>
-          </Field>
-          <Field label="Legenda">
-            <Textarea value={ocean.draft.sub} onChange={(v) => setOcean({ sub: v })} rows={3} />
-          </Field>
+          <div className="grid gap-3">
+            {[0, 1, 2].map((i) => (
+              <LocalizedInput
+                key={i}
+                label={`Palavra ${i + 1}`}
+                value={ocean.draft!.line[i] ?? ""}
+                onChange={(v) => {
+                  const line = [...ocean.draft!.line];
+                  line[i] = v;
+                  setOcean({ line });
+                }}
+              />
+            ))}
+          </div>
+          <LocalizedTextarea
+            label="Legenda"
+            value={ocean.draft.sub}
+            onChange={(v) => setOcean({ sub: v })}
+            rows={3}
+          />
         </div>
       </div>
 
@@ -236,25 +243,24 @@ export function HeroTab() {
 
 /* ————————————————————————————— navegação e listas ————————————————————————————— */
 
-const splitList = (value: string) =>
-  value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+/** Um texto do conteúdo visto como par de línguas — aceita texto simples. */
+const asPair = (value: Text): { pt: string; en: string } =>
+  typeof value === "string" ? { pt: value, en: "" } : { pt: value?.pt ?? "", en: value?.en ?? "" };
 
 export function TextsTab() {
   const { content, loading } = useAdminContent();
   const nav = useDraft<NavItem[]>(content?.nav ?? []);
-  const ticker = useDraft<string>((content?.ticker ?? []).join("\n"));
-  const hashtags = useDraft<string>((content?.hashtags ?? []).join("\n"));
-  const perks = useDraft<string>((content?.eventPerks ?? []).join("\n"));
+  // as listas já não são só texto: cada entrada pode ter versão nas duas línguas
+  const tickerList = useDraft<Text[]>(content?.ticker ?? []);
+  const hashtagList = useDraft<Text[]>(content?.hashtags ?? []);
+  const perkList = useDraft<Text[]>(content?.eventPerks ?? []);
 
-  const dirty = nav.dirty || ticker.dirty || hashtags.dirty || perks.dirty;
+  const dirty = nav.dirty || tickerList.dirty || hashtagList.dirty || perkList.dirty;
   const commit = () => {
     nav.commit(nav.draft);
-    ticker.commit(ticker.draft);
-    hashtags.commit(hashtags.draft);
-    perks.commit(perks.draft);
+    tickerList.commit(tickerList.draft);
+    hashtagList.commit(hashtagList.draft);
+    perkList.commit(perkList.draft);
   };
   const { saving, save } = useSave(
     dirty,
@@ -262,9 +268,9 @@ export function TextsTab() {
     async () => {
       await saveSettings({
         nav: nav.draft,
-        ticker: splitList(ticker.draft),
-        hashtags: splitList(hashtags.draft),
-        eventPerks: splitList(perks.draft),
+        ticker: tickerList.draft,
+        hashtags: hashtagList.draft,
+        eventPerks: perkList.draft,
       });
     },
     "Textos atualizados — o site já mostra as alterações.",
@@ -274,9 +280,9 @@ export function TextsTab() {
 
   const reset = () => {
     nav.reset();
-    ticker.reset();
-    hashtags.reset();
-    perks.reset();
+    tickerList.reset();
+    hashtagList.reset();
+    perkList.reset();
   };
 
   return (
@@ -295,11 +301,32 @@ export function TextsTab() {
                 placeholder="identificador (ex.: carta)"
                 onChange={(v) => nav.update(nav.draft.map((it, j) => (j === i ? { ...it, id: v } : it)))}
               />
-              <Input
-                value={item.label}
-                placeholder="nome visível"
-                onChange={(v) => nav.update(nav.draft.map((it, j) => (j === i ? { ...it, label: v } : it)))}
-              />
+              <div className="grid gap-2">
+                <Input
+                  value={resolve(item.label, "pt")}
+                  placeholder="nome visível (PT)"
+                  onChange={(v) =>
+                    nav.update(
+                      nav.draft.map((it, j) =>
+                        j === i ? { ...it, label: { ...asPair(it.label), pt: v } } : it,
+                      ),
+                    )
+                  }
+                />
+                <Input
+                  value={
+                    resolve(item.label, "en") === resolve(item.label, "pt") ? "" : resolve(item.label, "en")
+                  }
+                  placeholder="nome visível (EN)"
+                  onChange={(v) =>
+                    nav.update(
+                      nav.draft.map((it, j) =>
+                        j === i ? { ...it, label: { ...asPair(it.label), en: v } } : it,
+                      ),
+                    )
+                  }
+                />
+              </div>
               <Button variant="danger" onClick={() => nav.update(nav.draft.filter((_, j) => j !== i))}>
                 remover
               </Button>
@@ -317,15 +344,25 @@ export function TextsTab() {
       </Card>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <Field label="Faixa do rodapé" hint="Uma entrada por linha.">
-          <Textarea value={ticker.draft} onChange={ticker.update} rows={6} />
-        </Field>
-        <Field label="Hashtags (faixa do Instagram)">
-          <Textarea value={hashtags.draft} onChange={hashtags.update} rows={6} />
-        </Field>
-        <Field label="Vantagens em “Momentos”">
-          <Textarea value={perks.draft} onChange={perks.update} rows={5} />
-        </Field>
+        <LocalizedLines
+          label="Faixa do rodapé"
+          hint="Uma entrada por linha."
+          value={tickerList.draft}
+          onChange={tickerList.update}
+          rows={6}
+        />
+        <LocalizedLines
+          label="Hashtags (faixa do Instagram)"
+          value={hashtagList.draft}
+          onChange={hashtagList.update}
+          rows={6}
+        />
+        <LocalizedLines
+          label="Vantagens em “Momentos”"
+          value={perkList.draft}
+          onChange={perkList.update}
+          rows={5}
+        />
       </div>
 
       <SaveBar dirty={dirty} saving={saving} onSave={() => void save()} onReset={reset} />
@@ -428,13 +465,12 @@ export function HoursTab() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-              <Field label="Rótulo" hint="É o que se lê no site, por exemplo “Terça a domingo”.">
-                <Input
-                  value={item.label}
-                  onChange={(v) => setEntry(i, { label: v })}
-                  placeholder={labelFromDays(item.days) || "Terça a domingo"}
-                />
-              </Field>
+              <LocalizedInput
+                label="Rótulo"
+                hint="É o que se lê no site, por exemplo “Terça a domingo”."
+                value={item.label}
+                onChange={(v) => setEntry(i, { label: v })}
+              />
               <div className="flex items-end">
                 <Button
                   variant="ghost"
@@ -482,13 +518,16 @@ export function HoursTab() {
             </div>
 
             <div className="mt-4">
-              <Field label="Observação" hint="Opcional: “cozinha até às 22:00”, “a confirmar”…">
-                <Input value={item.note ?? ""} onChange={(v) => setEntry(i, { note: v })} />
-              </Field>
+              <LocalizedInput
+                label="Observação"
+                hint="Opcional: “cozinha até às 22:00”, “a confirmar”…"
+                value={item.note ?? ""}
+                onChange={(v) => setEntry(i, { note: v })}
+              />
             </div>
 
             <p className="mt-4 border-t border-cream/10 pt-4 text-[0.9rem] text-cream/55">
-              {item.label || labelFromDays(item.days) || "Sem rótulo"} ·{" "}
+              {resolve(item.label, "pt") || labelFromDays(item.days) || "Sem rótulo"} ·{" "}
               <span className="font-mono">
                 {item.open && item.close ? `${item.open} — ${item.close}` : "encerrado"}
               </span>

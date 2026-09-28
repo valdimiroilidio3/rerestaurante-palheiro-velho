@@ -20,7 +20,7 @@ export type IdentifiedImage = ImageAsset & { id: string };
 
 export type Contact = {
   name: string;
-  kind: string;
+  kind: Text;
   address: string;
   locality: string;
   region: string;
@@ -31,7 +31,7 @@ export type Contact = {
   instagramUrl: string;
   facebookUrl: string;
   mapsQuery: string;
-  note: string;
+  note: Text;
   /** Coordenadas, só para os dados estruturados e o mapa. Opcionais. */
   lat?: number;
   lng?: number;
@@ -56,33 +56,33 @@ export type Hero = {
   posterHeight: number;
   /** Fundo do menu móvel (mais pequeno). */
   overlay: string;
-  tagline: string;
+  tagline: Text;
 };
 
-export type NavItem = { id: string; label: string };
+export type NavItem = { id: string; label: Text };
 
-export type IntroFact = { id: string; k: string; t: string; d: string };
+export type IntroFact = { id: string; k: string; t: Text; d: Text };
 
 /** Cada categoria mostra o primeiro prato em destaque. */
 export type Dish = {
   id: string;
-  name: string;
-  desc: string;
+  name: Text;
+  desc: Text;
   price: string;
   image: ImageAsset;
-  flag?: string;
+  flag?: Text;
   /**
    * Alergénios declarados pela casa, por exemplo ["glúten", "ovo"].
    * Vazio = a casa ainda não publicou a informação deste prato.
    */
-  allergens: string[];
+  allergens: Text[];
 };
 
 export type MenuCategory = {
   id: string;
-  label: string;
-  kicker: string;
-  blurb: string;
+  label: Text;
+  kicker: Text;
+  blurb: Text;
   items: Dish[];
 };
 
@@ -90,30 +90,30 @@ export type Ocean = {
   wide: ImageAsset;
   mid: ImageAsset;
   /** Palavras da frase gigante — uma por palavra. */
-  line: string[];
-  sub: string;
+  line: Text[];
+  sub: Text;
 };
 
 export type ExperiencePanel = {
   id: string;
-  label: string;
+  label: Text;
   idx: string;
   image: ImageAsset;
-  text: string;
-  meta: string;
+  text: Text;
+  meta: Text;
 };
 
 export type GalleryItem = {
   id: string;
   image: ImageAsset;
-  cap: string;
-  loc: string;
+  cap: Text;
+  loc: Text;
 };
 
 export type InstagramItem = {
   id: string;
   image: ImageAsset;
-  cap: string;
+  cap: Text;
   likes: string;
   /** Classes Tailwind do mosaico (ex.: "sm:col-span-2 sm:row-span-2"). */
   span: string;
@@ -122,6 +122,11 @@ export type InstagramItem = {
   /** Foto ou vídeo — só muda o selo da peça. */
   kind?: "foto" | "reel";
 };
+
+/** Texto que a casa pode traduzir: simples (igual em todas as línguas) ou por língua. */
+import type { Text } from "../i18n/types";
+
+export type { Text };
 
 /** Dias da semana: o `schema` é o nome que o Google espera (schema.org). */
 export const WEEK_DAYS = [
@@ -143,14 +148,14 @@ export type DayId = (typeof WEEK_DAYS)[number]["id"];
 export type HoursEntry = {
   id: string;
   /** Rótulo que aparece no site, por exemplo "Terça a domingo". */
-  label: string;
+  label: Text;
   days: DayId[];
   /** Abertura, formato "HH:MM". */
   open: string;
   /** Fecho, formato "HH:MM". */
   close: string;
   /** Observação opcional, por exemplo "cozinha até às 22:00". */
-  note?: string;
+  note?: Text;
 };
 
 /** Estados de um pedido de mesa. */
@@ -175,7 +180,7 @@ export type ReservationSettings = {
   /** Quantos dias à frente se aceitam pedidos. */
   horizonDays: number;
   /** Frase mostrada ao cliente depois de enviar o pedido. */
-  confirmation: string;
+  confirmation: Text;
 };
 
 /** Um pedido de mesa, tal como a base de dados o devolve. */
@@ -211,28 +216,28 @@ export type LegalContent = {
   /** Última revisão, no formato "2026-09-28". */
   updatedAt: string;
   /** Entidade responsável pelo tratamento dos dados. */
-  entity: string;
+  entity: Text;
   /** Morada para o exercício de direitos. */
-  address: string;
+  address: Text;
   /** Contacto de privacidade (email). */
   email: string;
   /** Contacto de privacidade (telefone, opcional). */
   phone: string;
   /** Corpo da política de privacidade: parágrafos separados por linha em branco. */
-  privacy: string;
+  privacy: Text;
   /** Corpo da política de cookies. */
-  cookies: string;
+  cookies: Text;
   /** Termos de utilização do site. */
-  terms: string;
+  terms: Text;
 };
 
 export type EventItem = {
   id: string;
   n: string;
-  title: string;
-  desc: string;
+  title: Text;
+  desc: Text;
   image: ImageAsset;
-  tag: string;
+  tag: Text;
 };
 
 export type SiteContent = {
@@ -241,8 +246,8 @@ export type SiteContent = {
   nav: NavItem[];
   hero: Hero;
   intro: { images: IdentifiedImage[]; facts: IntroFact[] };
-  ticker: string[];
-  hashtags: string[];
+  ticker: Text[];
+  hashtags: Text[];
   menu: MenuCategory[];
   ocean: Ocean;
   experience: ExperiencePanel[];
@@ -251,7 +256,7 @@ export type SiteContent = {
   /** Horário de funcionamento. Vazio = ainda por confirmar. */
   hours: HoursEntry[];
   events: EventItem[];
-  eventPerks: string[];
+  eventPerks: Text[];
   /** Regras dos pedidos de mesa. */
   reservations: ReservationSettings;
   /** Privacidade, cookies e termos — página legal e aviso de consentimento. */

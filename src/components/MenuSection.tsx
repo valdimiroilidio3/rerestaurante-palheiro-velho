@@ -4,8 +4,10 @@ import { ArrowUpRight, Info } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
-import { allergensIn, menuWithoutAllergen } from "@/lib/menu";
+import { allergensIn, dishAllergens, menuWithoutAllergen } from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
+import { useLocale, useUi } from "@/i18n/context";
+import { fill } from "@/i18n/ui";
 
 function useSpotlight() {
   const ref = useRef<HTMLElement>(null);
@@ -21,6 +23,8 @@ function useSpotlight() {
 
 function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => void }) {
   const { ref, onMove } = useSpotlight();
+  const { t, locale } = useLocale();
+  const ui = useUi();
   return (
     <motion.button
       ref={ref as never}
@@ -50,11 +54,11 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
       <div className="min-w-0">
         <div className="flex items-baseline gap-3">
           <h4 className="font-display text-[1.25rem] leading-snug transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/row:translate-x-1 sm:text-[1.5rem]">
-            {dish.name}
+            {t(dish.name)}
           </h4>
           {dish.flag && (
             <span className="label hidden shrink-0 border border-sun/45 px-2 py-1 text-sun/90 sm:inline-block">
-              {dish.flag}
+              {t(dish.flag)}
             </span>
           )}
           <span className="mx-2 hidden h-px flex-1 self-end border-b border-dotted border-cream/25 sm:block" />
@@ -62,11 +66,11 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
             {dish.price}
           </span>
         </div>
-        <p className="mt-1 max-w-[52ch] text-[0.88rem] leading-relaxed text-cream/50">{dish.desc}</p>
+        <p className="mt-1 max-w-[52ch] text-[0.88rem] leading-relaxed text-cream/50">{t(dish.desc)}</p>
         {dish.allergens.length > 0 && (
           <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.72rem] text-cream/45">
-            <span className="label text-cream/35">contém</span>
-            {dish.allergens.map((item) => (
+            <span className="label text-cream/35">{ui["menu.contains"]}</span>
+            {dishAllergens(dish, locale).map((item) => (
               <span key={item} className="border border-cream/15 px-2 py-0.5">
                 {item}
               </span>
@@ -74,7 +78,7 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
           </p>
         )}
         <span className="label mt-2 hidden items-center gap-1.5 text-cream/0 transition-colors duration-500 group-hover/row:text-cream/70 sm:flex">
-          confirmar com a casa <ArrowUpRight size={12} />
+          {ui["menu.confirm"]} <ArrowUpRight size={12} />
         </span>
       </div>
     </motion.button>
@@ -83,11 +87,16 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
 
 export function MenuSection({ onReserve }: { onReserve: (subject?: string) => void }) {
   const { menu: MENU } = useSite().content;
+  const { t, locale } = useLocale();
+  const ui = useUi();
   const [cat, setCat] = useState(0);
   // "evitar um alergénio" só aparece quando a casa declarou algum
-  const allergens = useMemo(() => allergensIn(MENU), [MENU]);
+  const allergens = useMemo(() => allergensIn(MENU, locale), [MENU, locale]);
   const [avoid, setAvoid] = useState<string | null>(null);
-  const menu = useMemo(() => (avoid ? menuWithoutAllergen(MENU, avoid) : MENU), [MENU, avoid]);
+  const menu = useMemo(
+    () => (avoid ? menuWithoutAllergen(MENU, avoid, locale) : MENU),
+    [MENU, avoid, locale],
+  );
   // ao filtrar, a categoria escolhida pode deixar de existir
   const index = Math.min(cat, Math.max(0, menu.length - 1));
   const active = menu[index];
@@ -106,27 +115,21 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
             <Eyebrow index="02" tone="light">
-              A carta
+              {ui["menu.eyebrow"]}
             </Eyebrow>
             <h2 className="mt-6 font-display text-[clamp(2.4rem,9vw,6rem)] leading-[0.88]">
-              <MaskWords text="Comer junto," tone="light" />
+              <MaskWords text={ui["menu.title1"]} tone="light" />
               <br />
               <span className="italic text-sand/80">
-                <MaskWords text="sem pressa." tone="light" />
+                <MaskWords text={ui["menu.title2"]} tone="light" />
               </span>
             </h2>
           </div>
           <div className="flex flex-col gap-5 lg:pb-3">
-            <p className="text-[1rem] leading-relaxed text-cream/60">
-              Uma arquitetura de carta para o protótipo. As categorias seguem o briefing de design; os pratos,
-              descrições, alergénios, disponibilidade e preços têm de ser fornecidos ou validados pela marca.
-            </p>
+            <p className="text-[1rem] leading-relaxed text-cream/60">{ui["menu.intro"]}</p>
             <div className="flex items-start gap-3 border border-dashed border-cream/25 p-4">
               <Info size={15} className="mt-0.5 shrink-0 text-sun" />
-              <p className="text-[0.82rem] leading-relaxed text-cream/55">
-                Carta <em className="not-italic text-cream/80">provisória</em> para este site: nomes e preços
-                são marcadores editáveis (00 €) e substituem-se pela tabela oficial da casa.
-              </p>
+              <p className="text-[0.82rem] leading-relaxed text-cream/55">{ui["menu.provisional"]}</p>
             </div>
           </div>
         </div>
@@ -134,7 +137,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
         {/* alergénios: só aparece quando a casa publicou essa informação */}
         {allergens.length > 0 && (
           <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-cream/12 pt-5">
-            <span className="label text-cream/40">Evitar</span>
+            <span className="label text-cream/40">{ui["menu.avoid"]}</span>
             <button
               type="button"
               onClick={() => setAvoid(null)}
@@ -145,7 +148,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
               }`}
             >
-              todos
+              {ui["menu.all"]}
             </button>
             {allergens.map((item) => (
               <button
@@ -159,7 +162,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                     : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
                 }`}
               >
-                sem {item}
+                {fill(ui["menu.without"], { item })}
               </button>
             ))}
           </div>
@@ -186,7 +189,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   />
                 )}
                 <span className="mr-2 tabular-nums opacity-45">0{i + 1}</span>
-                {c.label}
+                {t(c.label)}
               </button>
             ))}
           </div>
@@ -195,8 +198,7 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
         {/* content */}
         {!active ? (
           <p className="mt-12 border border-dashed border-cream/20 px-5 py-10 text-center text-[0.92rem] text-cream/50">
-            Nenhum prato desta carta está publicado sem {avoid}. Para dúvidas sobre alergénios, fale com a
-            casa antes de escolher.
+            {fill(ui["menu.empty"], { item: avoid ?? "" })}
           </p>
         ) : (
           <AnimatePresence mode="wait">
@@ -220,50 +222,51 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                    <p className="label text-sun">{active.label} · imagem de referência</p>
+                    <p className="label text-sun">
+                      {t(active.label)} · {ui["menu.reference"]}
+                    </p>
                     <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
-                      {feature.name}
+                      {t(feature.name)}
                     </h3>
                     <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
-                      {feature.desc}
+                      {t(feature.desc)}
                     </p>
                     <div className="mt-5 flex items-center gap-4">
                       <span className="label border border-cream/25 px-3 py-2 tabular-nums">
                         {feature.price}
                       </span>
-                      {feature.flag && <span className="label text-cream/50">{feature.flag}</span>}
+                      {feature.flag && <span className="label text-cream/50">{t(feature.flag)}</span>}
                     </div>
                   </div>
                 </div>
                 <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
-                  {active.blurb}
+                  {t(active.blurb)}
                 </p>
               </div>
 
               {/* list */}
               <div>
                 <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
-                  <p className="label text-cream/50">{active.kicker}</p>
+                  <p className="label text-cream/50">{t(active.kicker)}</p>
                   <p className="label text-cream/35 tabular-nums">
-                    {String(active.items.length).padStart(2, "0")} itens
+                    {String(active.items.length).padStart(2, "0")} {ui["menu.items"]}
                   </p>
                 </div>
                 {rest.map((d, i) => (
                   <DishRow
-                    key={`${d.name}-${i}`}
+                    key={`${d.id}-${i}`}
                     dish={d}
                     i={i}
-                    onPick={() => onReserve(`Carta: ${active.label}`)}
+                    onPick={() => onReserve(`Carta: ${t(active.label)}`)}
                   />
                 ))}
 
                 <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
                   <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">
-                    Esta é uma estrutura de demonstração. Use os canais oficiais abaixo para confirmar a carta
-                    e a disponibilidade atual.
+                    {ui["menu.demo"]}
                   </p>
                   <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
-                    <span className="label">Contactar a casa</span>
+                    <span className="label">{ui["menu.contact"]}</span>
                   </Btn>
                 </div>
               </div>

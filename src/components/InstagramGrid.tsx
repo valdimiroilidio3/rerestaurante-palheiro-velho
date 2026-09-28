@@ -6,9 +6,12 @@ import { Btn, Eyebrow, IgIcon, Img, Marquee, MaskWords } from "./primitives";
 import { InstagramViewer } from "./InstagramViewer";
 import type { InstagramItem } from "@/content/types";
 import { cn } from "@/utils/cn";
+import { useLocale, useUi } from "@/i18n/context";
+import { resolveList } from "@/i18n";
 
 export function InstagramGrid() {
   const { contact: CONTACT, instagram: INSTAGRAM, hashtags: HASHTAGS } = useSite().content;
+  const { locale } = useLocale();
   const [open, setOpen] = useState<number | null>(null);
   useReveals([INSTAGRAM.length]);
 
@@ -80,7 +83,7 @@ export function InstagramGrid() {
 
       <div className="mt-14 border-y border-espresso/15 py-3 text-espresso/70">
         <Marquee
-          items={HASHTAGS}
+          items={resolveList(HASHTAGS, locale)}
           speed={38}
           className="font-mono text-[0.72rem] tracking-[0.18em] uppercase"
           separator="◦"
@@ -117,6 +120,8 @@ function Tile({
   total: number;
   onOpen: () => void;
 }) {
+  const { t } = useLocale();
+  const ui = useUi();
   const reel = item.kind === "reel";
 
   return (
@@ -159,12 +164,12 @@ function Tile({
         )}
       >
         <span className="max-w-[36ch] text-[0.8rem] leading-snug text-cream sm:text-[0.85rem]">
-          {item.cap}
+          {t(item.cap)}
         </span>
         <span className="label mt-2 flex items-center gap-2 text-cream/75">
           <Heart size={11} className="fill-sun text-sun" /> {item.likes}
           <span className="ml-auto inline-flex items-center gap-1 text-cream/60">
-            ver <Maximize2 size={10} />
+            {ui["instagram.view"]} <Maximize2 size={10} />
           </span>
         </span>
       </span>

@@ -4,6 +4,8 @@ import { Cookie, X } from "lucide-react";
 import { chooseConsent, closeConsent, useConsent } from "@/lib/consent";
 import { reduced } from "@/lib/anim";
 import { analyticsEnabled } from "@/lib/analytics";
+import { useLocale, useUi } from "@/i18n/context";
+import { localeHref } from "@/i18n";
 
 /**
  * Aviso de cookies.
@@ -14,6 +16,8 @@ import { analyticsEnabled } from "@/lib/analytics";
  */
 export function CookieBanner() {
   const { consent, open } = useConsent();
+  const { locale } = useLocale();
+  const ui = useUi();
   const [choice, setChoice] = useState({ analytics: false, marketing: false });
   const [details, setDetails] = useState(false);
 
@@ -25,7 +29,7 @@ export function CookieBanner() {
       {visible && (
         <motion.div
           role="region"
-          aria-label="Consentimento de cookies"
+          aria-label={ui["cookies.region"]}
           initial={reduced() ? { opacity: 0 } : { y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={reduced() ? { opacity: 0 } : { y: 24, opacity: 0 }}
@@ -35,23 +39,23 @@ export function CookieBanner() {
           <div className="flex items-start gap-3">
             <Cookie size={16} className="mt-0.5 shrink-0 text-espresso/60" aria-hidden />
             <div>
-              <p className="label text-espresso/55">Cookies</p>
+              <p className="label text-espresso/55">{ui["cookies.title"]}</p>
               <p className="mt-2 text-[0.9rem] leading-relaxed text-char/75">
-                Usamos apenas o necessário para o site funcionar.
-                {analyticsEnabled() && " Com a sua autorização, medimos as visitas de forma agregada."} Pode
-                escolher agora e mudar de ideias quando quiser, no rodapé.
+                {ui["cookies.intro"]}
+                {analyticsEnabled() && ui["cookies.introAnalytics"]}
+                {ui["cookies.outro"]}
               </p>
               <a
-                href="./legal.html#cookies"
+                href={localeHref(locale, "./legal.html#cookies")}
                 className="label mt-3 inline-block text-espresso/70 underline underline-offset-4 transition-colors hover:text-char"
               >
-                ler a política de cookies
+                {ui["cookies.link"]}
               </a>
             </div>
             {open && (
               <button
                 onClick={closeConsent}
-                aria-label="Fechar preferências de cookies"
+                aria-label={ui["cookies.close"]}
                 className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center border border-espresso/15 transition-colors hover:bg-char hover:text-cream"
               >
                 <X size={15} />
@@ -62,25 +66,21 @@ export function CookieBanner() {
           {details && (
             <div className="mt-4 space-y-3 border-t border-espresso/15 pt-4">
               <Toggle
-                label="Necessários"
-                hint="Guardam a sua escolha de cookies e a sessão do painel. Não se podem desligar."
+                label={ui["cookies.necessary"]}
+                hint={ui["cookies.necessaryHint"]}
                 checked
                 disabled
                 onChange={() => {}}
               />
               <Toggle
-                label="Medição de audiência"
-                hint={
-                  analyticsEnabled()
-                    ? "Estatísticas agregadas das visitas ao site."
-                    : "Disponível quando a casa configurar um serviço de medição."
-                }
+                label={ui["cookies.measure"]}
+                hint={analyticsEnabled() ? ui["cookies.measureHint"] : ui["cookies.measureHintOff"]}
                 checked={choice.analytics}
                 onChange={(next) => setChoice((state) => ({ ...state, analytics: next }))}
               />
               <Toggle
-                label="Publicidade e redes"
-                hint="O site não usa este tipo de cookies."
+                label={ui["cookies.marketing"]}
+                hint={ui["cookies.marketingHint"]}
                 checked={choice.marketing}
                 onChange={(next) => setChoice((state) => ({ ...state, marketing: next }))}
               />
@@ -93,14 +93,14 @@ export function CookieBanner() {
               onClick={() => chooseConsent({ analytics: true, marketing: true })}
               className="label bg-char px-4 py-3 text-cream transition-colors hover:bg-espresso"
             >
-              aceitar todos
+              {ui["cookies.acceptAll"]}
             </button>
             <button
               type="button"
               onClick={() => chooseConsent({ analytics: false, marketing: false })}
               className="label border border-espresso/25 px-4 py-3 transition-colors hover:border-char"
             >
-              só necessários
+              {ui["cookies.necessaryOnly"]}
             </button>
             {details ? (
               <button
@@ -108,7 +108,7 @@ export function CookieBanner() {
                 onClick={() => chooseConsent({ analytics: choice.analytics, marketing: choice.marketing })}
                 className="label px-4 py-3 text-espresso/70 underline underline-offset-4 transition-colors hover:text-char"
               >
-                guardar escolha
+                {ui["cookies.save"]}
               </button>
             ) : (
               <button
@@ -119,7 +119,7 @@ export function CookieBanner() {
                 }}
                 className="label px-4 py-3 text-espresso/70 underline underline-offset-4 transition-colors hover:text-char"
               >
-                definir
+                {ui["cookies.define"]}
               </button>
             )}
           </div>

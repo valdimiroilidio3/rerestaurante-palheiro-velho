@@ -1,4 +1,6 @@
 import { WEEK_DAYS, type SiteContent } from "../content/types";
+import type { Locale } from "../i18n/types";
+import { resolve } from "../i18n/resolve";
 
 /**
  * Títulos, descrição e dados estruturados — tudo função pura do conteúdo.
@@ -13,14 +15,15 @@ import { WEEK_DAYS, type SiteContent } from "../content/types";
  * telefone, redes sociais e, quando estiverem preenchidas, as coordenadas.
  * Só se escreve o que se sabe — nada de inventar horários ou cozinha.
  */
-export function restaurantSchema(content: SiteContent, siteUrl = "") {
+export function restaurantSchema(content: SiteContent, siteUrl = "", locale: Locale = "pt") {
   const c = content.contact;
 
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
     name: c.name,
-    description: pageDescription(content),
+    description: pageDescription(content, locale),
+    inLanguage: locale === "en" ? "en-GB" : "pt-PT",
     telephone: c.phone,
     email: c.email,
     image: content.hero.poster,
@@ -56,17 +59,18 @@ export function restaurantSchema(content: SiteContent, siteUrl = "") {
 }
 
 /** Uma frase para o Google e para as partilhas. */
-export function pageDescription(content: SiteContent) {
+export function pageDescription(content: SiteContent, locale: Locale = "pt") {
   const c = content.contact;
-  const note = c.note.trim();
-  if (!note) return `${c.kind} em ${c.locality}.`;
+  const note = resolve(c.note, locale).trim();
+  const kind = resolve(c.kind, locale);
+  if (!note) return `${kind} em ${c.locality}.`;
   // só se acrescenta a localidade quando a nota não a menciona
   return note.toLowerCase().includes(c.locality.split(",")[0].trim().toLowerCase())
     ? note
     : `${note} · ${c.locality}`;
 }
 
-export function pageTitle(content: SiteContent) {
+export function pageTitle(content: SiteContent, locale: Locale = "pt") {
   const c = content.contact;
-  return `${c.name} · ${c.kind} em ${c.locality}`;
+  return `${c.name} · ${resolve(c.kind, locale)} em ${c.locality}`;
 }

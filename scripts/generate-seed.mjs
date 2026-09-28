@@ -47,9 +47,9 @@ try {
   lines.push(`  ${jsonb(c.hero)},`);
   lines.push(`  ${jsonb({ wide: c.ocean.wide, mid: c.ocean.mid, line: c.ocean.line, sub: c.ocean.sub })},`);
   lines.push(`  ${jsonb(c.nav)},`);
-  lines.push(`  ${arr(c.ticker)},`);
-  lines.push(`  ${arr(c.hashtags)},`);
-  lines.push(`  ${arr(c.eventPerks)},`);
+  lines.push(`  ${jsonb(c.ticker)},`);
+  lines.push(`  ${jsonb(c.hashtags)},`);
+  lines.push(`  ${jsonb(c.eventPerks)},`);
   lines.push(`  ${jsonb(c.hours)},`);
   lines.push(`  ${jsonb(c.reservations)},`);
   lines.push(`  ${q(c.conceptNotice)}`);
@@ -68,7 +68,7 @@ try {
           cat.id,
         )}, ${q(d.name)}, ${q(d.desc)}, ${q(d.price)}, ${asset(d.image)}, ${
           d.flag ? q(d.flag) : "null"
-        }, ${arr(d.allergens ?? [])}, ${di});`,
+        }, ${jsonb(d.allergens ?? [])}, ${di});`,
       );
     });
   });

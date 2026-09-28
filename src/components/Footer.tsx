@@ -4,16 +4,26 @@ import { mapsUrls } from "@/content/types";
 import { scrollToId, scrollToTop, useReveals } from "@/lib/anim";
 import { Btn, IgIcon, Marquee, MaskWords } from "./primitives";
 import { openConsent } from "@/lib/consent";
+import { LanguageSwitch } from "./LanguageSwitch";
+import { useLocale, useUi } from "@/i18n/context";
+import { localeHref, resolveList } from "@/i18n";
 
 export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
   const { brand: BRAND, contact: CONTACT, nav: NAV, ticker: TICKER } = useSite().content;
+  const { t, locale } = useLocale();
+  const ui = useUi();
+  const legalLinks: [string, string][] = [
+    [ui["footer.privacy"], "./legal.html#privacidade"],
+    [ui["footer.cookiesLink"], "./legal.html#cookies"],
+    [ui["footer.terms"], "./legal.html#termos"],
+  ];
   const maps = mapsUrls(CONTACT.mapsQuery);
   useReveals([]);
 
   return (
     <footer className="relative overflow-hidden bg-char pt-16 text-cream sm:pt-20">
       <div className="border-y border-cream/12 py-4 font-display text-[1.6rem] italic text-cream/40 sm:text-[2.2rem]">
-        <Marquee items={[...TICKER, "Palheiro Velho"]} speed={54} separator="✳" />
+        <Marquee items={[...resolveList(TICKER, locale), CONTACT.name]} speed={54} separator="✳" />
       </div>
       <div className="mx-auto max-w-[1680px] px-5 pt-14 sm:px-8 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[1.25fr_0.75fr]">
@@ -26,12 +36,11 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
               </span>
             </h2>
             <p className="mt-7 max-w-[44ch] text-[1rem] leading-relaxed text-cream/55">
-              {CONTACT.note} Informação de contacto e serviços recolhida em fontes públicas; confirmar sempre
-              antes de visitar.
+              {t(CONTACT.note)} {ui["footer.disclaimer"]}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Btn onClick={() => onReserve("Contacto direto")} tone="light">
-                <span className="label">Contactar</span>
+                <span className="label">{ui["nav.reserve"]}</span>
               </Btn>
               <Btn href={`tel:${CONTACT.phone}`} tone="light" variant="outline" icon={<Phone size={14} />}>
                 <span className="label">{CONTACT.phoneLabel}</span>
@@ -53,13 +62,13 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
               <span className="label text-cream/45">
                 {BRAND.assetStatus}
                 <br />
-                consulta a fonte
+                {ui["footer.source"]}
               </span>
             </a>
           </div>
           <div className="grid gap-10 sm:grid-cols-2">
             <nav>
-              <p className="label text-cream/40">Navegar</p>
+              <p className="label text-cream/40">{ui["footer.navigate"]}</p>
               <ul className="mt-4 space-y-2.5">
                 {NAV.map((n) => (
                   <li key={n.id}>
@@ -67,7 +76,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                       onClick={() => scrollToId(n.id)}
                       className="link-swipe font-display text-[1.35rem] text-cream/85 transition-colors hover:text-cream"
                     >
-                      {n.label}
+                      {t(n.label)}
                     </button>
                   </li>
                 ))}
@@ -76,13 +85,13 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                     onClick={() => scrollToId("intro")}
                     className="link-swipe font-display text-[1.35rem] text-cream/85 transition-colors hover:text-cream"
                   >
-                    A casa
+                    {ui["footer.house"]}
                   </button>
                 </li>
               </ul>
             </nav>
             <div>
-              <p className="label text-cream/40">Canais públicos</p>
+              <p className="label text-cream/40">{ui["footer.channels"]}</p>
               <p className="mt-4 text-[0.95rem] leading-relaxed text-cream/70">
                 {CONTACT.address}
                 <br />
@@ -98,7 +107,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                     rel="noreferrer"
                     className="label flex items-center gap-2 text-cream/70 transition-colors hover:text-sun"
                   >
-                    <IgIcon size={13} /> Instagram
+                    <IgIcon size={13} /> {ui["footer.instagram"]}
                   </a>
                 </li>
                 <li>
@@ -108,7 +117,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                     rel="noreferrer"
                     className="label flex items-center gap-2 text-cream/70 transition-colors hover:text-sun"
                   >
-                    <ExternalLink size={13} /> Facebook
+                    <ExternalLink size={13} /> {ui["footer.facebook"]}
                   </a>
                 </li>
                 <li>
@@ -116,7 +125,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                     href={`tel:${CONTACT.phone}`}
                     className="label flex items-center gap-2 text-cream/70 transition-colors hover:text-sun"
                   >
-                    <Phone size={13} /> Telefone
+                    <Phone size={13} /> {ui["footer.phone"]}
                   </a>
                 </li>
                 <li>
@@ -126,21 +135,17 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                     rel="noreferrer"
                     className="label flex items-center gap-2 text-cream/70 transition-colors hover:text-sun"
                   >
-                    <ArrowUp size={13} /> Localização
+                    <ArrowUp size={13} /> {ui["footer.location"]}
                   </a>
                 </li>
               </ul>
               <div className="mt-7 border-t border-cream/12 pt-4">
-                <p className="label text-cream/40">Legal</p>
+                <p className="label text-cream/40">{ui["footer.legal"]}</p>
                 <ul className="mt-3 space-y-2">
-                  {[
-                    ["Privacidade", "./legal.html#privacidade"],
-                    ["Cookies", "./legal.html#cookies"],
-                    ["Termos", "./legal.html#termos"],
-                  ].map(([label, href]) => (
+                  {legalLinks.map(([label, href]) => (
                     <li key={href}>
                       <a
-                        href={href}
+                        href={localeHref(locale, href)}
                         className="label flex items-center gap-2 text-cream/60 transition-colors hover:text-sun"
                       >
                         <FileText size={12} /> {label}
@@ -153,7 +158,7 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                       onClick={openConsent}
                       className="label flex items-center gap-2 text-cream/60 transition-colors hover:text-sun"
                     >
-                      <Cookie size={12} /> Preferências de cookies
+                      <Cookie size={12} /> {ui["footer.cookies"]}
                     </button>
                   </li>
                 </ul>
@@ -163,13 +168,15 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
         </div>
         <div className="mt-16 flex flex-wrap items-center justify-between gap-5 border-t border-cream/12 py-7">
           <p className="label text-cream/40">
-            © {new Date().getFullYear()} Palheiro Velho · {CONTACT.locality}
+            © {new Date().getFullYear()} {CONTACT.name} · {CONTACT.locality}
           </p>
+          {/* em baixo também se muda de língua — quem chega ao fim não tem de subir */}
+          <LanguageSwitch className="text-cream/45" tone="dark" />
           <button
             onClick={scrollToTop}
             className="group label flex items-center gap-3 border border-cream/25 px-4 py-3 transition-colors hover:bg-cream hover:text-char"
           >
-            voltar ao topo{" "}
+            {ui["footer.top"]}{" "}
             <ArrowUp size={13} className="transition-transform duration-500 group-hover:-translate-y-1" />
           </button>
         </div>

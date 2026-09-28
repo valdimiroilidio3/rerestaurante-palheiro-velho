@@ -14,6 +14,8 @@ import {
   type ReservationSettings,
   type ReservationStatus,
 } from "@/content/types";
+import type { Locale } from "@/i18n/types";
+import { fill, uiStrings } from "@/i18n/ui";
 
 /** "HH:MM" → minutos desde a meia-noite. Inválido devolve -1. */
 export const toMinutes = (value: string): number => {
@@ -144,18 +146,17 @@ export function newReservationCode(): string {
   return `PV-${tail}`;
 }
 
-const dayFormatter = new Intl.DateTimeFormat("pt-PT", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
+const dayFormatters: Record<Locale, Intl.DateTimeFormat> = {
+  pt: new Intl.DateTimeFormat("pt-PT", { weekday: "long", day: "numeric", month: "long" }),
+  en: new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }),
+};
 
-/** "2026-10-03" → "sábado, 3 de outubro". */
-export function formatDay(value: string): string {
+/** "2026-10-03" → "sábado, 3 de outubro" (ou "Saturday, 3 October", em inglês). */
+export function formatDay(value: string, locale: Locale = "pt"): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) return value;
   const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-  return dayFormatter.format(date);
+  return dayFormatters[locale].format(date);
 }
 
 export const STATUS_LABEL: Record<ReservationStatus, string> = {
@@ -201,12 +202,14 @@ export function validateReservation(
   hours: HoursEntry[],
   settings: ReservationSettings,
   now: Date,
+  locale: Locale = "pt",
 ): ReservationErrors {
+  const ui = uiStrings(locale);
   const errors: ReservationErrors = {};
 
-  if (draft.name.trim().length < 2) errors.name = "Precisamos de um nome para a mesa.";
-  if (!validPhone(draft.phone)) errors.phone = "Indique um telefone com 9 dígitos ou mais.";
-  if (draft.email.trim() && !validEmail(draft.email)) errors.email = "Este email parece incompleto.";
+  if (draft.name.trim().length < 2) errors.name = ui["error.name"];
+  if (!validPhone(draft.phone)) errors.phone = ui["error.phone"];
+  if (draft.email.trim() && !validEmail(draft.email)) errors.email = ui["error.email"];
 
   const day = draft.day;
   const window = reservationWindow(settings, now);
@@ -214,32 +217,35 @@ export function validateReservation(
   const slots = dayId ? slotsForDay(hours, dayId, settings) : [];
 
   if (!day || !dayId) {
-    errors.day = "Escolha o dia.";
+    errors.day = ui["error.day.missing"];
   } else if (day < window.min) {
-    errors.day = "Esse dia já passou.";
+    errors.day = ui["error.day.past"];
   } else if (day > window.max) {
-    errors.day = "Só aceitamos pedidos com alguma antecedência.";
+    errors.day = ui["error.day.horizon"];
   } else if (!slots.length) {
-    errors.day = "Não abrimos nesse dia — escolha outro.";
+    errors.day = ui["error.day.closed"];
   }
 
   if (!draft.time) {
-    errors.time = "Escolha a hora.";
+    errors.time = ui["error.time.missing"];
   } else if (!slots.includes(draft.time)) {
-    errors.time = "Hora fora do horário publicado.";
+    errors.time = ui["error.time.outside"];
   } else if (day === window.min) {
     // no próprio dia ainda é preciso tempo para preparar a mesa
     const lead = Math.max(0, Math.trunc(settings.minLeadHours) || 0);
     const soonest = now.getHours() * 60 + now.getMinutes() + lead * 60;
     if (toMinutes(draft.time) < soonest) {
-      errors.time = `Para hoje precisamos de ${lead} hora${lead === 1 ? "" : "s"} de antecedência.`;
+      errors.time = fill(ui["error.time.lead"], {
+        lead,
+        s: lead === 1 ? "" : ui["common.plural"],
+      });
     }
   }
 
   if (!Number.isFinite(draft.people) || draft.people < 1) {
-    errors.people = "Quantas pessoas?";
+    errors.people = ui["error.people.missing"];
   } else if (draft.people > settings.maxPeople) {
-    errors.people = `Para mais de ${settings.maxPeople} pessoas ligue-nos, combinamos melhor.`;
+    errors.people = fill(ui["error.people.max"], { max: settings.maxPeople });
   }
 
   return errors;

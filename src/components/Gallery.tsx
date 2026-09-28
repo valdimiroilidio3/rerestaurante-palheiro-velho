@@ -4,10 +4,13 @@ import { useSite } from "@/content/context";
 import { reduced, useAnim, useIsDesktop } from "@/lib/anim";
 import { Eyebrow, Img, MaskWords } from "./primitives";
 import { cn } from "@/utils/cn";
+import { useLocale, useUi } from "@/i18n/context";
 
 /** Horizontal gallery: pinned rail on desktop, native snap-scroll on mobile. */
 export function Gallery() {
   const { gallery: GALLERY } = useSite().content;
+  const { t } = useLocale();
+  const ui = useUi();
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
@@ -54,7 +57,7 @@ export function Gallery() {
     <>
       <div className="flex w-[86vw] shrink-0 flex-col justify-center pr-6 lg:w-[34vw] lg:max-w-[520px]">
         <Eyebrow index="05" tone="light">
-          Referências visuais
+          {ui["gallery.eyebrow"]}
         </Eyebrow>
         <h2 className="mt-6 font-display text-[clamp(2.2rem,5vw,4.2rem)] leading-[0.92] text-cream">
           <MaskWords text="Atmosferas" tone="light" />
@@ -63,12 +66,9 @@ export function Gallery() {
             <MaskWords text="de referência." tone="light" />
           </span>
         </h2>
-        <p className="mt-6 max-w-[36ch] text-[0.98rem] leading-relaxed text-cream/60">
-          Imagens editoriais temporárias para demonstrar a composição. Substitua por fotografia e vídeo
-          autorizados do Palheiro Velho antes de publicar.
-        </p>
+        <p className="mt-6 max-w-[36ch] text-[0.98rem] leading-relaxed text-cream/60">{ui["gallery.note"]}</p>
         <span className="label mt-8 flex items-center gap-3 text-cream/45">
-          <ArrowRight size={16} /> swipe
+          <ArrowRight size={16} /> {ui["gallery.swipe"]}
         </span>
       </div>
 
@@ -92,8 +92,8 @@ export function Gallery() {
             <span className="absolute inset-0 bg-gradient-to-t from-abyss/75 via-transparent to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
               <div>
-                <p className="font-display text-[1.5rem] leading-none text-cream">{g.cap}</p>
-                <p className="label mt-2 text-cream/55">{g.loc}</p>
+                <p className="font-display text-[1.5rem] leading-none text-cream">{t(g.cap)}</p>
+                <p className="label mt-2 text-cream/55">{t(g.loc)}</p>
               </div>
               <span className="label tabular-nums text-cream/40">{String(i + 1).padStart(2, "0")}</span>
             </figcaption>
