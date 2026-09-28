@@ -15,6 +15,7 @@ import type {
   MenuCategory,
   NavItem,
   Ocean,
+  ReservationSettings,
   SiteContent,
 } from "@/content/types";
 import { WEEK_DAYS, type DayId } from "@/content/types";
@@ -91,6 +92,13 @@ export async function fetchSiteContent(): Promise<SiteContent> {
       note: str(h, "note") || undefined,
     }))
     .filter((h) => h.label);
+
+  // as regras dos pedidos de mesa vêm inteiras da base de dados; o que faltar
+  // fica com o valor de origem (uma base de dados antiga não tem a coluna)
+  const reservations: ReservationSettings = {
+    ...defaultContent.reservations,
+    ...json<ReservationSettings>(s, "reservations"),
+  };
 
   const contact = merge<Contact>(defaultContent.contact, json<Contact>(s, "contact"));
   const brand = merge<Brand>(defaultContent.brand, json<Brand>(s, "brand"));
@@ -225,6 +233,7 @@ export async function fetchSiteContent(): Promise<SiteContent> {
     eventPerks: list(s, "event_perks")?.length
       ? (list(s, "event_perks") as string[])
       : defaultContent.eventPerks,
+    reservations,
     conceptNotice: str(s, "concept_notice") || defaultContent.conceptNotice,
   };
 }

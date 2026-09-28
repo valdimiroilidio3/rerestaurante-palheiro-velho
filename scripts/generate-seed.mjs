@@ -39,7 +39,7 @@ try {
   lines.push("");
 
   lines.push(
-    "insert into public.site_settings (id, contact, brand, hero, ocean, nav, ticker, hashtags, event_perks, hours, concept_notice) values (",
+    "insert into public.site_settings (id, contact, brand, hero, ocean, nav, ticker, hashtags, event_perks, hours, reservations, concept_notice) values (",
   );
   lines.push("  'main',");
   lines.push(`  ${jsonb(c.contact)},`);
@@ -51,6 +51,7 @@ try {
   lines.push(`  ${arr(c.hashtags)},`);
   lines.push(`  ${arr(c.eventPerks)},`);
   lines.push(`  ${jsonb(c.hours)},`);
+  lines.push(`  ${jsonb(c.reservations)},`);
   lines.push(`  ${q(c.conceptNotice)}`);
   lines.push(");");
   lines.push("");

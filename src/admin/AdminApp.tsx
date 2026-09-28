@@ -13,6 +13,7 @@ import { ContactTab, HeroTab, HoursTab, TextsTab } from "@/admin/sections/Settin
 import { MenuTab } from "@/admin/sections/MenuTab";
 import { GalleryTab, InstagramTab, IntroTab } from "@/admin/sections/MediaTabs";
 import { FilesTab } from "@/admin/sections/FilesTab";
+import { ReservationsTab } from "@/admin/sections/ReservationsTab";
 import { EventsTab, ExperienceTab } from "@/admin/sections/StoryTabs";
 import { Button, Card, LiveDot } from "@/admin/components/ui";
 import { DiagnosticsButton } from "@/admin/components/Diagnostics";
@@ -29,6 +30,7 @@ const TABS: Tab[] = [
     render: () => <ContactTab />,
   },
   { id: "horario", label: "Horário", hint: "dias e horas de funcionamento", render: () => <HoursTab /> },
+  { id: "reservas", label: "Reservas", hint: "pedidos de mesa", render: () => <ReservationsTab /> },
   { id: "abertura", label: "Abertura", hint: "vídeo, fotograma e panorâmica", render: () => <HeroTab /> },
   { id: "carta", label: "Carta", hint: "categorias, pratos e preços", render: () => <MenuTab /> },
   { id: "espaco", label: "O espaço", hint: "painéis do espaço", render: () => <ExperienceTab /> },

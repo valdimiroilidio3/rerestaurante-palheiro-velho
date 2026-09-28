@@ -31,6 +31,9 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
   `content/snapshot.json` todas as noites (e pode ser corrida à mão).
 - **Ler é público, escrever exige o acesso único.** As políticas RLS deixam toda a gente ler e só
   deixam escrever a quem apresentar o token do painel.
+- **Pedidos de mesa a sério.** O visitante escolhe dia, hora e pessoas; o pedido fica gravado na
+  base de dados e a casa vê-o no separador **Reservas** do painel (os detalhes em
+  [Pedidos de mesa](#pedidos-de-mesa)).
 
 ## Stack
 
@@ -55,18 +58,20 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   │   ├── main.tsx · AdminApp.tsx  # painel: login por magic link + navegação
 │   │   ├── sections/                # um editor por secção (carta, galeria, …)
 │   │   ├── components/              # campos, botões, campo de imagem, toasts
-│   │   └── lib/                     # api (CRUD), uploads, acesso e sessão
+│   │   └── lib/                     # api (CRUD), reservas, uploads, acesso e sessão
 │   ├── content/
 │   │   ├── types.ts                 # modelo de conteúdo (SiteContent)
 │   │   ├── defaults.ts              # conteúdo de origem (sem base de dados)
 │   │   ├── store.ts                 # leitura da base de dados + tempo real
 │   │   └── SiteContentProvider.tsx  # mantém o conteúdo em memória
 │   ├── components/                  # secções do site
-│   ├── lib/                         # supabase, imagens, animação
+│   ├── lib/                         # supabase, imagens, animação, reservas
 │   └── utils/cn.ts
 ├── supabase/
 │   ├── migrations/0001_init.sql     # tabelas, políticas RLS, bucket, realtime
 │   ├── migrations/0002_admin_access.sql  # acesso único por token (is_admin)
+│   ├── migrations/0003–0004 … sql   # campos do Instagram · horário de funcionamento
+│   ├── migrations/0005_reservations.sql  # pedidos de mesa (tabela + políticas)
 │   └── seed.sql                     # conteúdo atual (gerado)
 ├── scripts/
 │   ├── generate-seed.mjs            # defaults.ts → supabase/seed.sql
@@ -96,9 +101,10 @@ npm run dev:admin  # painel em http://localhost:5173/admin.html
 | `npm run build:admin`  | gera `dist/admin.html` + `dist/admin-assets/`                |
 | `npm run preview`      | serve `dist/` como em produção                               |
 | `npm run typecheck`    | `tsc --build --noEmit` (strict)                              |
+| `npm test`             | testes (Vitest) da lógica de horários e pedidos de mesa      |
 | `npm run lint`         | ESLint em todo o projeto                                     |
 | `npm run format`       | Prettier                                                     |
-| `npm run verify`       | formato + lint + tipos + build (o mesmo que a CI)            |
+| `npm run verify`       | formato + lint + tipos + testes + build (o mesmo que a CI)   |
 | `npm run db:check`     | diagnóstico da base de dados (inclui teste de envio)         |
 
 ### Ligar a base de dados (Supabase)
@@ -113,7 +119,8 @@ seguem abaixo.
    `supabase/migrations/0001_init.sql` (tabelas, políticas, bucket `media`, Realtime),
    `0002_admin_access.sql` (acesso único por token) e
    `0003_instagram_posts_fields.sql` (ligação e tipo das publicações) e
-   `0004_opening_hours.sql` (horário de funcionamento).
+   `0004_opening_hours.sql` (horário de funcionamento) e `0005_reservations.sql`
+   (pedidos de mesa).
 3. Correr `supabase/seed.sql` para carregar o conteúdo atual do site.
 4. Definir o acesso ao painel (ver abaixo).
 5. Reiniciar `npm run dev` e **conferir tudo**:
@@ -166,6 +173,7 @@ Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
 | Ficheiros | biblioteca de fotografias: enviar várias de uma vez, copiar, remover                |
 | Contactos | morada, telefone, email, Instagram, Facebook, coordenadas e consulta do Google Maps |
 | Horário   | períodos de funcionamento: dias, abertura, fecho e observações                      |
+| Reservas  | pedidos de mesa: confirmar, recusar, concluir e as regras dos pedidos               |
 | Abertura  | vídeo, fotograma, frase e panorâmica do oceano                                      |
 | Carta     | categorias, pratos, descrições, preços, etiquetas e fotografias                     |
 | O espaço  | painéis do espaço (vista, exterior, música, brunch, chegar)                         |
@@ -186,6 +194,53 @@ inteiro) → ir aos separadores da carta, galeria, Instagram e espaço e escolh�
 
 Se alguma coisa não entrar, o botão **diagnóstico** (cabeçalho do painel) ou `npm run db:check`
 dizem exatamente onde está o problema.
+
+## Pedidos de mesa
+
+O site não promete uma mesa: regista um **pedido** e a casa confirma por telefone. É essa a frase que
+o visitante lê em todo o lado, do formulário ao ecrã de confirmação.
+
+```text
+visitante escolhe dia/hora/pessoas ──▶ public.reservations (insert, sem sessão)
+                                              │
+                                              ▼
+                            painel · separador Reservas (a cada 30 s)
+                                              │
+                                              ▼
+                          casa liga ao cliente ─▶ confirmar / não temos mesa
+```
+
+- **As horas sugeridas saem do horário publicado.** Nada de grelhas inventadas: se a casa abre às
+  12:30 e fecha às 23:00, as horas são as desse intervalo, com o passo definido nas regras.
+- **Regras no painel** (separador **Reservas**): aceitar pedidos ou não, máximo de pessoas por
+  pedido, intervalo entre horas, quantos minutos antes do fecho se deixa de aceitar mesas,
+  antecedência mínima no próprio dia, quantos dias à frente se aceitam pedidos e a frase de
+  confirmação.
+- **Validação antes de enviar:** nome, telefone com 9 dígitos ou mais, dia dentro do prazo e com
+  serviço, hora dentro do horário e número de pessoas até ao máximo. Os erros aparecem debaixo do
+  campo respetivo.
+- **Sem base de dados o painel de reservas não finge:** em vez do formulário mostra os canais de
+  contacto publicados (telefone, Instagram, Facebook, direções).
+- **Privacidade desde o início.** A política de inserção é pública, mas ninguém lê a tabela sem o
+  token do painel — nem por API. A cópia nocturna (`content/snapshot.json`) e o `seed.sql`
+  **não** incluem pedidos: são dados de clientes.
+
+### Avisar a casa quando entra um pedido
+
+O painel já mostra os pedidos novos (a lista atualiza-se de 30 em 30 segundos e há um aviso quando
+chega um). Para receber **email ou SMS** é preciso um serviço externo, o que depende da casa — a
+migração `0005_reservations.sql` traz as duas formas documentadas no fim: um _Database Webhook_ no
+painel do Supabase (sem código) ou um trigger com `pg_net`.
+
+### Testes
+
+```bash
+npm test           # 21 testes: horas sugeridas, dias, contactos e validação
+```
+
+A lógica dos pedidos está isolada em `src/lib/reservations.ts` (funções puras, sem base de dados) —
+é o que torna possível testar exactly o que pode correr mal: uma mesa sugerida fora de horas, um
+pedido no dia de descanso, um grupo acima do máximo.
 
 ## Imagens
 
@@ -228,6 +283,7 @@ build pelo plugin `preloadHero`, com a URL a sair dos dados.
 | Logótipo                | Imagem pública de referência (Junta de Freguesia de Esmoriz)            |
 | Carta / preços          | Estrutura demonstrativa — sem nomes de pratos nem preços reais          |
 | Horários, morada, email | Recolhidos de fontes públicas — **a confirmar com a marca**             |
+| Regras dos pedidos      | Valores de referência (máx. 12 pessoas, até 60 dias) — a confirmar      |
 
 Para publicar:
 

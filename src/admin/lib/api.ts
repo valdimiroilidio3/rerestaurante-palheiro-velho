@@ -13,6 +13,7 @@ import type {
   MenuCategory,
   NavItem,
   Ocean,
+  ReservationSettings,
 } from "@/content/types";
 
 type Row = Record<string, unknown>;
@@ -36,6 +37,7 @@ export type SettingsPatch = {
   hashtags?: string[];
   eventPerks?: string[];
   hours?: HoursEntry[];
+  reservations?: ReservationSettings;
   conceptNotice?: string;
 };
 
@@ -56,6 +58,7 @@ export async function saveSettings(patch: SettingsPatch): Promise<void> {
   if (patch.hashtags) row.hashtags = patch.hashtags;
   if (patch.eventPerks) row.event_perks = patch.eventPerks;
   if (patch.hours) row.hours = patch.hours;
+  if (patch.reservations) row.reservations = patch.reservations;
   if (patch.conceptNotice !== undefined) row.concept_notice = patch.conceptNotice;
 
   const { error } = await client.from("site_settings").upsert(row);

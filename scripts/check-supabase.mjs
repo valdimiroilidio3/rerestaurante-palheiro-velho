@@ -135,6 +135,20 @@ async function main() {
       /* já acusado acima */
     }
 
+    // pedidos de mesa: a tabela não se lê sem o token, só se confirma que existe
+    try {
+      const res = await fetch(`${url}/rest/v1/reservations?select=id&limit=1`, { headers });
+      if (res.status === 404) {
+        say("falha", "Reservas", "falta a tabela public.reservations — corra a migração 0005");
+      } else if (!res.ok) {
+        say("aviso", "Reservas", `resposta ${res.status} na leitura da tabela`);
+      } else {
+        say("ok", "Reservas", "a tabela existe e aceita pedidos do site");
+      }
+    } catch (err) {
+      say("falha", "Reservas", err instanceof Error ? err.message : "sem ligação");
+    }
+
     // bucket
     let bucketOk = false;
     try {

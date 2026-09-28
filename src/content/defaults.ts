@@ -5,6 +5,7 @@ import type {
   GalleryItem,
   IdentifiedImage,
   HoursEntry,
+  ReservationSettings,
   InstagramItem,
   MenuCategory as SiteMenuCategory,
   SiteContent,
@@ -446,6 +447,21 @@ export const HASHTAGS = [
 
 const contact: Contact = { ...CONTACT };
 
+/**
+ * Regras dos pedidos de mesa (de referência, a confirmar com a casa).
+ * O horário é que manda: as horas sugeridas saem sempre do horário publicado.
+ */
+export const RESERVATIONS: ReservationSettings = {
+  enabled: true,
+  maxPeople: 12,
+  slotMinutes: 30,
+  lastSeatingBeforeClose: 90,
+  minLeadHours: 2,
+  horizonDays: 60,
+  confirmation:
+    "Recebemos o seu pedido. A casa confirma por telefone em horário de funcionamento — guarde a referência acima.",
+};
+
 export const defaultContent: SiteContent = {
   contact,
   brand: { ...BRAND },
@@ -525,5 +541,6 @@ export const defaultContent: SiteContent = {
   })),
 
   eventPerks: [...EVENT_PERKS],
+  reservations: { ...RESERVATIONS },
   conceptNotice: CONCEPT_NOTICE,
 };

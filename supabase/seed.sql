@@ -12,7 +12,7 @@ delete from public.experience_panels;
 delete from public.events;
 delete from public.site_settings;
 
-insert into public.site_settings (id, contact, brand, hero, ocean, nav, ticker, hashtags, event_perks, hours, concept_notice) values (
+insert into public.site_settings (id, contact, brand, hero, ocean, nav, ticker, hashtags, event_perks, hours, reservations, concept_notice) values (
   'main',
   '{"name":"Palheiro Velho","kind":"Bar de praia","address":"Travessa da Barrinha","locality":"Esmoriz, Ovar","region":"Aveiro, Portugal","phoneLabel":"+351 220 124 331","phone":"+351220124331","email":"palheirovelho@gmail.com","instagram":"palheiro_velho_beach_bar","instagramUrl":"https://www.instagram.com/palheiro_velho_beach_bar/","facebookUrl":"https://www.facebook.com/palheirovelho/","mapsQuery":"Palheiro Velho, Travessa da Barrinha, Esmoriz, Portugal","note":"Bar de praia em Esmoriz, com vista para o mar e espaço exterior."}'::jsonb,
   '{"publicLogo":"https://jf-esmoriz.pt/wp-content/uploads/2021/12/Palheiro-velho.png","publicLogoSource":"https://jf-esmoriz.pt/onde-comer/","assetStatus":"Logótipo público de referência","photoStatus":"Fotografias de referência temporárias — substituir por material autorizado da marca antes de publicar."}'::jsonb,
@@ -23,6 +23,7 @@ insert into public.site_settings (id, contact, brand, hero, ocean, nav, ticker, 
   array['@palheiro_velho_beach_bar', 'facebook.com/palheirovelho', 'Esmoriz', 'Bar de praia', 'Vista para o mar', 'Música ao vivo', 'Brunch']::text[],
   array['Música ao vivo indicada publicamente', 'Eventos culturais em registo empresarial', 'Eventos desportivos em registo empresarial', 'Disponibilidade a confirmar diretamente']::text[],
   '[{"id":"verao","label":"Terça a domingo","days":["tue","wed","thu","fri","sat","sun"],"open":"12:30","close":"23:00","note":"Horário de referência, a confirmar com a casa antes de publicar."},{"id":"descanso","label":"Segunda","days":["mon"],"open":"","close":"","note":"Encerrado (a confirmar)."}]'::jsonb,
+  '{"enabled":true,"maxPeople":12,"slotMinutes":30,"lastSeatingBeforeClose":90,"minLeadHours":2,"horizonDays":60,"confirmation":"Recebemos o seu pedido. A casa confirma por telefone em horário de funcionamento — guarde a referência acima."}'::jsonb,
   'Conceito privado de design. Dados públicos conferidos em 17/09/2026; validar com a marca antes de qualquer publicação ou campanha.'
 );
 

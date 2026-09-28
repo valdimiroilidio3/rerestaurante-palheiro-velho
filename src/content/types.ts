@@ -148,6 +148,56 @@ export type HoursEntry = {
   note?: string;
 };
 
+/** Estados de um pedido de mesa. */
+export const RESERVATION_STATUSES = ["novo", "confirmado", "recusado", "concluido"] as const;
+export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
+
+/**
+ * Regras dos pedidos de mesa. Vivem nas definições do site (tal como o
+ * horário), para a casa as poder mudar sem mexer no código.
+ */
+export type ReservationSettings = {
+  /** Aceitar pedidos pelo site. Desligado, o painel mostra só os contactos. */
+  enabled: boolean;
+  /** Máximo de pessoas por pedido online; acima disso o site sugere telefone. */
+  maxPeople: number;
+  /** Intervalo entre as horas sugeridas, em minutos. */
+  slotMinutes: number;
+  /** Quantos minutos antes do fecho deixa de se aceitar mesas. */
+  lastSeatingBeforeClose: number;
+  /** Antecedência mínima, em horas. */
+  minLeadHours: number;
+  /** Quantos dias à frente se aceitam pedidos. */
+  horizonDays: number;
+  /** Frase mostrada ao cliente depois de enviar o pedido. */
+  confirmation: string;
+};
+
+/** Um pedido de mesa, tal como a base de dados o devolve. */
+export type Reservation = {
+  id: string;
+  /** Referência curta que o cliente recebe, por exemplo "PV-4K7Q". */
+  code: string;
+  name: string;
+  phone: string;
+  email: string;
+  /** Dia, formato "YYYY-MM-DD". */
+  day: string;
+  /** Hora, formato "HH:MM". */
+  time: string;
+  people: number;
+  notes: string;
+  status: ReservationStatus;
+  /** ISO com o momento do pedido. */
+  createdAt: string;
+};
+
+/** O que o cliente preenche no site. */
+export type ReservationDraft = Pick<
+  Reservation,
+  "name" | "phone" | "email" | "day" | "time" | "people" | "notes"
+>;
+
 export type EventItem = {
   id: string;
   n: string;
@@ -174,6 +224,8 @@ export type SiteContent = {
   hours: HoursEntry[];
   events: EventItem[];
   eventPerks: string[];
+  /** Regras dos pedidos de mesa. */
+  reservations: ReservationSettings;
   conceptNotice: string;
 };
 
