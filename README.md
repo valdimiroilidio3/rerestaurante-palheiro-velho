@@ -384,8 +384,8 @@ painel** — nada de horas inventadas:
 | dia de descanso        | “Abre terça às 12:30”                                       |
 | sem horário publicado  | “Horário a confirmar”                                       |
 
-- aparece no topo (hero), na barra de navegação em ecrãs grandes e por cima do
-  horário na secção de contacto (aí com os serviços de hoje por extenso);
+- aparece no topo (hero) e por cima do horário na secção de contacto (aí com
+  os serviços de hoje por extenso);
 - tem relógio próprio: actualiza a cada minuto, sem recarregar a página;
 - é uma função pura (`src/lib/hours-status.ts`) com testes que simulam horas do
   dia — incluindo dias de descanso e serviços partidos (almoço e jantar).
@@ -393,6 +393,16 @@ painel** — nada de horas inventadas:
 No pedido de mesa, o mesmo horário dá os atalhos **“hoje”** e **“amanhã”**
 (só quando a casa abre nesse dia e ainda vai a horas) e a nota com os serviços
 de hoje por baixo da escolha da hora.
+
+## A barra do topo
+
+Fina (48 px), sempre igual e sempre translúcida: vidro fosco
+(`backdrop-blur` + `saturate(180%)`), uma linha de cabelo por baixo e o
+mínimo indispensável — o nome da casa, as secções, o botão de contacto, a
+troca de língua e, no telemóvel, o menu. Ao contrário das secções, que
+alternam entre creme e carvão, a barra não muda de tom: reconhece-se pelo
+sítio e pela altura, como a da Apple. O estado da casa e o telefone **não**
+estão aqui — vivem no topo e nos contactos, onde há espaço para eles.
 
 ## Navegar numa página longa
 

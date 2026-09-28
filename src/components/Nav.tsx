@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Presence } from "@/lib/presence";
 import { Menu, X, Phone } from "lucide-react";
+import { Btn, IgIcon } from "./primitives";
 import { cn } from "@/utils/cn";
 import { useSite } from "@/content/context";
 import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
-import { Btn, IgIcon } from "./primitives";
 import { LanguageSwitch } from "./LanguageSwitch";
-import { OpenNow } from "./OpenNow";
 import { useLocale, useUi } from "@/i18n/context";
 
 export function Nav({ onReserve }: { onReserve: () => void }) {
@@ -55,97 +54,65 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
 
   return (
     <>
-      <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-[90] transition-[background-color,border-color,padding,color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          scrolled
-            ? "border-b border-espresso/12 bg-cream/88 py-3 text-char backdrop-blur-xl"
-            : "border-b border-transparent py-5 text-cream",
-        )}
-      >
-        <div className="mx-auto flex max-w-[1680px] items-center gap-4 px-5 sm:px-8 xl:px-12">
+      {/*
+        A barra: vidro fosco, uma linha de cabelo por baixo e nada mais.
+        Ao contrário do resto do site — que muda de tom entre secções — esta
+        fica sempre igual (escura e translúcida), como a da Apple: reconhece-se
+        pelo sítio e pela altura, não pela cor.
+      */}
+      <header className="fixed inset-x-0 top-0 z-[90] border-b border-cream/10 bg-char/72 text-cream backdrop-blur-[20px] backdrop-saturate-[180%]">
+        <div className="mx-auto flex h-12 max-w-[1680px] items-center gap-5 px-5 sm:px-8 xl:px-12">
           {/* wordmark */}
           <button
             onClick={() => (scrolled ? go("top") : scrollToTop())}
-            className="group flex items-baseline gap-2 text-left"
+            className="group flex shrink-0 items-baseline gap-1.5 text-left"
           >
-            <span className="font-display text-[1.05rem] leading-none font-semibold tracking-[0.02em] sm:text-[1.28rem]">
+            <span className="font-display text-[0.98rem] leading-none font-medium tracking-[0.01em]">
               Palheiro
             </span>
-            <span className="font-display text-[1.05rem] leading-none italic sm:text-[1.28rem]">Velho</span>
-            <span
-              className={cn(
-                "mb-[3px] block h-[5px] w-[5px] rounded-full transition-colors duration-500",
-                scrolled ? "bg-ember" : "bg-sun",
-              )}
-            />
+            <span className="font-display text-[0.98rem] leading-none italic opacity-90">Velho</span>
+            <span className="mb-[3px] block h-[4px] w-[4px] rounded-full bg-sun transition-opacity duration-500 group-hover:opacity-60" />
           </button>
 
           {/* desktop links */}
-          <nav className="mx-auto hidden items-center gap-1 lg:flex">
+          <nav className="mx-auto hidden items-center gap-0.5 lg:flex">
             {NAV.map((item) => (
               <button
                 key={item.id}
                 onClick={() => go(item.id)}
                 aria-current={active === item.id ? "true" : undefined}
                 className={cn(
-                  "label relative px-4 py-3 transition-colors duration-300",
-                  active === item.id ? "text-current" : "opacity-60 hover:opacity-100",
+                  "relative px-3 py-2 text-[0.8rem] leading-none tracking-[0.005em] transition-opacity duration-300",
+                  active === item.id ? "opacity-100" : "opacity-65 hover:opacity-100",
                 )}
               >
                 {t(item.label)}
-                <span
-                  className={cn(
-                    "absolute inset-x-3 bottom-2 h-px origin-left bg-current transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                    active === item.id ? "scale-x-100" : "scale-x-0",
-                  )}
-                />
               </button>
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:gap-4">
-            <OpenNow
-              className={cn("hidden text-[0.6rem] xl:flex", scrolled ? "text-char" : "text-cream")}
-              tone={scrolled ? "light" : "dark"}
-            />
-            <a
-              href={`tel:${CONTACT.phone}`}
-              className="label hidden items-center gap-2 opacity-70 transition-opacity hover:opacity-100 md:flex"
-            >
-              <Phone size={13} strokeWidth={1.7} />
-              {CONTACT.phoneLabel}
-            </a>
-            <Btn
+          <div className="ml-auto flex items-center gap-3 lg:ml-0 lg:gap-4">
+            <button
               onClick={onReserve}
-              variant={scrolled ? "solid" : "outline"}
-              tone={scrolled ? "dark" : "light"}
-              className="hidden text-[0.6rem] sm:inline-flex"
-              icon={null}
+              className="hidden rounded-full bg-cream px-3.5 py-1.5 text-[0.72rem] leading-none font-medium text-char transition-colors duration-300 hover:bg-white sm:inline-flex"
             >
               {ui["nav.contact"]}
-            </Btn>
-            <LanguageSwitch
-              className={cn("hidden lg:flex", scrolled ? "text-char" : "text-cream")}
-              tone={scrolled ? "light" : "dark"}
-            />
+            </button>
+            <LanguageSwitch plain className="hidden lg:flex" tone="dark" />
             <button
               onClick={() => setOpen(true)}
-              className={cn(
-                "flex h-11 w-11 items-center justify-center border transition-colors duration-500 lg:hidden",
-                scrolled ? "border-espresso/20 text-char" : "border-cream/30 text-cream",
-              )}
+              className="-mr-1 flex h-9 w-9 items-center justify-center text-cream/80 transition-colors hover:text-cream lg:hidden"
               aria-label="Abrir menu"
             >
-              <Menu size={19} strokeWidth={1.5} />
+              <Menu size={20} strokeWidth={1.5} />
             </button>
           </div>
         </div>
 
-        {/* scroll progress */}
-        <div className="absolute inset-x-0 -bottom-px h-[2px] bg-transparent">
+        {/* scroll progress: uma linha de cabelo, não uma barra */}
+        <div className="absolute inset-x-0 -bottom-px h-px">
           <div
-            className="h-full origin-left bg-gradient-to-r from-ocean via-sun to-ember transition-transform duration-200"
+            className="h-full origin-left bg-cream/45"
             style={{ transform: `scaleX(${progress})`, width: "100%" }}
           />
         </div>

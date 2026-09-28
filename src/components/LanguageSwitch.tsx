@@ -11,10 +11,13 @@ import { cn } from "@/utils/cn";
 export function LanguageSwitch({
   className,
   tone = "dark",
+  plain = false,
 }: {
   className?: string;
   /** `dark` para fundos escuros, `light` para claros. */
   tone?: "dark" | "light";
+  /** Sem a caixa alta da `label`: letra pequena e corrente, para barras finas. */
+  plain?: boolean;
 }) {
   const { locale, setLocale, ui } = useLocale();
 
@@ -25,7 +28,11 @@ export function LanguageSwitch({
     <div
       role="group"
       aria-label={ui["language.label"]}
-      className={cn("label flex items-center gap-2", className)}
+      className={cn(
+        "flex items-center gap-1.5",
+        plain ? "text-[0.72rem] leading-none tracking-[0.02em]" : "label",
+        className,
+      )}
     >
       {LOCALES.map((option, index) => (
         <span key={option} className="flex items-center gap-2">
