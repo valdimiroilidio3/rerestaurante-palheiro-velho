@@ -121,6 +121,12 @@ export const CONTACT = {
  */
 export const CUISINE = "South American";
 
+/**
+ * Preço médio por pessoa, confirmado pela casa (os diretórios públicos
+ * indicam €5–€15). Vai para os dados estruturados e para a carta.
+ */
+export const PRICE_RANGE = "€5–€15";
+
 /** Logótipo público apresentado no diretório da Junta de Freguesia de Esmoriz. Uso limitado a este conceito privado. */
 export const BRAND = {
   publicLogo: "https://jf-esmoriz.pt/wp-content/uploads/2021/12/Palheiro-velho.png",
@@ -530,25 +536,26 @@ export const EVENT_PERKS = [
 ];
 
 /**
- * Horário de referência, como todo o resto do conceito: **a confirmar com a
- * casa** (as fontes públicas divergem). É editável no separador Horário.
+ * Horário confirmado pela casa (Restaurant Guru, atualizado a 16/09/2026):
+ * todos os dias a partir das 10:00; sextas e sábados até à meia-noite.
+ * Continua editável no separador Horário do painel.
  */
 export const HOURS: HoursEntry[] = [
   {
-    id: "verao",
-    label: "Terça a domingo",
-    days: ["tue", "wed", "thu", "fri", "sat", "sun"],
-    open: "12:30",
-    close: "23:00",
-    note: "Horário de referência, a confirmar com a casa antes de publicar.",
+    id: "semana",
+    label: "Domingo a quinta",
+    days: ["sun", "mon", "tue", "wed", "thu"],
+    open: "10:00",
+    close: "22:00",
+    note: "Horário de funcionamento publicado pela casa.",
   },
   {
-    id: "descanso",
-    label: "Segunda",
-    days: ["mon"],
-    open: "",
-    close: "",
-    note: "Encerrado (a confirmar).",
+    id: "fim-de-semana",
+    label: "Sexta e sábado",
+    days: ["fri", "sat"],
+    open: "10:00",
+    close: "00:00",
+    note: "A casa fecha à meia-noite.",
   },
 ];
 

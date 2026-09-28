@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
+import { PRICE_RANGE } from "@/content/defaults";
 import { cn } from "@/utils/cn";
 import { allergensIn, dishAllergens, formatPrice, menuWithoutAllergen, priceStats } from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
@@ -249,8 +250,10 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
                 <p className="label text-cream/50">{t(active.kicker)}</p>
                 <p className="label text-cream/35 tabular-nums">
                   {String(active.items.length).padStart(2, "0")} {ui["menu.items"]}
-                  {/* o intervalo sai dos preços que a casa publicou — nada inventado */}
+                  {/* números que existem: o intervalo dos preços publicados e
+                      o gasto médio por pessoa, confirmado pela casa */}
                   {prices && ` · ${priceRange(prices)}`}
+                  {` · ${ui["menu.perPerson"]}: ${PRICE_RANGE}`}
                 </p>
               </div>
               {rest.map((d, i) => (

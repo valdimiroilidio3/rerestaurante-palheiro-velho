@@ -216,8 +216,9 @@ visitante escolhe dia/hora/pessoas ──▶ public.reservations (insert, sem se
                           casa liga ao cliente ─▶ confirmar / não temos mesa
 ```
 
-- **As horas sugeridas saem do horário publicado.** Nada de grelhas inventadas: se a casa abre às
-  12:30 e fecha às 23:00, as horas são as desse intervalo, com o passo definido nas regras.
+- **As horas sugeridas saem do horário publicado.** Nada de grelhas inventadas: com a casa a abrir
+  às 10:00, as horas começam aí; num dia que fecha à meia-noite (`00:00`), o site percebe que a
+  meia-noite é o **fim** do dia e gera horas até uma antes (ver `closeMinutes`).
 - **Regras no painel** (separador **Reservas**): aceitar pedidos ou não, máximo de pessoas por
   pedido, intervalo entre horas, quantos minutos antes do fecho se deixa de aceitar mesas,
   antecedência mínima no próprio dia, quantos dias à frente se aceitam pedidos e a frase de
@@ -311,19 +312,20 @@ build pelo plugin `preloadHero`, com a URL a sair dos dados.
 
 ## Conteúdo e imagem
 
-| Item                    | Estado                                                                  |
-| ----------------------- | ----------------------------------------------------------------------- |
-| Fotografias             | **Temporárias** (Pexels) — substituir no painel por material autorizado |
-| Vídeo do hero           | **Temporário** (Pexels) — substituir ou remover                         |
-| Logótipo                | Imagem pública de referência (Junta de Freguesia de Esmoriz)            |
-| Carta / preços          | Estrutura demonstrativa — sem nomes de pratos nem preços reais          |
-| Horários, morada, email | Recolhidos de fontes públicas — **a confirmar com a marca**             |
-| Regras dos pedidos      | Valores de referência (máx. 12 pessoas, até 60 dias) — a confirmar      |
+| Item               | Estado                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Fotografias        | **Temporárias** (Pexels) — substituir no painel por material autorizado         |
+| Vídeo do hero      | **Temporário** (Pexels) — substituir ou remover                                 |
+| Logótipo           | Imagem pública de referência (Junta de Freguesia de Esmoriz)                    |
+| Carta              | **Pratos reais** da casa (fontes públicas) — falta a casa publicar os preços    |
+| Horário            | **Confirmado pela casa**: todos os dias 10:00–22:00; sextas e sábados até 00:00 |
+| Preço médio        | **Confirmado pela casa**: 5 €–15 € por pessoa                                   |
+| Regras dos pedidos | Valores de referência (máx. 12 pessoas, até 60 dias) — a confirmar              |
 
 Para publicar:
 
-1. substituir os dados e as imagens no painel — **incluindo o horário**, que
-   vem de referência e tem de ser confirmado com a casa;
+1. substituir as fotografias no painel por material autorizado — o horário e o
+   preço médio já são os confirmados pela casa (e continuam editáveis);
 2. rever os textos legais no separador **Legal** (entidade, contactos, prazos) e
    publicar os **alergénios** de cada prato, que são informação de saúde;
 3. definir `VITE_SITE_URL` com o endereço real (canonical, sitemap e robots).
@@ -411,6 +413,17 @@ está: cada traço é uma secção, o nome aparece na que está ativa e tanto o 
 como o teclado o revelam nas outras. Clicar salta para lá sem voltar ao topo.
 Usa `mix-blend-difference` para se ler tanto sobre o creme como sobre o carvão
 — as secções alternam entre os dois.
+
+## Horário e preço da casa (confirmados)
+
+- **Todos os dias das 10:00 às 22:00** — sextas e sábados **até às 00:00**.
+- **Preço médio: 5 €–15 € por pessoa.**
+
+Os dois valores vêm confirmados pela casa e estão em `src/content/defaults.ts`
+(`HOURS` e `PRICE_RANGE`); continuam editáveis no painel, e é o horário que
+alimenta o “aberto agora”, as horas dos pedidos de mesa e os dados
+estruturados. Um pormenor que deu trabalho: um fecho a `00:00` não é o começo
+do dia — é o fim (`closeMinutes` em `src/lib/reservations.ts`, com testes).
 
 ## A carta tem os pratos da casa
 

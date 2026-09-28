@@ -9,7 +9,7 @@
  * 20 minutos" sem esperar pelas 12:30.
  */
 import { WEEK_DAYS, type DayId, type HoursEntry } from "@/content/types";
-import { toMinutes } from "./reservations";
+import { closeMinutes, toMinutes } from "./reservations";
 
 export type DayRange = { open: string; close: string };
 
@@ -44,7 +44,7 @@ export function rangesForDay(hours: HoursEntry[], day: DayId): DayRange[] {
   for (const entry of hours) {
     if (!entry.days.includes(day)) continue;
     const open = toMinutes(entry.open);
-    const close = toMinutes(entry.close);
+    const close = closeMinutes(entry.close);
     if (open < 0 || close < 0 || close <= open) continue;
     ranges.push({ open: entry.open, close: entry.close });
   }
@@ -96,7 +96,7 @@ export function statusNow(hours: HoursEntry[], now: Date = new Date()): StatusNo
 
   for (const range of today) {
     const open = toMinutes(range.open);
-    const close = toMinutes(range.close);
+    const close = closeMinutes(range.close);
     if (minutes >= open && minutes < close) {
       const left = close - minutes;
       return {

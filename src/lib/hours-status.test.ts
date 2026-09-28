@@ -141,3 +141,36 @@ describe("a próxima abertura", () => {
     expect(nextOpening(HOURS, at(28, 8))).toMatchObject({ dayId: "tue", inDays: 1 });
   });
 });
+
+describe("serviço que acaba depois da meia-noite", () => {
+  const horasFimDeSemana: HoursEntry[] = [
+    {
+      id: "semana",
+      label: "Domingo a quinta",
+      days: ["sun", "mon", "tue", "wed", "thu"],
+      open: "10:00",
+      close: "22:00",
+      note: "",
+    },
+    { id: "noite", label: "Sexta e sábado", days: ["fri", "sat"], open: "10:00", close: "00:00", note: "" },
+  ];
+
+  it("conta as horas todas de sexta, incluindo as que passam da meia-noite", () => {
+    expect(rangesForDay(horasFimDeSemana, "fri")).toEqual([{ open: "10:00", close: "00:00" }]);
+    // às 20:00 de sexta ainda faltam quatro horas para a meia-noite
+    const sexta = statusNow(horasFimDeSemana, new Date(2026, 9, 2, 20, 0));
+    expect(sexta.state).toBe("open");
+    expect(sexta.until).toBe("00:00");
+    expect(sexta.minutes).toBe(240);
+    // meia hora antes de fechar, o aviso muda para “encerra em breve”
+    const aFechar = statusNow(horasFimDeSemana, new Date(2026, 9, 2, 23, 30));
+    expect(aFechar.state).toBe("closing");
+    expect(aFechar.minutes).toBe(30);
+  });
+
+  it("não confunde a meia-noite de fecho com a do início do dia", () => {
+    // domingo fecha às 22:00: às 23:00 já está encerrado
+    const domingo = statusNow(horasFimDeSemana, new Date(2026, 9, 4, 23, 0));
+    expect(domingo.state).toBe("closed");
+  });
+});

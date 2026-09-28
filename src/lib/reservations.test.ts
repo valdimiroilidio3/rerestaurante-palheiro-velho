@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { HoursEntry, ReservationDraft, ReservationSettings } from "@/content/types";
 import {
+  closeMinutes,
   dayIdOf,
   firstOpenDay,
   fromMinutes,
@@ -213,5 +214,24 @@ describe("validação de um pedido", () => {
     expect(
       validateReservation(draft({ email: "ana@exemplo.com" }), HOURS, SETTINGS, TUESDAY_MORNING),
     ).toEqual({});
+  });
+});
+
+describe("horas de fecho", () => {
+  it("a meia-noite como fecho é o fim do dia", () => {
+    expect(closeMinutes("00:00")).toBe(1440);
+    expect(closeMinutes("22:00")).toBe(1320);
+    expect(closeMinutes("não é hora")).toBe(-1);
+  });
+
+  it("dá horas de reserva num dia que fecha à meia-noite", () => {
+    const settings = { ...SETTINGS, slotMinutes: 60, lastSeatingBeforeClose: 60 };
+    const horas: HoursEntry[] = [
+      { id: "noite", label: "Sexta e sábado", days: ["fri", "sat"], open: "10:00", close: "00:00", note: "" },
+    ];
+    const slots = slotsForDay(horas, "fri", settings);
+    expect(slots[0]).toBe("10:00");
+    // a última entrada é uma hora antes da meia-noite
+    expect(slots[slots.length - 1]).toBe("23:00");
   });
 });

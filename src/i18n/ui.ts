@@ -86,6 +86,7 @@ const pt = {
   "menu.intro":
     "Uma carta curta de cozinha sul-americana: para partilhar, para comer com as mãos e para beber devagar.",
   "menu.items": "itens",
+  "menu.perPerson": "Preço médio por pessoa",
   "menu.priceRange": "de {min} a {max}",
   "rail.label": "Secções da página",
   "menu.confirm": "confirmar com a casa",
@@ -347,6 +348,7 @@ const en: UiStrings = {
   "menu.intro":
     "A short menu of South American cooking: to share, to eat with your hands, and to drink slowly.",
   "menu.items": "items",
+  "menu.perPerson": "Average per person",
   "menu.priceRange": "from {min} to {max}",
   "rail.label": "Page sections",
   "menu.confirm": "confirm with the house",

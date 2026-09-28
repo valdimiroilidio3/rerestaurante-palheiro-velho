@@ -34,6 +34,16 @@ export const fromMinutes = (total: number): string => {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 };
 
+/**
+ * Hora de fecho em minutos. "00:00" como **fecho** é a meia-noite que acaba o
+ * dia (1440 minutos), não a que o começa (0): sem isto, um horário de sexta
+ * "10:00–00:00" parecia inválido e desaparecia do site.
+ */
+export const closeMinutes = (value: string): number => {
+  const at = toMinutes(value);
+  return at === 0 ? 24 * 60 : at;
+};
+
 /** Dia no formato que o input de data e a base de dados percebem ("YYYY-MM-DD"). */
 export const isoDay = (date: Date): string => {
   const year = date.getFullYear();
@@ -80,7 +90,7 @@ export function slotsForDay(hours: HoursEntry[], day: DayId, settings: Reservati
 
   for (const entry of hoursForDay(hours, day)) {
     const open = toMinutes(entry.open);
-    const close = toMinutes(entry.close);
+    const close = closeMinutes(entry.close);
     if (open < 0 || close < 0 || close <= open) continue;
     const until = close - last;
     for (let slot = open; slot <= until; slot += step) found.add(fromMinutes(slot));
