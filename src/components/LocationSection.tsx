@@ -6,6 +6,7 @@ import { SOURCES } from "@/content/defaults";
 import { useReveals } from "@/lib/anim";
 import { Btn, Eyebrow, IgIcon, MaskWords } from "./primitives";
 import { useLocale, useUi } from "@/i18n/context";
+import { OpenNow } from "./OpenNow";
 
 function StylisedMap() {
   return (
@@ -195,7 +196,10 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                 </a>
               </div>
               <div className="border-y border-espresso/20 py-5 sm:col-span-2">
-                <p className="label text-espresso/50">{ui["location.hours"]}</p>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                  <p className="label text-espresso/50">{ui["location.hours"]}</p>
+                  <OpenNow tone="light" withRanges />
+                </div>
                 {HOURS.length > 0 ? (
                   <ul className="mt-4">
                     {HOURS.map((h) => (

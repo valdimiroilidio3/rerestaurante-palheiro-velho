@@ -35,6 +35,8 @@ export function restaurantSchema(content: SiteContent, siteUrl = "", locale: Loc
       addressCountry: "PT",
     },
     sameAs: [c.instagramUrl, c.facebookUrl].filter(Boolean),
+    // vem do painel: se a casa desligou os pedidos, o Google também fica a saber
+    acceptsReservations: content.reservations.enabled ? "True" : "False",
   };
 
   if (siteUrl) schema.url = siteUrl;

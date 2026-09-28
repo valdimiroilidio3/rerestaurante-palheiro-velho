@@ -50,7 +50,7 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 
 ```text
 .
-├── index.html · admin.html          # duas entradas: site público e painel
+├── index.html · legal.html · 404.html · admin.html   # entradas do site
 ├── public/favicon.svg
 ├── src/
 │   ├── main.tsx                     # entrada do site
@@ -67,6 +67,7 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   ├── components/                  # secções do site
 │   ├── i18n/                        # idiomas: dicionário da interface e Text
 │   ├── legal/                       # página legal (privacidade, cookies, termos)
+│   ├── notfound/                    # página 404 (com saídas para a carta e o contacto)
 │   ├── lib/                         # supabase, imagens, animação, reservas
 │   └── utils/cn.ts
 ├── supabase/
@@ -370,18 +371,48 @@ Os motores de busca também ficam a saber das duas versões: cada página anunci
 `sitemap.xml`, e os erros de validação do pedido de mesa já falam a língua
 escolhida.
 
+## “Aberto agora”
+
+O site mostra o estado da casa **a partir do horário que a casa publicou no
+painel** — nada de horas inventadas:
+
+| Estado                 | O que se lê                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| dentro de um serviço   | “Aberto até às 15:00”                                       |
+| última hora de serviço | “Encerra em 40 min” (o aviso para quem ainda vai a caminho) |
+| entre serviços         | “Abre hoje às 19:30” (ou “Abre em 25 min”)                  |
+| dia de descanso        | “Abre terça às 12:30”                                       |
+| sem horário publicado  | “Horário a confirmar”                                       |
+
+- aparece no topo (hero), na barra de navegação em ecrãs grandes e por cima do
+  horário na secção de contacto (aí com os serviços de hoje por extenso);
+- tem relógio próprio: actualiza a cada minuto, sem recarregar a página;
+- é uma função pura (`src/lib/hours-status.ts`) com testes que simulam horas do
+  dia — incluindo dias de descanso e serviços partidos (almoço e jantar).
+
+No pedido de mesa, o mesmo horário dá os atalhos **“hoje”** e **“amanhã”**
+(só quando a casa abre nesse dia e ainda vai a horas) e a nota com os serviços
+de hoje por baixo da escolha da hora.
+
+## Página 404
+
+Endereço errado? A casa responde na mesma: `404.html` diz que a página não
+existe, mostra o estado atual e abre três portas — voltar ao site, ver a carta
+e ligar para a casa. Saí no build como `noindex` (não entra nos motores de
+busca) e fala as duas línguas.
+
 ## SEO e partilhas
 
 Tudo o que o Google e as redes sociais lêm vem do conteúdo — nada está escrito
 à mão no `index.html`:
 
-| O quê                                      | Como                                                                             |
-| ------------------------------------------ | -------------------------------------------------------------------------------- |
-| título e descrição                         | gerados do conteúdo (`src/lib/seo.ts`), no build e a cada alteração              |
-| `og:` e `twitter:` (partilhas)             | título, descrição e **imagem de partilha** — acabaram-se os quadrados vazios     |
-| `robots.txt` e `sitemap.xml`               | gerados no build a partir de `VITE_SITE_URL` (ninguém os mantém à mão)           |
-| `canonical` e `og:url`                     | só aparecem quando `VITE_SITE_URL` está definida                                 |
-| dados estruturados (`application/ld+json`) | esquema `Restaurant`: nome, morada, telefone, email, redes sociais e coordenadas |
+| O quê                                      | Como                                                                                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| título e descrição                         | gerados do conteúdo (`src/lib/seo.ts`), no build e a cada alteração                                                                          |
+| `og:` e `twitter:` (partilhas)             | título, descrição e **imagem de partilha** — acabaram-se os quadrados vazios                                                                 |
+| `robots.txt` e `sitemap.xml`               | gerados no build a partir de `VITE_SITE_URL` (ninguém os mantém à mão)                                                                       |
+| `canonical` e `og:url`                     | só aparecem quando `VITE_SITE_URL` está definida                                                                                             |
+| dados estruturados (`application/ld+json`) | esquema `Restaurant`: nome, morada, telefone, email, redes sociais, coordenadas e `acceptsReservations` (segue o que a casa ligou no painel) |
 
 Notas:
 

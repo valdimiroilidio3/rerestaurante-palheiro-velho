@@ -8,12 +8,15 @@ import {
   dayIdOf,
   firstOpenDay,
   formatDay,
+  isoDay,
   reservationWindow,
   slotsForDay,
   validateReservation,
   type ReservationErrors,
 } from "@/lib/reservations";
 import { reservationRequestsEnabled, submitReservation } from "@/lib/reservation-requests";
+import { dayIdOfDate, rangesForDay } from "@/lib/hours-status";
+import { cn } from "@/utils/cn";
 import { Btn, IgIcon } from "./primitives";
 import { useLocale, useUi } from "@/i18n/context";
 import { fill } from "@/i18n/ui";
@@ -166,6 +169,27 @@ function RequestForm({ subject }: { subject?: string }) {
     return dayId ? slotsForDay(hours, dayId, reservations) : [];
   }, [hours, draft.day, reservations]);
 
+  /**
+   * Atalhos “hoje” e “amanhã”: só aparecem quando a casa abre nesse dia e o
+   * pedido ainda vai a horas (dentro do horizonte que a casa definiu).
+   */
+  const quickDays = useMemo(() => {
+    const shortcuts: { iso: string; label: string }[] = [];
+    [0, 1].forEach((offset) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() + offset);
+      const iso = isoDay(date);
+      const dayId = dayIdOf(iso);
+      if (!dayId || iso < range.min || iso > range.max) return;
+      if (slotsForDay(hours, dayId, reservations).length === 0) return;
+      shortcuts.push({ iso, label: offset === 0 ? ui["reserve.today"] : ui["reserve.tomorrow"] });
+    });
+    return shortcuts;
+  }, [hours, now, range.max, range.min, reservations, ui]);
+
+  /** Os serviços de hoje, para quem está a escolher a hora. */
+  const todayRanges = useMemo(() => rangesForDay(hours, dayIdOfDate(now)), [hours, now]);
+
   const set = <K extends keyof ReservationDraft>(key: K, value: ReservationDraft[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined, geral: undefined }));
@@ -275,6 +299,27 @@ function RequestForm({ subject }: { subject?: string }) {
             aria-invalid={Boolean(errors.day)}
             className={inputClass(Boolean(errors.day))}
           />
+          {/* quem quer mesa hoje ou amanhã não precisa de abrir o calendário */}
+          {quickDays.length > 0 && (
+            <span className="mt-2 flex flex-wrap gap-2">
+              {quickDays.map((shortcut) => (
+                <button
+                  key={shortcut.iso}
+                  type="button"
+                  onClick={() => setDay(shortcut.iso)}
+                  aria-pressed={draft.day === shortcut.iso}
+                  className={cn(
+                    "label border px-3 py-1.5 transition-colors",
+                    draft.day === shortcut.iso
+                      ? "border-espresso/70 text-char"
+                      : "border-espresso/20 text-espresso/60 hover:border-espresso/45 hover:text-char",
+                  )}
+                >
+                  {shortcut.label}
+                </button>
+              ))}
+            </span>
+          )}
         </Field>
 
         <Field label={ui["reserve.time"]} error={errors.time} htmlFor="rs-time">
@@ -312,6 +357,15 @@ function RequestForm({ subject }: { subject?: string }) {
           </select>
         </Field>
       </div>
+
+      {/* os serviços de hoje, tal como a casa os publicou */}
+      <p className="label -mt-2 text-espresso/50">
+        {todayRanges.length > 0
+          ? fill(ui["reserve.todayHours"], {
+              ranges: todayRanges.map((range) => `${range.open}—${range.close}`).join(" · "),
+            })
+          : ui["reserve.todayClosed"]}
+      </p>
 
       <Field label={ui["reserve.notes"]} error={errors.notes} htmlFor="rs-notes">
         <textarea

@@ -291,6 +291,7 @@ export default defineConfig(({ mode }) => {
             input: {
               main: path.resolve(__dirname, "index.html"),
               legal: path.resolve(__dirname, "legal.html"),
+              notfound: path.resolve(__dirname, "404.html"),
             },
             output: {
               manualChunks: splitChunks(),

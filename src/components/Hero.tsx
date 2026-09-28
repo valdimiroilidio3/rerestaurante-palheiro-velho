@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSite } from "@/content/context";
 import { useLocale, useUi } from "@/i18n/context";
+import { OpenNow } from "./OpenNow";
 import { reduced, scrollToId, useAnim } from "@/lib/anim";
 import { Btn, LightLeaks } from "./primitives";
 
@@ -112,6 +113,8 @@ export function Hero() {
           <div data-hero-fade className="label flex flex-col gap-2 text-cream/70">
             <span>{t(CONTACT.kind)}</span>
             <span className="hidden sm:block">{CONTACT.locality}</span>
+            {/* vivo: aberto agora, a fechar ou a que horas abre — sempre do horário publicado */}
+            <OpenNow tone="dark" className="mt-1" />
           </div>
           <div data-hero-fade className="border border-cream/25 bg-char/25 px-3 py-2 backdrop-blur-md">
             <span className="label text-cream/75">{ui["hero.ambient"]}</span>

@@ -6,6 +6,7 @@ import { useSite } from "@/content/context";
 import { isDesktop, reduced, scrollToId, scrollToTop } from "@/lib/anim";
 import { Btn, IgIcon } from "./primitives";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { OpenNow } from "./OpenNow";
 import { useLocale, useUi } from "@/i18n/context";
 
 export function Nav({ onReserve }: { onReserve: () => void }) {
@@ -104,6 +105,10 @@ export function Nav({ onReserve }: { onReserve: () => void }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:gap-4">
+            <OpenNow
+              className={cn("hidden text-[0.6rem] xl:flex", scrolled ? "text-char" : "text-cream")}
+              tone={scrolled ? "light" : "dark"}
+            />
             <a
               href={`tel:${CONTACT.phone}`}
               className="label hidden items-center gap-2 opacity-70 transition-opacity hover:opacity-100 md:flex"

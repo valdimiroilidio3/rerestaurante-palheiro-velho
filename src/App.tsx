@@ -123,6 +123,7 @@ export default function App() {
   useSmoothScroll();
   const { content } = useSite();
   const { locale } = useLocale();
+  const ui = useUi();
   const { consent } = useConsent();
   const [reserve, setReserve] = useState<{ open: boolean; subject?: string }>({ open: false });
   const root = useRef<HTMLDivElement>(null);
@@ -152,6 +153,14 @@ export default function App() {
     <div ref={root} className="relative bg-cream">
       <Curtain />
       <Grain />
+
+      {/* quem navega com o teclado não precisa de passar pelo menu */}
+      <a
+        href="#menu"
+        className="label sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[130] focus:bg-char focus:px-4 focus:py-3 focus:text-cream"
+      >
+        {ui["common.skip"]}
+      </a>
 
       <Nav onReserve={() => openReserve("Contacto direto")} />
 
