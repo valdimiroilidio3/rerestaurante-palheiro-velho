@@ -133,7 +133,7 @@ function StylisedMap() {
 }
 
 export function LocationSection({ onReserve }: { onReserve: (s?: string) => void }) {
-  const { brand: BRAND, contact: CONTACT, conceptNotice: CONCEPT_NOTICE, hours: HOURS } = useSite().content;
+  const { brand: BRAND, contact: CONTACT, hours: HOURS } = useSite().content;
   const maps = mapsUrls(CONTACT.mapsQuery);
   const [live, setLive] = useState(false);
   useReveals([]);
@@ -254,9 +254,6 @@ export function LocationSection({ onReserve }: { onReserve: (s?: string) => void
                   </a>
                 ))}
               </div>
-              <p className="mt-5 max-w-[68ch] text-[0.78rem] leading-relaxed text-char/50">
-                {CONCEPT_NOTICE}
-              </p>
             </div>
           </div>
           <div className="relative">

@@ -10,7 +10,7 @@ import { writeFile } from "node:fs/promises";
 import { createServer } from "vite";
 
 const q = (value) => `'${String(value ?? "").replaceAll("'", "''")}'`;
-const arr = (list) => `array[${list.map(q).join(", ")}]::text[]`;
+const arr = (list) => (list.length ? `array[${list.map(q).join(", ")}]::text[]` : `'{}'::text[]`);
 const jsonb = (value) => `${q(JSON.stringify(value))}::jsonb`;
 
 const asset = ({ src, width, height, alt } = {}) =>
@@ -64,11 +64,11 @@ try {
     );
     cat.items.forEach((d, di) => {
       lines.push(
-        `insert into public.dishes (category_id, name, description, price, image, flag, position) values (${q(
+        `insert into public.dishes (category_id, name, description, price, image, flag, allergens, position) values (${q(
           cat.id,
         )}, ${q(d.name)}, ${q(d.desc)}, ${q(d.price)}, ${asset(d.image)}, ${
           d.flag ? q(d.flag) : "null"
-        }, ${di});`,
+        }, ${arr(d.allergens ?? [])}, ${di});`,
       );
     });
   });

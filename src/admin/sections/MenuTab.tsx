@@ -16,6 +16,7 @@ import {
 } from "@/admin/components/ui";
 import { useDraft, useSave } from "@/admin/lib/hooks";
 import { ImageField } from "@/admin/components/ImageField";
+import { splitAllergens } from "@/lib/menu";
 
 const slugify = (value: string, fallback: string) =>
   value
@@ -31,6 +32,7 @@ const newDish = (id: string): Dish => ({
   desc: "",
   price: "",
   image: { src: "", alt: "" },
+  allergens: [],
 });
 
 /** Editor da carta: categorias, pratos, preços e fotografias. */
@@ -197,6 +199,16 @@ export function MenuTab() {
                       </div>
                       <Field label="Descrição" className="sm:col-span-2">
                         <Textarea value={dish.desc} onChange={(v) => setDish(ci, di, { desc: v })} rows={3} />
+                      </Field>
+                      <Field
+                        label="Alergénios"
+                        hint="Separados por vírgula, por exemplo: glúten, ovo, leite. Vazio = informação por publicar."
+                        className="sm:col-span-2"
+                      >
+                        <Input
+                          value={(dish.allergens ?? []).join(", ")}
+                          onChange={(v) => setDish(ci, di, { allergens: splitAllergens(v) })}
+                        />
                       </Field>
                     </div>
                   </div>

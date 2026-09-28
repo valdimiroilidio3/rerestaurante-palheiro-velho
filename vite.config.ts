@@ -62,7 +62,10 @@ function splitChunks(): Record<string, string[]> | ((id: string) => string | und
 function seoTags(siteUrl: string): Plugin {
   return {
     name: "seo-tags",
-    transformIndexHtml(html) {
+    transformIndexHtml(html, ctx) {
+      // só o site público leva os marcadores de partilha e o schema
+      if (ctx.filename && !ctx.filename.endsWith("index.html")) return html;
+
       const content = defaultContent;
       const title = pageTitle(content);
       const description = pageDescription(content);
@@ -134,13 +137,22 @@ Allow: /
 Sitemap: ${siteUrl}/sitemap.xml
 `;
 
-const sitemapXml = (siteUrl: string) => `<?xml version="1.0" encoding="UTF-8"?>
+const sitemapXml = (
+  siteUrl: string,
+  today = new Date().toISOString().slice(0, 10),
+) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${siteUrl}/</loc>
-    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${siteUrl}/legal.html</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>
 `;
@@ -222,6 +234,11 @@ export default defineConfig(({ mode }) => {
       rollupOptions: single
         ? {}
         : {
+            // o site e a página legal partilham os mesmos blocos (cache do browser)
+            input: {
+              main: path.resolve(__dirname, "index.html"),
+              legal: path.resolve(__dirname, "legal.html"),
+            },
             output: {
               manualChunks: splitChunks(),
             },

@@ -72,6 +72,7 @@ painel (/admin.html)  ──grava──▶  Supabase (Postgres + Storage)
 │   ├── migrations/0002_admin_access.sql  # acesso único por token (is_admin)
 │   ├── migrations/0003–0004 … sql   # campos do Instagram · horário de funcionamento
 │   ├── migrations/0005_reservations.sql  # pedidos de mesa (tabela + políticas)
+│   ├── migrations/0006_dish_allergens.sql # alergénios por prato
 │   └── seed.sql                     # conteúdo atual (gerado)
 ├── scripts/
 │   ├── generate-seed.mjs            # defaults.ts → supabase/seed.sql
@@ -120,7 +121,7 @@ seguem abaixo.
    `0002_admin_access.sql` (acesso único por token) e
    `0003_instagram_posts_fields.sql` (ligação e tipo das publicações) e
    `0004_opening_hours.sql` (horário de funcionamento) e `0005_reservations.sql`
-   (pedidos de mesa).
+   (pedidos de mesa) e `0006_dish_allergens.sql` (alergénios na carta).
 3. Correr `supabase/seed.sql` para carregar o conteúdo atual do site.
 4. Definir o acesso ao painel (ver abaixo).
 5. Reiniciar `npm run dev` e **conferir tudo**:
@@ -182,7 +183,8 @@ Abrir `/admin.html`, meter o utilizador e a palavra-passe definidos com
 | Hashtags  | faixa em movimento no fim da secção do Instagram                                    |
 | Momentos  | tipos de evento                                                                     |
 | Serviços  | fotografias de abertura e lista de serviços                                         |
-| Textos    | separadores, faixas do rodapé e nota de conceito                                    |
+| Textos    | separadores e faixas do rodapé                                                      |
+| Legal     | privacidade, cookies, termos e o responsável pelos dados                            |
 
 Cada secção tem **arrastar e largar** (ou clique) para fotografias, **biblioteca** com os ficheiros
 já enviados, **ordenar** com setas, **adicionar/remover** e uma barra de **Guardar alterações** que
@@ -235,12 +237,41 @@ painel do Supabase (sem código) ou um trigger com `pg_net`.
 ### Testes
 
 ```bash
-npm test           # 21 testes: horas sugeridas, dias, contactos e validação
+npm test           # 30 testes: pedidos de mesa, alergénios e texto legal
 ```
 
 A lógica dos pedidos está isolada em `src/lib/reservations.ts` (funções puras, sem base de dados) —
 é o que torna possível testar exactly o que pode correr mal: uma mesa sugerida fora de horas, um
 pedido no dia de descanso, um grupo acima do máximo.
+
+## Página legal e cookies
+
+O site tem uma **página legal própria** (`/legal.html`) com privacidade, cookies e termos, escrita a
+partir do conteúdo (editável no separador **Legal** do painel). Está ligada no rodapé e no aviso de
+cookies, que é o que a lei espera: informação acessível antes de qualquer escolha.
+
+- **Aviso de cookies:** aparece enquanto não houver decisão, e volta a abrir-se com as escolhas
+  assinaladas a partir de “preferências de cookies” no rodapé. A escolha fica guardada no navegador
+  (nada mais).
+- **Medição só com consentimento.** O site não carrega analytics por omissão. Quem publicar define
+  `VITE_ANALYTICS_SRC` e `VITE_ANALYTICS_DOMAIN` (ver `.env.example`); sem consentimento de
+  “medição” nada é carregado, e o script é retirado se a pessoa mudar de ideias.
+- **Textos para rever.** Os textos de origem são neutros e servem de base, mas a entidade
+  responsável, os prazos de conservação e os contactos são da casa — vale uma leitura com quem trata
+  da contabilidade antes de publicar.
+
+## Alergénios na carta
+
+Cada prato pode declarar **alergénios** (no painel, separados por vírgula: `glúten, ovo, leite`). O
+site mostra-os por prato e ganha um filtro “evitar → sem glúten” que esconde os pratos com essa
+substância.
+
+Duas regras deliberadas:
+
+- **nada inventado:** enquanto a casa não publicar alergénios, não aparece etiqueta nem filtro
+  nenhum — informação de saúde falsa é pior do que ausência de informação;
+- **ausência não é garantia:** o filtro só esconde o que está declarado. Por isso a carta continua a
+  dizer que os dados são provisórios e que as dúvidas se resolvem com a casa.
 
 ## Imagens
 
@@ -289,9 +320,12 @@ Para publicar:
 
 1. substituir os dados e as imagens no painel — **incluindo o horário**, que
    vem de referência e tem de ser confirmado com a casa;
-2. remover `conceptNotice` (nota de conceito) no separador Textos;
-3. remover `<meta name="robots" content="noindex, nofollow">` de `index.html`;
-4. definir `VITE_SITE_URL` com o endereço real (canonical, sitemap e robots).
+2. rever os textos legais no separador **Legal** (entidade, contactos, prazos) e
+   publicar os **alergénios** de cada prato, que são informação de saúde;
+3. definir `VITE_SITE_URL` com o endereço real (canonical, sitemap e robots).
+
+Já feito: o `noindex` e a nota de conceito saíram do site — ele passou a poder ser indexado, por isso
+os pontos acima contam mesmo.
 
 ## Publicação
 

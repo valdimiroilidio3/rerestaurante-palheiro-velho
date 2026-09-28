@@ -1,17 +1,12 @@
-import { ArrowUp, ExternalLink, Phone } from "lucide-react";
+import { ArrowUp, Cookie, ExternalLink, FileText, Phone } from "lucide-react";
 import { useSite } from "@/content/context";
 import { mapsUrls } from "@/content/types";
 import { scrollToId, scrollToTop, useReveals } from "@/lib/anim";
 import { Btn, IgIcon, Marquee, MaskWords } from "./primitives";
+import { openConsent } from "@/lib/consent";
 
 export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
-  const {
-    brand: BRAND,
-    contact: CONTACT,
-    nav: NAV,
-    ticker: TICKER,
-    conceptNotice: CONCEPT_NOTICE,
-  } = useSite().content;
+  const { brand: BRAND, contact: CONTACT, nav: NAV, ticker: TICKER } = useSite().content;
   const maps = mapsUrls(CONTACT.mapsQuery);
   useReveals([]);
 
@@ -136,18 +131,39 @@ export function Footer({ onReserve }: { onReserve: (s?: string) => void }) {
                 </li>
               </ul>
               <div className="mt-7 border-t border-cream/12 pt-4">
-                <p className="label text-cream/40">Nota de publicação</p>
-                <p className="mt-2 text-[0.82rem] leading-relaxed text-cream/50">
-                  Horários, carta e condições não são exibidos devido a divergências nas fontes públicas.
-                </p>
+                <p className="label text-cream/40">Legal</p>
+                <ul className="mt-3 space-y-2">
+                  {[
+                    ["Privacidade", "./legal.html#privacidade"],
+                    ["Cookies", "./legal.html#cookies"],
+                    ["Termos", "./legal.html#termos"],
+                  ].map(([label, href]) => (
+                    <li key={href}>
+                      <a
+                        href={href}
+                        className="label flex items-center gap-2 text-cream/60 transition-colors hover:text-sun"
+                      >
+                        <FileText size={12} /> {label}
+                      </a>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={openConsent}
+                      className="label flex items-center gap-2 text-cream/60 transition-colors hover:text-sun"
+                    >
+                      <Cookie size={12} /> Preferências de cookies
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
         <div className="mt-16 flex flex-wrap items-center justify-between gap-5 border-t border-cream/12 py-7">
-          <p className="label text-cream/40">© 2026 Palheiro Velho · conceito privado</p>
-          <p className="max-w-[56ch] text-[0.72rem] leading-relaxed text-cream/35">
-            {CONCEPT_NOTICE} {BRAND.photoStatus}
+          <p className="label text-cream/40">
+            © {new Date().getFullYear()} Palheiro Velho · {CONTACT.locality}
           </p>
           <button
             onClick={scrollToTop}

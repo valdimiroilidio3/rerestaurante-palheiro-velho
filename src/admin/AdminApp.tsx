@@ -14,6 +14,7 @@ import { MenuTab } from "@/admin/sections/MenuTab";
 import { GalleryTab, InstagramTab, IntroTab } from "@/admin/sections/MediaTabs";
 import { FilesTab } from "@/admin/sections/FilesTab";
 import { ReservationsTab } from "@/admin/sections/ReservationsTab";
+import { LegalTab } from "@/admin/sections/LegalTab";
 import { EventsTab, ExperienceTab } from "@/admin/sections/StoryTabs";
 import { Button, Card, LiveDot } from "@/admin/components/ui";
 import { DiagnosticsButton } from "@/admin/components/Diagnostics";
@@ -39,6 +40,12 @@ const TABS: Tab[] = [
   { id: "momentos", label: "Momentos", hint: "eventos e formatos", render: () => <EventsTab /> },
   { id: "servicos", label: "Serviços", hint: "fotografias e lista de serviços", render: () => <IntroTab /> },
   { id: "textos", label: "Textos", hint: "navegação e faixas", render: () => <TextsTab /> },
+  {
+    id: "legal",
+    label: "Legal",
+    hint: "privacidade, cookies e termos",
+    render: () => <LegalTab />,
+  },
 ];
 
 /**

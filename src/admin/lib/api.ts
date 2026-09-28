@@ -8,6 +8,7 @@ import type {
   GalleryItem,
   Hero,
   HoursEntry,
+  LegalContent,
   InstagramItem,
   IntroFact,
   MenuCategory,
@@ -38,7 +39,7 @@ export type SettingsPatch = {
   eventPerks?: string[];
   hours?: HoursEntry[];
   reservations?: ReservationSettings;
-  conceptNotice?: string;
+  legal?: LegalContent;
 };
 
 /** O horário vive na linha única de definições. */
@@ -59,7 +60,7 @@ export async function saveSettings(patch: SettingsPatch): Promise<void> {
   if (patch.eventPerks) row.event_perks = patch.eventPerks;
   if (patch.hours) row.hours = patch.hours;
   if (patch.reservations) row.reservations = patch.reservations;
-  if (patch.conceptNotice !== undefined) row.concept_notice = patch.conceptNotice;
+  if (patch.legal) row.legal = patch.legal;
 
   const { error } = await client.from("site_settings").upsert(row);
   if (error) throw error;
@@ -131,6 +132,7 @@ export async function saveMenu(menu: MenuCategory[]): Promise<void> {
       price: d.price,
       image: imageJson(d.image),
       flag: d.flag ?? null,
+      allergens: d.allergens ?? [],
       position: i,
     })),
   );

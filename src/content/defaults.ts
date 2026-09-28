@@ -6,6 +6,7 @@ import type {
   IdentifiedImage,
   HoursEntry,
   ReservationSettings,
+  LegalContent,
   InstagramItem,
   MenuCategory as SiteMenuCategory,
   SiteContent,
@@ -425,8 +426,40 @@ export const HOURS: HoursEntry[] = [
   },
 ];
 
-export const CONCEPT_NOTICE =
-  "Conceito privado de design. Dados públicos conferidos em 17/09/2026; validar com a marca antes de qualquer publicação ou campanha.";
+/**
+ * Textos legais de referência.
+ *
+ * Estão escritos de forma neutra e **têm de ser revistos pela casa** (e, se
+ * possível, pelo seu contabilista ou advogado) antes de publicar: quem é a
+ * entidade responsável, que dados se tratam e durante quanto tempo são
+ * variáveis que só a casa conhece.
+ */
+export const LEGAL: LegalContent = {
+  updatedAt: "2026-09-28",
+  entity: "Palheiro Velho — a confirmar com a casa (nome, NIF e sede)",
+  address: "Travessa da Barrinha, Esmoriz, Ovar, Portugal",
+  email: "palheirovelho@gmail.com",
+  phone: "+351 220 124 331",
+  privacy: `Tratamos apenas os dados que nos entrega quando faz um pedido de mesa pelo site: nome, telefone, email (se o indicar), dia, hora, número de pessoas e a nota que escrever. Nada mais.
+
+Usamos esses dados para uma única coisa: gerir o seu pedido e contactá-lo para confirmar ou recusar a mesa. Não os usamos para publicidade, não os vendemos e não os cedemos a terceiros.
+
+Guardamos os pedidos enquanto forem úteis à gestão da casa e, no máximo, durante um ano. Os pedidos recusados ou concluídos deixam de estar acessíveis no painel passado esse prazo.
+
+Pode pedir, a qualquer momento, o acesso, a correção ou o apagamento dos seus dados, apresentar reclamação à CNPD ou retirar o consentimento. Basta escrever para o contacto abaixo.`,
+  cookies: `Este site usa o mínimo de cookies possível.
+
+Cookies necessários: guardam a sua escolha sobre cookies e a sessão do painel da casa. Não podem ser desligados — sem eles o aviso aparecia sempre.
+
+Cookies de medição: só existem se os aceitar. Servem para perceber quantas pessoas visitam o site e que páginas veem, de forma agregada.
+
+Pode mudar de ideias quando quiser, no rodapé, em “preferências de cookies”.`,
+  terms: `Este site é informativo: mostra a carta, o horário e os contactos da casa, e permite pedir uma mesa.
+
+Um pedido de mesa não é uma reserva confirmada. A confirmação é feita pela casa, por telefone, em horário de funcionamento.
+
+Os conteúdos — carta, preços, horários e fotografias — podem mudar sem aviso prévio. Em caso de diferença, vale sempre o que a casa comunicar diretamente.`,
+};
 
 /* ——————————————————————————————————————————————————————————————
    Conteúdo de origem
@@ -498,6 +531,9 @@ export const defaultContent: SiteContent = {
       price: d.price,
       image: photo(d.img, 240, 240, d.name, d.ext),
       flag: d.flag,
+      // os alergénios são declarados pela casa no painel: inventá-los aqui
+      // seria publicar informação de saúde falsa
+      allergens: [],
     })),
   })),
 
@@ -542,5 +578,5 @@ export const defaultContent: SiteContent = {
 
   eventPerks: [...EVENT_PERKS],
   reservations: { ...RESERVATIONS },
-  conceptNotice: CONCEPT_NOTICE,
+  legal: { ...LEGAL },
 };

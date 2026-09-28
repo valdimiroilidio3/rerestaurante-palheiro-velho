@@ -71,6 +71,11 @@ export type Dish = {
   price: string;
   image: ImageAsset;
   flag?: string;
+  /**
+   * Alergénios declarados pela casa, por exemplo ["glúten", "ovo"].
+   * Vazio = a casa ainda não publicou a informação deste prato.
+   */
+  allergens: string[];
 };
 
 export type MenuCategory = {
@@ -198,6 +203,29 @@ export type ReservationDraft = Pick<
   "name" | "phone" | "email" | "day" | "time" | "people" | "notes"
 >;
 
+/**
+ * Textos legais. São editáveis porque a entidade responsável, a morada e o
+ * contacto para exercer direitos mudam com a casa — não com o site.
+ */
+export type LegalContent = {
+  /** Última revisão, no formato "2026-09-28". */
+  updatedAt: string;
+  /** Entidade responsável pelo tratamento dos dados. */
+  entity: string;
+  /** Morada para o exercício de direitos. */
+  address: string;
+  /** Contacto de privacidade (email). */
+  email: string;
+  /** Contacto de privacidade (telefone, opcional). */
+  phone: string;
+  /** Corpo da política de privacidade: parágrafos separados por linha em branco. */
+  privacy: string;
+  /** Corpo da política de cookies. */
+  cookies: string;
+  /** Termos de utilização do site. */
+  terms: string;
+};
+
 export type EventItem = {
   id: string;
   n: string;
@@ -226,7 +254,8 @@ export type SiteContent = {
   eventPerks: string[];
   /** Regras dos pedidos de mesa. */
   reservations: ReservationSettings;
-  conceptNotice: string;
+  /** Privacidade, cookies e termos — página legal e aviso de consentimento. */
+  legal: LegalContent;
 };
 
 /** URLs derivadas da morada — nunca são editadas à mão. */

@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Info } from "lucide-react";
 import { useSite } from "@/content/context";
 import type { Dish } from "@/content/types";
 import { reduced } from "@/lib/anim";
+import { allergensIn, menuWithoutAllergen } from "@/lib/menu";
 import { Btn, Eyebrow, Img, MaskWords } from "./primitives";
 
 function useSpotlight() {
@@ -62,6 +63,16 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
           </span>
         </div>
         <p className="mt-1 max-w-[52ch] text-[0.88rem] leading-relaxed text-cream/50">{dish.desc}</p>
+        {dish.allergens.length > 0 && (
+          <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.72rem] text-cream/45">
+            <span className="label text-cream/35">contém</span>
+            {dish.allergens.map((item) => (
+              <span key={item} className="border border-cream/15 px-2 py-0.5">
+                {item}
+              </span>
+            ))}
+          </p>
+        )}
         <span className="label mt-2 hidden items-center gap-1.5 text-cream/0 transition-colors duration-500 group-hover/row:text-cream/70 sm:flex">
           confirmar com a casa <ArrowUpRight size={12} />
         </span>
@@ -73,9 +84,15 @@ function DishRow({ dish, i, onPick }: { dish: Dish; i: number; onPick: () => voi
 export function MenuSection({ onReserve }: { onReserve: (subject?: string) => void }) {
   const { menu: MENU } = useSite().content;
   const [cat, setCat] = useState(0);
-  const active = MENU[cat];
-  const feature = active.items[0];
-  const rest = active.items.slice(1);
+  // "evitar um alergénio" só aparece quando a casa declarou algum
+  const allergens = useMemo(() => allergensIn(MENU), [MENU]);
+  const [avoid, setAvoid] = useState<string | null>(null);
+  const menu = useMemo(() => (avoid ? menuWithoutAllergen(MENU, avoid) : MENU), [MENU, avoid]);
+  // ao filtrar, a categoria escolhida pode deixar de existir
+  const index = Math.min(cat, Math.max(0, menu.length - 1));
+  const active = menu[index];
+  const feature = active?.items[0];
+  const rest = active ? active.items.slice(1) : [];
 
   return (
     <section id="menu" className="relative overflow-hidden bg-char pt-20 pb-24 text-cream sm:pt-28">
@@ -114,20 +131,54 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
           </div>
         </div>
 
+        {/* alergénios: só aparece quando a casa publicou essa informação */}
+        {allergens.length > 0 && (
+          <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-cream/12 pt-5">
+            <span className="label text-cream/40">Evitar</span>
+            <button
+              type="button"
+              onClick={() => setAvoid(null)}
+              aria-pressed={avoid === null}
+              className={`label border px-3 py-2 transition-colors ${
+                avoid === null
+                  ? "border-cream/70 text-cream"
+                  : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
+              }`}
+            >
+              todos
+            </button>
+            {allergens.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setAvoid((current) => (current === item ? null : item))}
+                aria-pressed={avoid === item}
+                className={`label border px-3 py-2 transition-colors ${
+                  avoid === item
+                    ? "border-sun text-sun"
+                    : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
+                }`}
+              >
+                sem {item}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* tabs */}
         <div className="sticky top-[58px] z-30 -mx-5 mt-12 bg-char/85 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8 lg:static lg:mx-0 lg:mt-16 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
           <div className="no-bar flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:gap-3">
-            {MENU.map((c, i) => (
+            {menu.map((c, i) => (
               <button
                 key={c.id}
                 onClick={() => setCat(i)}
                 className={`relative shrink-0 snap-start border px-4 py-3 label transition-colors duration-400 sm:px-6 ${
-                  i === cat
+                  i === index
                     ? "border-cream/70 text-cream"
                     : "border-cream/15 text-cream/45 hover:border-cream/40 hover:text-cream/80"
                 }`}
               >
-                {i === cat && (
+                {i === index && (
                   <motion.span
                     layoutId="menu-tab"
                     transition={{ type: "spring", stiffness: 380, damping: 34 }}
@@ -142,76 +193,83 @@ export function MenuSection({ onReserve }: { onReserve: (subject?: string) => vo
         </div>
 
         {/* content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active.id}
-            initial={reduced() ? false : { opacity: 0, y: 26 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduced() ? undefined : { opacity: 0, y: -14 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14"
-          >
-            {/* feature */}
-            <div className="group relative lg:sticky lg:top-28 lg:self-start">
-              <div className="relative overflow-hidden">
-                <Img
-                  {...feature.image}
-                  sizes="(min-width: 1024px) 45vw, 92vw"
-                  ratio="4 / 5"
-                  className="w-full"
-                  imgClassName="brightness-[0.92]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
-                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                  <p className="label text-sun">{active.label} · imagem de referência</p>
-                  <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
-                    {feature.name}
-                  </h3>
-                  <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
-                    {feature.desc}
-                  </p>
-                  <div className="mt-5 flex items-center gap-4">
-                    <span className="label border border-cream/25 px-3 py-2 tabular-nums">
-                      {feature.price}
-                    </span>
-                    {feature.flag && <span className="label text-cream/50">{feature.flag}</span>}
+        {!active ? (
+          <p className="mt-12 border border-dashed border-cream/20 px-5 py-10 text-center text-[0.92rem] text-cream/50">
+            Nenhum prato desta carta está publicado sem {avoid}. Para dúvidas sobre alergénios, fale com a
+            casa antes de escolher.
+          </p>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active.id}
+              initial={reduced() ? false : { opacity: 0, y: 26 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduced() ? undefined : { opacity: 0, y: -14 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14"
+            >
+              {/* feature */}
+              <div className="group relative lg:sticky lg:top-28 lg:self-start">
+                <div className="relative overflow-hidden">
+                  <Img
+                    {...feature.image}
+                    sizes="(min-width: 1024px) 45vw, 92vw"
+                    ratio="4 / 5"
+                    className="w-full"
+                    imgClassName="brightness-[0.92]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-char via-char/15 to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                    <p className="label text-sun">{active.label} · imagem de referência</p>
+                    <h3 className="mt-3 font-display text-[1.9rem] leading-[1.05] sm:text-[2.4rem]">
+                      {feature.name}
+                    </h3>
+                    <p className="mt-2 max-w-[38ch] text-[0.92rem] leading-relaxed text-cream/65">
+                      {feature.desc}
+                    </p>
+                    <div className="mt-5 flex items-center gap-4">
+                      <span className="label border border-cream/25 px-3 py-2 tabular-nums">
+                        {feature.price}
+                      </span>
+                      {feature.flag && <span className="label text-cream/50">{feature.flag}</span>}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
-                {active.blurb}
-              </p>
-            </div>
-
-            {/* list */}
-            <div>
-              <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
-                <p className="label text-cream/50">{active.kicker}</p>
-                <p className="label text-cream/35 tabular-nums">
-                  {String(active.items.length).padStart(2, "0")} itens
+                <p className="mt-4 max-w-[42ch] text-[0.9rem] leading-relaxed text-cream/45 italic">
+                  {active.blurb}
                 </p>
               </div>
-              {rest.map((d, i) => (
-                <DishRow
-                  key={`${d.name}-${i}`}
-                  dish={d}
-                  i={i}
-                  onPick={() => onReserve(`Carta: ${active.label}`)}
-                />
-              ))}
 
-              <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
-                <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">
-                  Esta é uma estrutura de demonstração. Use os canais oficiais abaixo para confirmar a carta e
-                  a disponibilidade atual.
-                </p>
-                <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
-                  <span className="label">Contactar a casa</span>
-                </Btn>
+              {/* list */}
+              <div>
+                <div className="flex items-baseline justify-between border-b border-cream/20 pb-3">
+                  <p className="label text-cream/50">{active.kicker}</p>
+                  <p className="label text-cream/35 tabular-nums">
+                    {String(active.items.length).padStart(2, "0")} itens
+                  </p>
+                </div>
+                {rest.map((d, i) => (
+                  <DishRow
+                    key={`${d.name}-${i}`}
+                    dish={d}
+                    i={i}
+                    onPick={() => onReserve(`Carta: ${active.label}`)}
+                  />
+                ))}
+
+                <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border border-cream/15 p-6">
+                  <p className="max-w-[30ch] text-[0.95rem] leading-relaxed text-cream/60">
+                    Esta é uma estrutura de demonstração. Use os canais oficiais abaixo para confirmar a carta
+                    e a disponibilidade atual.
+                  </p>
+                  <Btn onClick={() => onReserve("Carta e disponibilidade")} tone="light" variant="outline">
+                    <span className="label">Contactar a casa</span>
+                  </Btn>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </section>
   );

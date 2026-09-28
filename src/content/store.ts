@@ -14,6 +14,7 @@ import type {
   IntroFact,
   MenuCategory,
   NavItem,
+  LegalContent,
   Ocean,
   ReservationSettings,
   SiteContent,
@@ -100,6 +101,8 @@ export async function fetchSiteContent(): Promise<SiteContent> {
     ...json<ReservationSettings>(s, "reservations"),
   };
 
+  const legal: LegalContent = { ...defaultContent.legal, ...json<LegalContent>(s, "legal") };
+
   const contact = merge<Contact>(defaultContent.contact, json<Contact>(s, "contact"));
   const brand = merge<Brand>(defaultContent.brand, json<Brand>(s, "brand"));
 
@@ -141,6 +144,9 @@ export async function fetchSiteContent(): Promise<SiteContent> {
           price: str(d, "price"),
           image: jsonImage(d, "image", str(d, "name")),
           flag: str(d, "flag") || undefined,
+          allergens: Array.isArray(d.allergens)
+            ? (d.allergens as unknown[]).filter((a): a is string => typeof a === "string")
+            : [],
         })),
     };
   });
@@ -234,7 +240,7 @@ export async function fetchSiteContent(): Promise<SiteContent> {
       ? (list(s, "event_perks") as string[])
       : defaultContent.eventPerks,
     reservations,
-    conceptNotice: str(s, "concept_notice") || defaultContent.conceptNotice,
+    legal,
   };
 }
 

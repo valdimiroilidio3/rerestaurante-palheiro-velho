@@ -248,15 +248,13 @@ export function TextsTab() {
   const ticker = useDraft<string>((content?.ticker ?? []).join("\n"));
   const hashtags = useDraft<string>((content?.hashtags ?? []).join("\n"));
   const perks = useDraft<string>((content?.eventPerks ?? []).join("\n"));
-  const notice = useDraft<string>(content?.conceptNotice ?? "");
 
-  const dirty = nav.dirty || ticker.dirty || hashtags.dirty || perks.dirty || notice.dirty;
+  const dirty = nav.dirty || ticker.dirty || hashtags.dirty || perks.dirty;
   const commit = () => {
     nav.commit(nav.draft);
     ticker.commit(ticker.draft);
     hashtags.commit(hashtags.draft);
     perks.commit(perks.draft);
-    notice.commit(notice.draft);
   };
   const { saving, save } = useSave(
     dirty,
@@ -267,7 +265,6 @@ export function TextsTab() {
         ticker: splitList(ticker.draft),
         hashtags: splitList(hashtags.draft),
         eventPerks: splitList(perks.draft),
-        conceptNotice: notice.draft,
       });
     },
     "Textos atualizados — o site já mostra as alterações.",
@@ -280,7 +277,6 @@ export function TextsTab() {
     ticker.reset();
     hashtags.reset();
     perks.reset();
-    notice.reset();
   };
 
   return (
@@ -329,9 +325,6 @@ export function TextsTab() {
         </Field>
         <Field label="Vantagens em “Momentos”">
           <Textarea value={perks.draft} onChange={perks.update} rows={5} />
-        </Field>
-        <Field label="Nota de conceito" hint="Aviso legal que aparece no mapa e no rodapé.">
-          <Textarea value={notice.draft} onChange={notice.update} rows={5} />
         </Field>
       </div>
 

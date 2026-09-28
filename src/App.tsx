@@ -13,10 +13,13 @@ import { Events } from "@/components/Events";
 import { LocationSection } from "@/components/LocationSection";
 import { Footer } from "@/components/Footer";
 import { ReservePanel } from "@/components/ReservePanel";
+import { CookieBanner } from "@/components/CookieBanner";
 import { Grain } from "@/components/primitives";
 import { useSite } from "@/content/context";
 import { reduced, useSmoothScroll } from "@/lib/anim";
 import { applySeo } from "@/lib/seo-dom";
+import { useConsent } from "@/lib/consent";
+import { mountAnalytics, unmountAnalytics } from "@/lib/analytics";
 
 /* ————— cinematic curtain: no asset waiting, just a beat of anticipation ————— */
 function Curtain() {
@@ -117,6 +120,7 @@ function MobileBar({ onReserve }: { onReserve: () => void }) {
 export default function App() {
   useSmoothScroll();
   const { content } = useSite();
+  const { consent } = useConsent();
   const [reserve, setReserve] = useState<{ open: boolean; subject?: string }>({ open: false });
   const root = useRef<HTMLDivElement>(null);
 
@@ -126,6 +130,12 @@ export default function App() {
   useEffect(() => {
     applySeo(content);
   }, [content]);
+
+  // a medição só entra com consentimento e sai quando ele é retirado
+  useEffect(() => {
+    if (consent?.analytics) mountAnalytics();
+    else unmountAnalytics();
+  }, [consent?.analytics]);
 
   useEffect(() => {
     // keep ScrollTrigger honest once webfonts + above-the-fold images have landed
@@ -161,6 +171,7 @@ export default function App() {
         subject={reserve.subject}
         onClose={() => setReserve({ open: false })}
       />
+      <CookieBanner />
     </div>
   );
 }
